@@ -16,11 +16,12 @@ import java.io.IOException;
 public class AuthServlet extends HttpServlet {
 
     private AuthService authService;
+    private JsonDataService dataService;
 
     @Override
     public void init() throws ServletException {
         String basePath = getServletContext().getRealPath("/WEB-INF/classes");
-        JsonDataService dataService = JsonDataService.getInstance(basePath);
+        this.dataService = JsonDataService.getInstance(basePath);
         this.authService = new AuthService(dataService);
     }
 
@@ -58,24 +59,33 @@ public class AuthServlet extends HttpServlet {
             return;
         }
 
+        String clientIp = req.getRemoteAddr();
+
         User user = authService.findByEmailAndPassword(email, password);
         if (user == null) {
+            dataService.addLog("Failed Login", "error", email, null,
+                    "Invalid credentials for " + email, clientIp);
             JsonUtil.writeError(resp, 401, "Invalid email or password");
             return;
         }
 
         if (role != null && !role.isBlank() && !user.getRole().equals(role)) {
+            dataService.addLog("Failed Login", "warning", email, user.getId(),
+                    "Role mismatch: requested " + role + ", actual " + user.getRole(), clientIp);
             JsonUtil.writeError(resp, 403, "Role mismatch");
             return;
         }
 
         if ("suspended".equals(user.getStatus())) {
+            dataService.addLog("Failed Login", "warning", email, user.getId(),
+                    "Suspended account attempted login.", clientIp);
             JsonUtil.writeError(resp, 403, "Account has been suspended");
             return;
         }
-   
 
         authService.recordLogin(user);
+        dataService.addLog("User Login", "info", user.getEmail(), user.getId(),
+                "Successful login as " + user.getRole() + ".", clientIp);
 
         HttpSession session = req.getSession(true);
         session.setAttribute("userId", user.getId());
@@ -116,7 +126,9 @@ public class AuthServlet extends HttpServlet {
             JsonUtil.writeError(resp, 409, "Email is already registered");
             return;
         }
-   
+
+        dataService.addLog("User Signup", "success", user.getEmail(), user.getId(),
+                "New " + user.getRole() + " account created: " + user.getName(), req.getRemoteAddr());
 
         HttpSession session = req.getSession(true);
         session.setAttribute("userId", user.getId());
@@ -133,9 +145,16 @@ public class AuthServlet extends HttpServlet {
 
     private void handleLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
+        String logoutUser = null;
+        String logoutUserId = null;
         if (session != null) {
+            logoutUser = (String) session.getAttribute("userName");
+            logoutUserId = (String) session.getAttribute("userId");
             session.invalidate();
         }
+        dataService.addLog("User Logout", "info",
+                logoutUser != null ? logoutUser : "Unknown", logoutUserId,
+                "User logged out.", req.getRemoteAddr());
         JsonObject result = new JsonObject();
         result.addProperty("message", "Logout successfully");
         JsonUtil.writeJson(resp, result);

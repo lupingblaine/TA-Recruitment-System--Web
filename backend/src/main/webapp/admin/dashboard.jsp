@@ -13,26 +13,24 @@
     <div class="card fade-in"><div class="p-6"><div class="flex justify-between items-start">
       <div><p class="text-sm font-medium text-zinc-500">Total Applicants</p><p class="text-3xl font-bold text-zinc-900 mt-2" id="statApplicants">-</p></div>
       <div class="stat-icon"><i data-lucide="users" class="h-5 w-5"></i></div>
-    </div><p class="mt-4 text-xs text-zinc-400">Users with role &quot;applicant&quot; in <code class="text-zinc-500">data.json</code></p></div></div>
+    </div><div class="mt-4 text-sm text-zinc-400" id="statApplicantsNote">Users with applicant role</div></div></div>
     <div class="card fade-in"><div class="p-6"><div class="flex justify-between items-start">
       <div><p class="text-sm font-medium text-zinc-500">Active Postings</p><p class="text-3xl font-bold text-zinc-900 mt-2" id="statPostings">-</p></div>
       <div class="stat-icon"><i data-lucide="briefcase" class="h-5 w-5"></i></div>
-    </div><p class="mt-4 text-xs text-zinc-400">Jobs with status &quot;active&quot;</p></div></div>
+    </div><div class="mt-4 text-sm text-zinc-400" id="statPostingsNote">Jobs with active status</div></div></div>
     <div class="card fade-in"><div class="p-6"><div class="flex justify-between items-start">
-      <div><p class="text-sm font-medium text-zinc-500">Offer rate (apps)</p><p class="text-3xl font-bold text-zinc-900 mt-2" id="statOffers">-</p></div>
+      <div><p class="text-sm font-medium text-zinc-500">Offer Rate</p><p class="text-3xl font-bold text-zinc-900 mt-2" id="statOffers">-</p></div>
       <div class="stat-icon"><i data-lucide="trending-up" class="h-5 w-5"></i></div>
-    </div><p class="mt-4 text-xs text-zinc-400">Applications with status &quot;offer&quot; &divide; total applications</p></div></div>
+    </div><div class="mt-4 text-sm text-zinc-400" id="statOffersNote">Offer / total applications</div></div></div>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <div class="card p-6">
-      <h3 class="text-lg font-bold text-zinc-900">Application volume by week</h3>
-      <p class="text-sm text-zinc-500 mt-1 mb-6">New applications per week by <span class="font-medium text-zinc-600">appliedAt</span> (last 4 weeks, Monday-based weeks, anchored to the latest submission).</p>
+      <h3 class="text-lg font-bold text-zinc-900 mb-6">Application Trends</h3>
       <div class="h-72"><canvas id="areaChart"></canvas></div>
     </div>
     <div class="card p-6">
-      <h3 class="text-lg font-bold text-zinc-900">Applications per job</h3>
-      <p class="text-sm text-zinc-500 mt-1 mb-6">Count of applications linked to each job (<code class="text-zinc-500">jobId</code>), labelled by module code.</p>
+      <h3 class="text-lg font-bold text-zinc-900 mb-6">Applicants per Module (jobs)</h3>
       <div class="h-72"><canvas id="barChart"></canvas></div>
     </div>
   </div>
@@ -68,7 +66,7 @@ const areaChart = new Chart(areaCtx, {
   data: {
     labels: [],
     datasets: [{
-      label: 'New applications',
+      label: 'Applicants',
       data: [],
       fill: true,
       backgroundColor: 'rgba(24,24,27,0.08)',
@@ -88,7 +86,7 @@ const barChart = new Chart(barCtx, {
   data: {
     labels: [],
     datasets: [{
-      label: 'Applications',
+      label: 'Applicants',
       data: [],
       backgroundColor: '#18181b',
       borderRadius: 4,

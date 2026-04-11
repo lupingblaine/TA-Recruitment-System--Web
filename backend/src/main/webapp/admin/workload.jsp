@@ -5,7 +5,10 @@
 <div class="space-y-8 max-w-6xl mx-auto">
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Workload</h1>
+      <h1 class="text-3xl font-bold tracking-tight text-zinc-900 flex items-center gap-2">
+        Workload Intelligence
+        <span class="badge bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 text-xs px-2 py-1">AI Assisted</span>
+      </h1>
       <p class="text-zinc-500 mt-2">Monitor TA workload distribution and prevent burnout or unfair allocation.</p>
     </div>
   </div>

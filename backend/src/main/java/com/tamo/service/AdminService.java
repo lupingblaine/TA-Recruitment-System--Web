@@ -2,7 +2,6 @@ package com.tamo.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.tamo.model.Application;
 import com.tamo.model.DataStore;
 import com.tamo.model.Department;
 import com.tamo.model.Job;
@@ -14,22 +13,15 @@ import com.tamo.model.User;
 import com.tamo.model.WorkloadAssignment;
 import com.tamo.util.JsonUtil;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class AdminService {
 
     private static final List<String> VALID_ROLES = Arrays.asList("applicant", "organiser", "admin");
-
-    /** Weekly buckets for dashboard line chart (fewer points, all from real application dates). */
-    private static final int APPLICATION_TREND_WEEKS = 4;
-
-    private static final DateTimeFormatter TREND_WEEK_LABEL = DateTimeFormatter.ofPattern("d MMM", Locale.UK);
 
     private final JsonDataService dataService;
 
@@ -53,7 +45,8 @@ public class AdminService {
         result.addProperty("activePostings", activePostings);
         result.addProperty("acceptanceRate", acceptanceRate);
 
-        result.add("trendData", buildWeeklyApplicationTrend(data));
+        JsonArray trendData = buildWeeklyApplicationTrend(data);
+        result.add("trendData", trendData);
 
         JsonArray moduleStats = new JsonArray();
         for (Job j : data.getJobs()) {
@@ -530,57 +523,6 @@ public class AdminService {
         return result;
     }
 
-    /**
-     * One point per calendar week: count of applications whose {@code appliedAt} falls in that week.
-     * Uses the Monday-start week containing the latest {@code appliedAt} (or today if none), then the 3 prior weeks.
-     */
-    private JsonArray buildWeeklyApplicationTrend(DataStore data) {
-        JsonArray trendData = new JsonArray();
-        List<Application> apps = data.getApplications();
-        LocalDate today = LocalDate.now();
-
-        LocalDate latestSubmitted = apps.stream()
-                .map(a -> parseApplicationSubmittedDate(a.getAppliedAt()))
-                .filter(Objects::nonNull)
-                .max(Comparator.naturalOrder())
-                .orElse(today);
-
-        LocalDate anchorMonday = latestSubmitted.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate oldestMonday = anchorMonday.minusWeeks(APPLICATION_TREND_WEEKS - 1);
-
-        for (int i = 0; i < APPLICATION_TREND_WEEKS; i++) {
-            LocalDate weekStart = oldestMonday.plusWeeks(i);
-            LocalDate weekEnd = weekStart.plusWeeks(1);
-            long count = apps.stream()
-                    .map(a -> parseApplicationSubmittedDate(a.getAppliedAt()))
-                    .filter(d -> d != null && !d.isBefore(weekStart) && d.isBefore(weekEnd))
-                    .count();
-            JsonObject point = new JsonObject();
-            point.addProperty("name", weekStart.format(TREND_WEEK_LABEL));
-            point.addProperty("applicants", count);
-            trendData.add(point);
-        }
-        return trendData;
-    }
-
-    private static LocalDate parseApplicationSubmittedDate(String appliedAt) {
-        if (appliedAt == null || appliedAt.isBlank()) {
-            return null;
-        }
-        String s = appliedAt.trim();
-        try {
-            if (s.contains("T")) {
-                return LocalDateTime.parse(s, DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate();
-            }
-            if (s.length() >= 10) {
-                return LocalDate.parse(s.substring(0, 10));
-            }
-        } catch (Exception ignored) {
-            // fall through
-        }
-        return null;
-    }
-
     private JsonObject buildSafeUser(User user) {
         JsonObject obj = new JsonObject();
         obj.addProperty("id", user.getId());
@@ -592,5 +534,46 @@ public class AdminService {
         obj.addProperty("lastLogin", user.getLastLogin());
         obj.addProperty("createdAt", user.getCreatedAt());
         return obj;
+    }
+
+    /**
+     * Build weekly application trend from real appliedAt dates.
+     * Groups applications by ISO week and returns the most recent 6 weeks.
+     */
+    private JsonArray buildWeeklyApplicationTrend(DataStore data) {
+        JsonArray trendData = new JsonArray();
+
+        Map<LocalDate, Long> weekCounts = new TreeMap<>();
+
+        for (com.tamo.model.Application app : data.getApplications()) {
+            String appliedAt = app.getAppliedAt();
+            if (appliedAt == null || appliedAt.isBlank()) continue;
+            try {
+                LocalDate date = LocalDate.parse(appliedAt.substring(0, 10));
+                LocalDate weekStart = date.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+                weekCounts.merge(weekStart, 1L, Long::sum);
+            } catch (Exception ignored) {}
+        }
+
+        if (weekCounts.isEmpty()) {
+            JsonObject point = new JsonObject();
+            point.addProperty("name", "No data");
+            point.addProperty("applicants", 0);
+            trendData.add(point);
+            return trendData;
+        }
+
+        DateTimeFormatter labelFmt = DateTimeFormatter.ofPattern("MM/dd");
+        List<Map.Entry<LocalDate, Long>> entries = new ArrayList<>(weekCounts.entrySet());
+        int start = Math.max(0, entries.size() - 6);
+        for (int i = start; i < entries.size(); i++) {
+            Map.Entry<LocalDate, Long> e = entries.get(i);
+            JsonObject point = new JsonObject();
+            point.addProperty("name", "Week " + e.getKey().format(labelFmt));
+            point.addProperty("applicants", e.getValue());
+            trendData.add(point);
+        }
+
+        return trendData;
     }
 }
