@@ -41,8 +41,8 @@ async function loadApplications() {
     container.innerHTML = apps.map(app => {
       const isRejected = app.status === 'rejected';
       const currentIdx = isRejected ? STEPS.length - 1 : getStepIndex(app.status);
-      const statusBadge = isRejected ? 'badge-danger' : (app.status === 'interview' ? 'badge-warning' : 'badge-neutral');
-      const statusText = isRejected ? 'Rejected' : (app.status === 'interview' ? 'Action Required' : 'In Progress');
+      const statusBadge = isRejected ? 'badge-danger' : (app.status === 'interview' ? 'badge-warning' : (app.status === 'offer' ? 'badge-success' : 'badge-neutral'));
+      const statusText = isRejected ? 'Rejected' : (app.status === 'interview' ? 'Action Required' : (app.status === 'offer' ? 'Offer Received' : 'In Progress'));
 
       let timelineHTML = '<div class="relative"><div class="absolute top-4 left-0 w-full h-0.5 bg-zinc-200 hidden md:block"></div>' +
         '<div class="absolute top-4 left-0 h-0.5 bg-zinc-900 transition-all duration-1000 ease-out hidden md:block" style="width:' + (currentIdx / (STEPS.length - 1) * 100) + '%"></div>' +
@@ -83,7 +83,7 @@ async function loadApplications() {
           '<div class="space-y-2">' +
             '<div class="flex items-center gap-3"><span class="badge ' + statusBadge + '">' + statusText + '</span>' +
               '<span class="text-sm font-medium text-zinc-500">Applied ' + (app.appliedDate || '') + '</span></div>' +
-            '<h3 class="text-xl font-bold text-zinc-900 mt-2">' + (app.jobTitle || app.jobId) + '</h3>' +
+            '<h3 class="text-xl font-bold text-zinc-900 mt-2">' + (app.role || app.jobId) + '</h3>' +
             '<p class="text-zinc-500">' + (app.moduleCode || '') + '</p>' +
           '</div>' +
           actionsHTML +
