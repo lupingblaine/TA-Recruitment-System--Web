@@ -40,6 +40,13 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <div class="lg:col-span-2 space-y-6">
+      <h2 class="text-xl font-semibold text-zinc-900">Weekly Schedule</h2>
+      <div class="card">
+        <div class="p-4" id="weeklySchedule">
+          <div class="text-center text-zinc-400 text-sm py-8">Loading...</div>
+        </div>
+      </div>
+
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-zinc-900">Recent Applications</h2>
         <a href="<%= request.getContextPath() %>/applicant/applications.jsp" class="btn btn-ghost text-zinc-500 hover:text-zinc-900">View all</a>
@@ -54,31 +61,12 @@
     <div class="space-y-6">
       <h2 class="text-xl font-semibold text-zinc-900">Your Workload Tracker</h2>
       <div class="card bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-100">
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-              <i data-lucide="trending-up" class="h-5 w-5 text-indigo-600"></i>
-              <span class="font-semibold text-indigo-900">Fall 2026 Term</span>
-            </div>
-            <span class="badge bg-white/50 text-indigo-700 border-indigo-200">Healthy Load</span>
-          </div>
-          <div class="space-y-2 mb-4">
-            <div class="flex justify-between text-sm">
-              <span class="text-indigo-800/70">Estimated Commitment</span>
-              <span class="font-bold text-indigo-900" id="workloadHrs">12 / 20 hrs</span>
-            </div>
-            <div class="h-2 w-full bg-indigo-200/50 rounded-full overflow-hidden">
-              <div class="h-full bg-indigo-500 rounded-full transition-all duration-1000" id="workloadBar" style="width:60%"></div>
-            </div>
-          </div>
-          <div class="bg-white/60 rounded-lg p-3 text-sm flex gap-3 text-indigo-900">
-            <i data-lucide="info" class="h-5 w-5 shrink-0 text-indigo-500"></i>
-            <p>You can safely take on <strong>1 more standard TA module</strong> (approx 8 hrs/week) before reaching the recommended maximum.</p>
-          </div>
+        <div class="p-6" id="workloadCard">
+          <div class="text-center text-zinc-400 text-sm py-2">Loading...</div>
         </div>
       </div>
 
-      <h2 class="text-xl font-semibold text-zinc-900 mt-8">Upcoming Deadlines</h2>
+      <h2 class="text-xl font-semibold text-zinc-900 mt-4">Upcoming Deadlines</h2>
       <div class="card">
         <div class="p-6 space-y-6" id="deadlines">
           <div class="text-center text-zinc-400 text-sm">Loading...</div>
@@ -91,6 +79,14 @@
 <jsp:include page="/common/layout-bottom.jsp"/>
 <script>
 const ctx = document.querySelector('meta[name="ctx"]').content;
+let currentWeekOffset = 0;
+let cachedSchedule = [];
+
+function shiftWeek(delta) {
+  currentWeekOffset += delta;
+  renderSchedule(cachedSchedule);
+  lucide.createIcons();
+}
 
 async function loadDashboard() {
   try {
@@ -115,8 +111,10 @@ async function loadDashboard() {
           '<div class="flex items-center gap-4"><span class="badge ' + badgeClass + '">' + app.status + '</span>' +
           '<i data-lucide="chevron-right" class="h-5 w-5 text-zinc-300 group-hover:text-zinc-500 transition-colors"></i></div></a>';
       }).join('');
-      lucide.createIcons();
     }
+
+    renderWorkload(data.workload);
+    renderSchedule(data.schedule || []);
 
     const dl = document.getElementById('deadlines');
     if (jobs.length === 0) {
@@ -128,9 +126,183 @@ async function loadDashboard() {
         '<p class="text-sm text-zinc-500 mt-1">Closes ' + (j.deadline || 'TBD') + '</p></div></div>'
       ).join('') + '<a href="' + ctx + '/applicant/jobs.jsp" class="btn btn-outline w-full mt-4">Browse more jobs</a>';
     }
+
+    lucide.createIcons();
   } catch (e) {
-    console.error('加载仪表盘失败', e);
+    console.error('Failed to load dashboard', e);
   }
 }
+
+function renderWorkload(wl) {
+  const el = document.getElementById('workloadCard');
+  if (!wl) { el.innerHTML = '<p class="text-sm text-zinc-400 text-center">No workload data</p>'; return; }
+
+  const pct = wl.max > 0 ? Math.min(Math.round(wl.current / wl.max * 100), 100) : 0;
+  const barColor = wl.status === 'Overloaded' ? 'bg-red-500' : wl.status === 'Near Capacity' ? 'bg-amber-500' : 'bg-indigo-500';
+  const badgeBg = wl.status === 'Overloaded' ? 'bg-red-100 text-red-700 border-red-200' : wl.status === 'Near Capacity' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white/50 text-indigo-700 border-indigo-200';
+
+  const termLabel = (wl.assignments && wl.assignments.length > 0) ? wl.assignments[0].term : 'Current Term';
+
+  let html = '<div class="flex items-center justify-between mb-4">' +
+    '<div class="flex items-center gap-2"><i data-lucide="trending-up" class="h-5 w-5 text-indigo-600"></i>' +
+    '<span class="font-semibold text-indigo-900">' + termLabel + '</span></div>' +
+    '<span class="badge ' + badgeBg + '">' + wl.status + '</span></div>';
+
+  html += '<div class="space-y-2 mb-4">' +
+    '<div class="flex justify-between text-sm"><span class="text-indigo-800/70">Estimated Commitment</span>' +
+    '<span class="font-bold text-indigo-900">' + wl.current + ' / ' + wl.max + ' hrs</span></div>' +
+    '<div class="h-2 w-full bg-indigo-200/50 rounded-full overflow-hidden">' +
+    '<div class="h-full ' + barColor + ' rounded-full transition-all duration-1000" style="width:' + pct + '%"></div></div></div>';
+
+  if (wl.assignments && wl.assignments.length > 0) {
+    html += '<div class="space-y-2 mb-4">';
+    wl.assignments.forEach(function(a) {
+      const aPct = wl.max > 0 ? Math.round(a.hoursPerWeek / wl.max * 100) : 0;
+      html += '<div class="flex items-center justify-between text-sm">' +
+        '<span class="text-indigo-900 font-medium">' + a.moduleCode + '</span>' +
+        '<span class="text-indigo-800/70">' + a.hoursPerWeek + ' hrs/wk</span></div>' +
+        '<div class="h-1.5 w-full bg-indigo-100 rounded-full overflow-hidden mb-1">' +
+        '<div class="h-full bg-indigo-400 rounded-full" style="width:' + aPct + '%"></div></div>';
+    });
+    html += '</div>';
+  }
+
+  const canTake = Math.floor(wl.remaining / 8);
+  if (wl.remaining > 0) {
+    html += '<div class="bg-white/60 rounded-lg p-3 text-sm flex gap-3 text-indigo-900">' +
+      '<i data-lucide="info" class="h-5 w-5 shrink-0 text-indigo-500"></i>' +
+      '<p>You can safely take on <strong>' + (canTake > 0 ? canTake : 'no') + ' more standard TA module' + (canTake !== 1 ? 's' : '') +
+      '</strong> (approx 8 hrs/wk each) before reaching the recommended maximum.</p></div>';
+  } else {
+    html += '<div class="bg-red-50 rounded-lg p-3 text-sm flex gap-3 text-red-800">' +
+      '<i data-lucide="alert-triangle" class="h-5 w-5 shrink-0 text-red-500"></i>' +
+      '<p><strong>You have reached or exceeded your maximum weekly hours.</strong> Consider reducing commitments before taking on new modules.</p></div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function renderSchedule(schedule) {
+  cachedSchedule = schedule;
+  const el = document.getElementById('weeklySchedule');
+  const interviews = schedule.filter(function(s) { return s.type === 'interview'; });
+  const duties = schedule.filter(function(s) { return s.type === 'duty'; });
+
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) + (currentWeekOffset * 7));
+
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  const weekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    weekDates.push(d);
+  }
+
+  const eventsByDay = {};
+  for (let i = 0; i < 7; i++) eventsByDay[i] = [];
+
+  interviews.forEach(function(iv) {
+    if (!iv.date) return;
+    const evDate = new Date(iv.date);
+    for (let i = 0; i < 7; i++) {
+      if (weekDates[i].toDateString() === evDate.toDateString()) {
+        eventsByDay[i].push({ type: 'interview', data: iv });
+        break;
+      }
+    }
+  });
+
+  duties.forEach(function(d) {
+    for (let i = 0; i < 7; i++) {
+      eventsByDay[i].push({ type: 'duty', data: d });
+    }
+  });
+
+  const isCurrentWeek = currentWeekOffset === 0;
+  let html = '<div class="flex items-center justify-between mb-4">' +
+    '<div class="flex items-center gap-1">' +
+    '<button onclick="shiftWeek(-1)" class="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors"><i data-lucide="chevron-left" class="h-5 w-5 text-zinc-500"></i></button>' +
+    '<button onclick="shiftWeek(1)" class="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors"><i data-lucide="chevron-right" class="h-5 w-5 text-zinc-500"></i></button>' +
+    '</div>' +
+    '<span class="font-semibold text-zinc-800">' + monthNames[monday.getMonth()] + ' ' + monday.getFullYear() + '</span>' +
+    (isCurrentWeek ? '<div class="w-16"></div>' : '<button onclick="currentWeekOffset=0;renderSchedule(cachedSchedule);lucide.createIcons();" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Today</button>') +
+    '</div>';
+
+  html += '<div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-zinc-500 mb-2">';
+  weekDays.forEach(function(day) { html += '<div>' + day + '</div>'; });
+  html += '</div>';
+
+  html += '<div class="grid grid-cols-7 gap-1">';
+  weekDates.forEach(function(date, idx) {
+    const isToday = date.toDateString() === today.toDateString();
+    const events = eventsByDay[idx];
+    const hasInterview = events.some(function(e) { return e.type === 'interview'; });
+    const hasDuty = events.some(function(e) { return e.type === 'duty'; });
+
+    html += '<div class="relative group">';
+    html += '<div class="aspect-square flex flex-col items-center justify-center rounded-lg border transition-all cursor-pointer ' +
+      (isToday ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50/50') + '">';
+    html += '<span class="text-sm font-semibold">' + date.getDate() + '</span>';
+    
+    if (hasInterview || hasDuty) {
+      html += '<div class="flex gap-0.5 mt-1">';
+      if (hasDuty) html += '<span class="w-1.5 h-1.5 rounded-full ' + (isToday ? 'bg-white/70' : 'bg-indigo-400') + '"></span>';
+      if (hasInterview) html += '<span class="w-1.5 h-1.5 rounded-full ' + (isToday ? 'bg-amber-300' : 'bg-amber-500') + '"></span>';
+      html += '</div>';
+    }
+    html += '</div>';
+
+    if (events.length > 0) {
+      html += '<div class="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-20 hidden group-hover:block w-48">' +
+        '<div class="bg-white rounded-lg shadow-lg border border-zinc-200 p-3 text-left">';
+      events.forEach(function(ev) {
+        if (ev.type === 'duty') {
+          html += '<div class="flex items-center gap-2 text-xs mb-2 last:mb-0">' +
+            '<span class="w-2 h-2 rounded-full bg-indigo-400 shrink-0"></span>' +
+            '<span class="text-zinc-700"><strong>' + ev.data.moduleCode + '</strong> TA Duty</span></div>';
+        } else {
+          html += '<div class="flex items-center gap-2 text-xs mb-2 last:mb-0">' +
+            '<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>' +
+            '<span class="text-zinc-700"><strong>' + (ev.data.moduleCode || '') + '</strong> Interview ' +
+            (ev.data.startTime ? ev.data.startTime : '') + '</span></div>';
+        }
+      });
+      html += '</div></div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  html += '<div class="flex items-center gap-4 mt-4 pt-4 border-t border-zinc-100 text-xs text-zinc-500">' +
+    '<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>TA Duty</div>' +
+    '<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>Interview</div></div>';
+
+  if (interviews.length > 0) {
+    html += '<div class="mt-4 pt-4 border-t border-zinc-100">' +
+      '<h4 class="text-xs font-semibold text-zinc-600 uppercase tracking-wide mb-3">Upcoming Interviews</h4>' +
+      '<div class="space-y-2">';
+    interviews.slice(0, 3).forEach(function(iv) {
+      const dateStr = iv.date || 'TBD';
+      const dateParts = dateStr.split('-');
+      const timeStr = iv.startTime && iv.endTime ? iv.startTime + ' – ' + iv.endTime : iv.startTime || '';
+      html += '<div class="flex items-center gap-3 p-2 rounded-lg bg-amber-50/80 border border-amber-100">' +
+        '<div class="h-9 w-9 rounded-lg bg-amber-500 text-white flex flex-col items-center justify-center text-xs font-bold shrink-0 leading-tight">' +
+        '<span>' + dateParts[2] + '</span>' +
+        '<span class="text-[9px] font-normal opacity-80">' + monthNames[parseInt(dateParts[1], 10) - 1] + '</span></div>' +
+        '<div class="flex-1 min-w-0">' +
+        '<p class="font-medium text-zinc-900 text-sm truncate">' + (iv.moduleCode || '') + ' ' + (iv.moduleName || 'Interview') + '</p>' +
+        '<p class="text-xs text-zinc-500">' + timeStr + (iv.interviewType === 'video' ? ' • Video' : '') + '</p></div></div>';
+    });
+    html += '</div></div>';
+  }
+
+  el.innerHTML = html;
+}
+
 loadDashboard();
 </script>

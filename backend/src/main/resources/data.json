@@ -77,6 +77,19 @@
       "status": "active",
       "lastLogin": "2026-04-11T17:44:49.32121",
       "createdAt": "2026-07-01T00:00:00"
+    },
+    {
+      "id": "u007",
+      "name": "TYF",
+      "email": "yifant584@gmail.com",
+      "password": "123456",
+      "phone": null,
+      "role": "applicant",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-04-11T18:04:15.858805",
+      "createdAt": "2026-04-11T18:04:15.858193"
     }
   ],
   "profiles": [
@@ -89,6 +102,7 @@
       "gpa": 3.8,
       "maxGpa": 4.0,
       "profileCompletion": 85,
+      "skills": null,
       "coursework": [
         {
           "code": "CS201",
@@ -144,6 +158,7 @@
       "gpa": 3.5,
       "maxGpa": 4.0,
       "profileCompletion": 60,
+      "skills": null,
       "coursework": [
         {
           "code": "CS101",
@@ -162,6 +177,22 @@
           "uploadedAt": "2026-10-05T00:00:00"
         }
       ],
+      "maxWeeklyHours": 20,
+      "currentWeeklyHours": 0
+    },
+    {
+      "id": "p003",
+      "userId": "u007",
+      "studentId": "",
+      "degree": "",
+      "year": 0,
+      "gpa": 0.0,
+      "maxGpa": 4.0,
+      "profileCompletion": 0,
+      "skills": [],
+      "coursework": [],
+      "experience": [],
+      "documents": [],
       "maxWeeklyHours": 20,
       "currentWeeklyHours": 0
     }
@@ -669,6 +700,14 @@
       "taUserId": "u001",
       "moduleCode": "CS201",
       "hoursPerWeek": 10,
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "w002",
+      "taUserId": "u001",
+      "moduleCode": "MATH101",
+      "hoursPerWeek": 6,
       "term": "Fall 2026",
       "status": "active"
     }

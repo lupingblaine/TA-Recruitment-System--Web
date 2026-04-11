@@ -9,6 +9,9 @@ import com.tamo.model.Profile;
 import com.tamo.model.User;
 import com.tamo.util.JsonUtil;
 
+import com.tamo.model.Interview;
+import com.tamo.model.WorkloadAssignment;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -61,11 +64,81 @@ public class ApplicantService {
                 });
         result.add("recentApplications", recentApps);
 
-        if (profile != null) {
+        // ── Workload: computed from real WorkloadAssignment data ──
+        {
+            List<WorkloadAssignment> assignments = (data.getWorkloadAssignments() != null
+                    ? data.getWorkloadAssignments() : Collections.<WorkloadAssignment>emptyList())
+                    .stream()
+                    .filter(w -> w.getTaUserId().equals(userId) && "active".equals(w.getStatus()))
+                    .collect(Collectors.toList());
+
+            int totalHours = assignments.stream().mapToInt(WorkloadAssignment::getHoursPerWeek).sum();
+            int maxHours = profile != null ? profile.getMaxWeeklyHours() : 20;
+            int remaining = maxHours - totalHours;
+
+            String loadStatus;
+            if (totalHours >= maxHours) loadStatus = "Overloaded";
+            else if (totalHours >= maxHours * 0.8) loadStatus = "Near Capacity";
+            else loadStatus = "Healthy Load";
+
             JsonObject workload = new JsonObject();
-            workload.addProperty("current", profile.getCurrentWeeklyHours());
-            workload.addProperty("max", profile.getMaxWeeklyHours());
+            workload.addProperty("current", totalHours);
+            workload.addProperty("max", maxHours);
+            workload.addProperty("remaining", Math.max(remaining, 0));
+            workload.addProperty("status", loadStatus);
+
+            JsonArray assignmentList = new JsonArray();
+            assignments.forEach(w -> {
+                JsonObject wo = new JsonObject();
+                wo.addProperty("moduleCode", w.getModuleCode());
+                wo.addProperty("hoursPerWeek", w.getHoursPerWeek());
+                wo.addProperty("term", w.getTerm());
+                assignmentList.add(wo);
+            });
+            workload.add("assignments", assignmentList);
             result.add("workload", workload);
+        }
+
+        // ── Schedule: upcoming interviews for this TA ──
+        {
+            List<Interview> interviews = (data.getInterviews() != null
+                    ? data.getInterviews() : Collections.<Interview>emptyList())
+                    .stream()
+                    .filter(iv -> userId.equals(iv.getCandidateId()))
+                    .filter(iv -> !"cancelled".equals(iv.getStatus()) && !"completed".equals(iv.getStatus()))
+                    .sorted(Comparator.comparing(Interview::getDate, Comparator.nullsLast(Comparator.naturalOrder())))
+                    .collect(Collectors.toList());
+
+            JsonArray schedule = new JsonArray();
+            interviews.forEach(iv -> {
+                JsonObject entry = new JsonObject();
+                entry.addProperty("type", "interview");
+                entry.addProperty("moduleCode", iv.getModuleCode());
+                entry.addProperty("moduleName", iv.getModuleName());
+                entry.addProperty("date", iv.getDate());
+                entry.addProperty("startTime", iv.getStartTime());
+                entry.addProperty("endTime", iv.getEndTime());
+                entry.addProperty("interviewType", iv.getType());
+                entry.addProperty("location", iv.getLocation());
+                schedule.add(entry);
+            });
+
+            // Also add TA duty slots from workload assignments as recurring schedule items
+            List<WorkloadAssignment> activeAssignments = (data.getWorkloadAssignments() != null
+                    ? data.getWorkloadAssignments() : Collections.<WorkloadAssignment>emptyList())
+                    .stream()
+                    .filter(w -> w.getTaUserId().equals(userId) && "active".equals(w.getStatus()))
+                    .collect(Collectors.toList());
+            activeAssignments.forEach(w -> {
+                JsonObject entry = new JsonObject();
+                entry.addProperty("type", "duty");
+                entry.addProperty("moduleCode", w.getModuleCode());
+                entry.addProperty("hoursPerWeek", w.getHoursPerWeek());
+                entry.addProperty("term", w.getTerm());
+                schedule.add(entry);
+            });
+
+            result.add("schedule", schedule);
         }
 
         JsonArray deadlines = new JsonArray();
