@@ -1,0 +1,253 @@
+{
+  "users": [
+    {
+      "id": "u001",
+      "name": "Alex Johnson",
+      "email": "alex.j@university.edu",
+      "password": "hashed_password_1",
+      "phone": "+1 (555) 123-4567",
+      "role": "applicant",
+      "department": "Computer Science",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&h=64",
+      "status": "active",
+      "lastLogin": "2026-10-15T14:32:01",
+      "createdAt": "2026-09-01T00:00:00"
+    },
+    {
+      "id": "u002",
+      "name": "Bob Smith",
+      "email": "bob.s@university.edu",
+      "password": "hashed_password_2",
+      "phone": "+1 (555) 234-5678",
+      "role": "applicant",
+      "department": "Computer Science",
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-10-15T10:20:00",
+      "createdAt": "2026-09-02T00:00:00"
+    },
+    {
+      "id": "u003",
+      "name": "Carol White",
+      "email": "carol.w@university.edu",
+      "password": "hashed_password_3",
+      "phone": "+1 (555) 345-6789",
+      "role": "applicant",
+      "department": "Mathematics",
+      "avatar": null,
+      "status": "suspended",
+      "lastLogin": "2026-10-14T09:15:00",
+      "createdAt": "2026-09-03T00:00:00"
+    },
+    {
+      "id": "u005",
+      "name": "Dr. Alan Turing",
+      "email": "alan@university.edu",
+      "password": "hashed_password_5",
+      "phone": "+1 (555) 567-8901",
+      "role": "organiser",
+      "department": "Computer Science",
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-10-15T14:32:01",
+      "createdAt": "2026-08-01T00:00:00"
+    },
+    {
+      "id": "u006",
+      "name": "Dr. Grace Hopper",
+      "email": "grace@university.edu",
+      "password": "hashed_password_6",
+      "phone": "+1 (555) 678-9012",
+      "role": "organiser",
+      "department": "Computer Science",
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-10-08T16:00:00",
+      "createdAt": "2026-08-01T00:00:00"
+    },
+    {
+      "id": "u010",
+      "name": "Admin Root",
+      "email": "admin@university.edu",
+      "password": "hashed_password_10",
+      "phone": "+1 (555) 000-0000",
+      "role": "admin",
+      "department": "System",
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-10-15T09:45:00",
+      "createdAt": "2026-07-01T00:00:00"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "p001",
+      "userId": "u001",
+      "studentId": "S12345678",
+      "degree": "BSc Computer Science",
+      "year": 3,
+      "gpa": 3.8,
+      "maxGpa": 4.0,
+      "profileCompletion": 85,
+      "coursework": [
+        { "code": "CS201", "name": "Data Structures", "grade": "A", "term": "Spring 2025" },
+        { "code": "CS202", "name": "Algorithms", "grade": "A-", "term": "Fall 2025" },
+        { "code": "CS301", "name": "Databases", "grade": "B+", "term": "Spring 2026" }
+      ],
+      "experience": [
+        { "role": "Peer Tutor", "course": "CS101", "term": "Fall 2025" },
+        { "role": "Software Engineering Intern", "company": "TechCorp", "term": "Summer 2026" }
+      ],
+      "documents": [
+        { "id": "doc001", "name": "Alex_CV_2026.pdf", "type": "cv", "size": "2.4 MB", "uploadedAt": "2026-10-13T00:00:00" }
+      ],
+      "maxWeeklyHours": 20,
+      "currentWeeklyHours": 12
+    },
+    {
+      "id": "p002",
+      "userId": "u002",
+      "studentId": "S23456789",
+      "degree": "BSc Computer Science",
+      "year": 2,
+      "gpa": 3.5,
+      "maxGpa": 4.0,
+      "profileCompletion": 60,
+      "coursework": [
+        { "code": "CS101", "name": "Intro to Programming", "grade": "A-", "term": "Fall 2025" }
+      ],
+      "experience": [],
+      "documents": [
+        { "id": "doc002", "name": "Bob_CV_2026.pdf", "type": "cv", "size": "1.2 MB", "uploadedAt": "2026-10-05T00:00:00" }
+      ],
+      "maxWeeklyHours": 20,
+      "currentWeeklyHours": 0
+    }
+  ],
+  "modules": [
+    { "id": "m001", "code": "CS201", "name": "Data Structures and Algorithms", "department": "Computer Science", "organiserId": "u005", "organiserName": "Dr. Alan Turing", "term": "Fall 2026", "status": "active" },
+    { "id": "m002", "code": "CS301", "name": "Database Systems", "department": "Computer Science", "organiserId": "u006", "organiserName": "Dr. Grace Hopper", "term": "Fall 2026", "status": "active" }
+  ],
+  "jobs": [
+    {
+      "id": "j001",
+      "moduleId": "m001",
+      "moduleCode": "CS201",
+      "title": "Teaching Assistant - Data Structures",
+      "description": "As a Teaching Assistant for CS201, you will help students understand data structures and algorithms.",
+      "professor": "Dr. Alan Turing",
+      "department": "Computer Science",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 3,
+      "deadline": "2026-10-15",
+      "status": "active",
+      "tags": ["Java", "Algorithms"],
+      "requirements": [
+        "Minimum grade of A- in CS201 or equivalent",
+        "Strong proficiency in Java or C++"
+      ],
+      "responsibilities": [
+        "Grade weekly programming assignments",
+        "Lead a 2-hour lab session"
+      ],
+      "organiserId": "u005",
+      "createdAt": "2026-09-15T00:00:00"
+    },
+    {
+      "id": "j002",
+      "moduleId": "m001",
+      "moduleCode": "CS201",
+      "title": "Lab Assistant - Data Structures",
+      "description": "Assist in CS201 lab sessions.",
+      "professor": "Dr. Alan Turing",
+      "department": "Computer Science",
+      "type": "Part-time",
+      "hoursPerWeek": 5,
+      "positions": 2,
+      "deadline": "2026-09-01",
+      "status": "closed",
+      "tags": ["Java"],
+      "requirements": ["Grade B+ in CS201"],
+      "responsibilities": ["Supervise lab sessions"],
+      "organiserId": "u005",
+      "createdAt": "2026-08-15T00:00:00"
+    },
+    {
+      "id": "j003",
+      "moduleId": "m002",
+      "moduleCode": "CS301",
+      "title": "Teaching Assistant - Database Systems",
+      "description": "Support students in learning database concepts.",
+      "professor": "Dr. Grace Hopper",
+      "department": "Computer Science",
+      "type": "Part-time",
+      "hoursPerWeek": 8,
+      "positions": 2,
+      "deadline": "2026-11-01",
+      "status": "active",
+      "tags": ["SQL", "Database"],
+      "requirements": ["Grade A in CS301"],
+      "responsibilities": ["Grade SQL assignments", "Hold office hours"],
+      "organiserId": "u006",
+      "createdAt": "2026-09-20T00:00:00"
+    }
+  ],
+  "applications": [
+    {
+      "id": "a001",
+      "jobId": "j001",
+      "applicantId": "u001",
+      "status": "interview",
+      "coverLetter": "Dear Hiring Committee,\n\nI am writing to express my strong interest in the Teaching Assistant position for CS201.",
+      "documentIds": ["doc001"],
+      "matchScore": 92,
+      "riskFlag": null,
+      "aiSummary": "Strong algorithms background. Previously tutored CS101.",
+      "appliedAt": "2026-10-01T00:00:00",
+      "updatedAt": "2026-10-10T00:00:00",
+      "timeline": [
+        { "status": "applied", "date": "2026-10-01", "completed": true },
+        { "status": "review", "date": "2026-10-05", "completed": true },
+        { "status": "shortlisted", "date": "2026-10-10", "completed": true },
+        { "status": "interview", "date": "2026-10-15", "completed": false, "pending": true },
+        { "status": "offer", "date": null, "completed": false }
+      ]
+    }
+  ],
+  "interviews": [
+    {
+      "id": "i001",
+      "applicationId": "a001",
+      "candidateId": "u001",
+      "candidateName": "Alex Johnson",
+      "moduleCode": "CS201",
+      "moduleName": "Data Structures",
+      "date": "2026-10-15",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "video",
+      "location": null,
+      "status": "upcoming",
+      "outcome": null,
+      "organiserId": "u005"
+    }
+  ],
+  "terms": [
+    { "id": "t001", "name": "Fall 2026", "startDate": "2026-08-15", "endDate": "2026-12-20", "status": "active" }
+  ],
+  "departments": [
+    { "id": "d001", "name": "Computer Science", "moduleCount": 14, "status": "active" }
+  ],
+  "logs": [
+    { "id": "EVT-9321", "timestamp": "2026-10-15T14:32:01", "action": "User Login", "actor": "alan@university.edu", "actorId": "u005", "type": "info", "details": "Successful authentication via SSO.", "ip": "192.168.1.10" },
+    { "id": "EVT-9320", "timestamp": "2026-10-15T13:15:44", "action": "Job Posted", "actor": "grace@university.edu", "actorId": "u006", "type": "success", "details": "Created new TA position for CS201.", "ip": "192.168.1.11" },
+    { "id": "EVT-9319", "timestamp": "2026-10-15T11:05:12", "action": "Role Update", "actor": "admin@university.edu", "actorId": "u010", "type": "warning", "details": "Elevated user role to Organiser.", "ip": "192.168.1.12" },
+    { "id": "EVT-9318", "timestamp": "2026-10-15T09:45:00", "action": "Failed Login", "actor": "unknown (IP: 192.168.1.45)", "actorId": null, "type": "error", "details": "Invalid credentials. 3rd attempt.", "ip": "192.168.1.45" },
+    { "id": "EVT-9317", "timestamp": "2026-10-14T16:20:11", "action": "Application Submitted", "actor": "alex.j@university.edu", "actorId": "u001", "type": "info", "details": "Applied for CS201 TA position.", "ip": "192.168.1.20" },
+    { "id": "EVT-9316", "timestamp": "2026-10-14T15:10:05", "action": "System Backup", "actor": "System", "actorId": null, "type": "info", "details": "Automated database snapshot completed.", "ip": "127.0.0.1" }
+  ],
+  "workloadAssignments": [
+    { "id": "w001", "taUserId": "u001", "moduleCode": "CS201", "hoursPerWeek": 10, "term": "Fall 2026", "status": "active" }
+  ]
+}

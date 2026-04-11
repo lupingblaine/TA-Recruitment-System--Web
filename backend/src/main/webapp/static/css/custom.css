@@ -1,0 +1,86 @@
+body { font-family: 'Inter', system-ui, sans-serif; }
+
+.sidebar-link {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.5rem 0.75rem; border-radius: 0.5rem;
+  font-size: 0.875rem; font-weight: 500;
+  color: #71717a; transition: all 0.2s;
+}
+.sidebar-link:hover { color: #18181b; background: rgba(244,244,245,0.5); }
+.sidebar-link.active { color: #18181b; background: #f4f4f5; }
+
+.card {
+  background: white; border: 1px solid rgba(228,228,231,0.6);
+  border-radius: 0.75rem; overflow: hidden;
+}
+.card:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+
+.badge {
+  display: inline-flex; align-items: center; padding: 0.125rem 0.625rem;
+  border-radius: 9999px; font-size: 0.75rem; font-weight: 500;
+  border: 1px solid transparent;
+}
+.badge-success { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+.badge-warning { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+.badge-danger { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+.badge-neutral { background: #f4f4f5; color: #3f3f46; border-color: #e4e4e7; }
+.badge-outline { background: transparent; border-color: #e4e4e7; color: #52525b; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 0.5rem 1rem; border-radius: 0.5rem;
+  font-size: 0.875rem; font-weight: 500;
+  transition: all 0.15s; cursor: pointer; border: none;
+}
+.btn-primary { background: #18181b; color: white; }
+.btn-primary:hover { background: #27272a; }
+.btn-secondary { background: #f4f4f5; color: #18181b; border: 1px solid #e4e4e7; }
+.btn-secondary:hover { background: #e4e4e7; }
+.btn-outline { background: white; color: #18181b; border: 1px solid #e4e4e7; }
+.btn-outline:hover { background: #f4f4f5; }
+.btn-ghost { background: transparent; color: #71717a; }
+.btn-ghost:hover { background: #f4f4f5; color: #18181b; }
+.btn-danger { background: #ef4444; color: white; }
+.btn-danger:hover { background: #dc2626; }
+
+.input {
+  width: 100%; padding: 0.5rem 0.75rem;
+  border: 1px solid #e4e4e7; border-radius: 0.5rem;
+  font-size: 0.875rem; background: white; color: #18181b;
+  transition: all 0.15s; outline: none;
+}
+.input:focus { border-color: #a1a1aa; box-shadow: 0 0 0 2px rgba(24,24,27,0.05); }
+.input::placeholder { color: #a1a1aa; }
+
+.stat-icon {
+  height: 3rem; width: 3rem; border-radius: 9999px;
+  background: #f4f4f5; display: flex; align-items: center; justify-content: center;
+  color: #18181b;
+}
+
+.timeline-line { position: absolute; top: 1rem; left: 0; width: 100%; height: 2px; background: #e4e4e7; }
+.timeline-progress { position: absolute; top: 1rem; left: 0; height: 2px; background: #18181b; transition: width 0.6s ease-out; }
+.timeline-dot {
+  height: 2rem; width: 2rem; border-radius: 9999px;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #e4e4e7; background: white; z-index: 10; flex-shrink: 0;
+}
+.timeline-dot.completed { border-color: #18181b; background: #18181b; color: white; }
+.timeline-dot.pending { border-color: #18181b; color: #18181b; }
+.timeline-dot.error { border-color: #ef4444; background: #ef4444; color: white; }
+
+.kanban-col { min-height: 200px; }
+.kanban-card { cursor: grab; transition: box-shadow 0.15s; }
+.kanban-card:active { cursor: grabbing; }
+.kanban-card.dragging { opacity: 0.5; }
+.drag-over { background: #f0fdf4; border: 2px dashed #86efac; }
+
+.fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.table-row:hover { background: rgba(244,244,245,0.5); }
+.table-row .actions { opacity: 0; transition: opacity 0.15s; }
+.table-row:hover .actions { opacity: 1; }
+
+[data-modal] { display: none; }
+[data-modal].show { display: flex; }

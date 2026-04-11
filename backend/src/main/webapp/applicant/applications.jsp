@@ -1,0 +1,93 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ include file="/common/auth-check.jsp" %>
+<jsp:include page="/common/layout-top.jsp"/>
+
+<div class="space-y-8 max-w-5xl mx-auto">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Application Tracker</h1>
+    <p class="text-zinc-500 mt-2">Track the progress of your submitted TA applications.</p>
+  </div>
+
+  <div class="space-y-6" id="appList">
+    <div class="text-center text-zinc-400 py-12">Loading...</div>
+  </div>
+</div>
+
+<jsp:include page="/common/layout-bottom.jsp"/>
+<script>
+const ctx = document.querySelector('meta[name="ctx"]').content;
+const STEPS = ['applied', 'under_review', 'shortlisted', 'interview', 'hired'];
+const STEP_LABELS = ['Applied', 'Under Review', 'Shortlisted', 'Interview', 'Offer / Rejected'];
+
+function getStepIndex(status) {
+  const s = (status || '').toLowerCase();
+  if (s === 'rejected') return -1;
+  const idx = STEPS.indexOf(s);
+  return idx >= 0 ? idx : 0;
+}
+
+async function loadApplications() {
+  try {
+    const data = await applicantApi.getApplications();
+    const apps = data.applications || data || [];
+    const container = document.getElementById('appList');
+
+    if (apps.length === 0) {
+      container.innerHTML = '<div class="text-center text-zinc-400 py-12">No applications yet. <a href="' + ctx + '/applicant/jobs.jsp" class="text-zinc-900 font-medium hover:underline">Browse jobs</a></div>';
+      return;
+    }
+
+    container.innerHTML = apps.map(app => {
+      const isRejected = app.status === 'rejected';
+      const currentIdx = isRejected ? STEPS.length - 1 : getStepIndex(app.status);
+      const statusBadge = isRejected ? 'badge-danger' : (app.status === 'interview' ? 'badge-warning' : 'badge-neutral');
+      const statusText = isRejected ? 'Rejected' : (app.status === 'interview' ? 'Action Required' : 'In Progress');
+
+      let timelineHTML = '<div class="relative"><div class="absolute top-4 left-0 w-full h-0.5 bg-zinc-200 hidden md:block"></div>' +
+        '<div class="absolute top-4 left-0 h-0.5 bg-zinc-900 transition-all duration-1000 ease-out hidden md:block" style="width:' + (currentIdx / (STEPS.length - 1) * 100) + '%"></div>' +
+        '<div class="flex flex-col md:flex-row justify-between relative z-10 gap-8 md:gap-4">';
+
+      STEPS.forEach((step, i) => {
+        const isCompleted = i < currentIdx || (i === currentIdx && !isRejected && app.status === 'hired');
+        const isPending = i === currentIdx;
+        const isError = isRejected && i === STEPS.length - 1;
+        const label = isError ? 'Rejected' : STEP_LABELS[i];
+
+        let dotClass, dotInner;
+        if (isError) {
+          dotClass = 'border-red-500 bg-red-500 text-white'; dotInner = '<i data-lucide="x" class="h-4 w-4"></i>';
+        } else if (isCompleted) {
+          dotClass = 'border-zinc-900 bg-zinc-900 text-white'; dotInner = '<i data-lucide="check" class="h-4 w-4"></i>';
+        } else if (isPending) {
+          dotClass = 'border-zinc-900 text-zinc-900'; dotInner = '<div class="h-2.5 w-2.5 rounded-full bg-zinc-900"></div>';
+        } else {
+          dotClass = 'border-zinc-200 text-zinc-400'; dotInner = '<div class="h-2 w-2 rounded-full bg-zinc-200"></div>';
+        }
+
+        timelineHTML += '<div class="flex md:flex-col items-center gap-4 md:gap-2 w-full md:w-auto">' +
+          '<div class="h-8 w-8 rounded-full flex items-center justify-center shrink-0 border-2 z-10 bg-white ' + dotClass + '">' + dotInner + '</div>' +
+          '<div class="md:text-center mt-1">' +
+            '<p class="text-sm font-semibold ' + ((isPending || isCompleted || isError) ? 'text-zinc-900' : 'text-zinc-500') + '">' + label + '</p>' +
+          '</div></div>';
+      });
+      timelineHTML += '</div></div>';
+
+      return '<div class="card overflow-hidden shadow-sm hover:shadow-md transition-shadow fade-in">' +
+        '<div class="p-6 sm:p-8 bg-white border-b border-zinc-200 flex flex-col md:flex-row justify-between items-start gap-6">' +
+          '<div class="space-y-2">' +
+            '<div class="flex items-center gap-3"><span class="badge ' + statusBadge + '">' + statusText + '</span>' +
+              '<span class="text-sm font-medium text-zinc-500">Applied ' + (app.appliedDate || '') + '</span></div>' +
+            '<h3 class="text-xl font-bold text-zinc-900 mt-2">' + (app.jobTitle || app.jobId) + '</h3>' +
+            '<p class="text-zinc-500">' + (app.moduleCode || '') + '</p>' +
+          '</div>' +
+        '</div>' +
+        '<div class="p-6 sm:p-8 bg-zinc-50/50">' + timelineHTML + '</div></div>';
+    }).join('');
+    lucide.createIcons();
+  } catch (e) {
+    console.error('加载申请列表失败', e);
+    document.getElementById('appList').innerHTML = '<div class="text-center text-red-500 py-12">Failed to load applications</div>';
+  }
+}
+loadApplications();
+</script>

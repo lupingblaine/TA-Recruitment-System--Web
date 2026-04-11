@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>TA&amp;MO Backend</display-name>
+
+    <!-- Filters -->
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>com.tamo.filter.CorsFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>com.tamo.filter.AuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/api/applicant/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/api/organiser/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/api/admin/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>AuthServlet</servlet-name>
+        <servlet-class>com.tamo.servlet.AuthServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/api/auth/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ApplicantServlet</servlet-name>
+        <servlet-class>com.tamo.servlet.ApplicantServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ApplicantServlet</servlet-name>
+        <url-pattern>/api/applicant/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>OrganiserServlet</servlet-name>
+        <servlet-class>com.tamo.servlet.OrganiserServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OrganiserServlet</servlet-name>
+        <url-pattern>/api/organiser/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>com.tamo.servlet.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/api/admin/*</url-pattern>
+    </servlet-mapping>
+
+</web-app>
