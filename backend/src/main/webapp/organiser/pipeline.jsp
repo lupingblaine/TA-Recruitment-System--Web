@@ -27,6 +27,54 @@
       </div>
     </div>
 
+    <!-- Interview Schedule Modal -->
+    <div id="interviewModal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm" onclick="closeInterviewModal()"></div>
+      <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+          <div class="p-6 border-b border-zinc-200">
+            <h2 class="text-lg font-bold text-zinc-900">Schedule Interview</h2>
+            <p class="text-sm text-zinc-500 mt-1">Set up an interview for <span id="modalCandidateName" class="font-medium text-zinc-700"></span></p>
+          </div>
+          <form id="interviewForm" class="p-6 space-y-4" onsubmit="submitInterview(event)">
+            <input type="hidden" id="modalAppId">
+            <input type="hidden" id="modalCandidateId">
+            <input type="hidden" id="modalModuleCode">
+            <input type="hidden" id="modalModuleName">
+            <div>
+              <label class="block text-sm font-medium text-zinc-700 mb-1">Date *</label>
+              <input type="date" id="interviewDate" required class="input w-full">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-zinc-700 mb-1">Start Time *</label>
+                <input type="time" id="interviewStart" required class="input w-full">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-zinc-700 mb-1">End Time</label>
+                <input type="time" id="interviewEnd" class="input w-full">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-zinc-700 mb-1">Interview Type *</label>
+              <select id="interviewType" required class="input w-full" onchange="toggleLocation()">
+                <option value="video">Video Call</option>
+                <option value="in-person">In-Person</option>
+              </select>
+            </div>
+            <div id="locationField" class="hidden">
+              <label class="block text-sm font-medium text-zinc-700 mb-1">Location</label>
+              <input type="text" id="interviewLocation" placeholder="e.g., Room 301, Building A" class="input w-full">
+            </div>
+            <div class="flex gap-3 pt-4">
+              <button type="button" onclick="closeInterviewModal()" class="btn btn-outline flex-1">Cancel</button>
+              <button type="submit" class="btn btn-primary flex-1">Schedule Interview</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <!-- Candidate Detail Panel -->
     <div id="candidatePanel" class="fixed inset-0 z-50 hidden">
       <div class="absolute inset-0 bg-zinc-900/20 backdrop-blur-sm" onclick="closePanel()"></div>
@@ -113,6 +161,8 @@
       }
 
       let dragId = null;
+      let pendingInterviewApp = null;
+
       function onDragStart(e, id) { dragId = id; e.dataTransfer.effectAllowed = 'move'; }
       function onDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
       function onDrop(e, status) {
@@ -122,14 +172,77 @@
       }
 
       async function updateStatus(appId, newStatus) {
+        const app = allApps.find(a => a.id === appId);
+        if (!app) return;
+
+        // If moving to interview, show the scheduling modal
+        if (newStatus === 'interview' && app.status !== 'interview') {
+          pendingInterviewApp = { appId, app };
+          openInterviewModal(app);
+          return;
+        }
+
         try {
           await organiserApi.updateCandidateStatus(appId, newStatus);
-          const app = allApps.find(a => a.id === appId);
           if (app) app.status = newStatus;
           renderKanban();
           showToast('Status updated!');
         } catch (e) {
           showToast(e.message || 'Update failed', 'error');
+        }
+      }
+
+      function openInterviewModal(app) {
+        document.getElementById('modalAppId').value = app.id;
+        document.getElementById('modalCandidateName').textContent = app.name || 'Applicant';
+        document.getElementById('modalModuleCode').value = app.role || '';
+        document.getElementById('modalModuleName').value = '';
+        // Set default date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('interviewDate').value = tomorrow.toISOString().split('T')[0];
+        document.getElementById('interviewStart').value = '10:00';
+        document.getElementById('interviewEnd').value = '10:30';
+        document.getElementById('interviewType').value = 'video';
+        document.getElementById('interviewLocation').value = '';
+        document.getElementById('locationField').classList.add('hidden');
+        document.getElementById('interviewModal').classList.remove('hidden');
+      }
+
+      function closeInterviewModal() {
+        document.getElementById('interviewModal').classList.add('hidden');
+        pendingInterviewApp = null;
+      }
+
+      function toggleLocation() {
+        const type = document.getElementById('interviewType').value;
+        document.getElementById('locationField').classList.toggle('hidden', type === 'video');
+      }
+
+      async function submitInterview(e) {
+        e.preventDefault();
+        if (!pendingInterviewApp) return;
+
+        const { appId, app } = pendingInterviewApp;
+        const data = {
+          applicationId: appId,
+          candidateName: app.name,
+          moduleCode: document.getElementById('modalModuleCode').value,
+          date: document.getElementById('interviewDate').value,
+          startTime: document.getElementById('interviewStart').value,
+          endTime: document.getElementById('interviewEnd').value,
+          type: document.getElementById('interviewType').value,
+          location: document.getElementById('interviewLocation').value
+        };
+
+        try {
+          await organiserApi.createInterview(data);
+          app.status = 'interview';
+          closeInterviewModal();
+          renderKanban();
+          showToast('Interview scheduled & candidate notified!');
+        } catch (err) {
+          showToast(err.message || 'Failed to schedule interview', 'error');
         }
       }
 

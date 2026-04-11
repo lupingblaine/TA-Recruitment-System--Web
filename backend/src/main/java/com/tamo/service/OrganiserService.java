@@ -7,6 +7,7 @@ import com.tamo.model.DataStore;
 import com.tamo.model.Interview;
 import com.tamo.model.Job;
 import com.tamo.model.Module;
+import com.tamo.model.Notification;
 import com.tamo.model.Profile;
 import com.tamo.model.User;
 import com.tamo.util.JsonUtil;
@@ -343,6 +344,7 @@ public class OrganiserService {
             return result;
         }
 
+        String oldStatus = app.getStatus();
         app.setStatus(newStatus);
         app.setUpdatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
@@ -356,6 +358,46 @@ public class OrganiserService {
                     break;
                 }
             }
+        }
+
+        // Create notification for the applicant
+        if (!oldStatus.equals(newStatus)) {
+            String applicantId = app.getApplicantId();
+            String moduleCode = job != null ? job.getModuleCode() : "";
+            String notifType = "status_change";
+            String title = "";
+            String message = "";
+
+            switch (newStatus) {
+                case "review" -> {
+                    title = "Application Under Review";
+                    message = "Your application for " + moduleCode + " is now being reviewed.";
+                }
+                case "shortlisted" -> {
+                    title = "You've Been Shortlisted!";
+                    message = "Congratulations! Your application for " + moduleCode + " has been shortlisted.";
+                }
+                case "interview" -> {
+                    notifType = "interview_scheduled";
+                    title = "Interview Stage";
+                    message = "Your application for " + moduleCode + " has moved to the interview stage. An interview will be scheduled soon.";
+                }
+                case "offer" -> {
+                    notifType = "offer";
+                    title = "Offer Received!";
+                    message = "Congratulations! You have received an offer for " + moduleCode + "!";
+                }
+                case "rejected" -> {
+                    notifType = "rejection";
+                    title = "Application Update";
+                    message = "We regret to inform you that your application for " + moduleCode + " was not successful.";
+                }
+                default -> {
+                    title = "Application Status Updated";
+                    message = "Your application for " + moduleCode + " status changed to: " + newStatus;
+                }
+            }
+            createNotification(data, applicantId, notifType, title, message, app.getId());
         }
 
         dataService.save();
@@ -549,6 +591,15 @@ public class OrganiserService {
         }
 
         data.getInterviews().add(iv);
+
+        // Create notification for the applicant about the scheduled interview
+        String notifTitle = "Interview Scheduled: " + iv.getModuleCode();
+        String notifMsg = "Your interview for " + iv.getModuleCode() + " " + iv.getModuleName() +
+                " is scheduled on " + iv.getDate() + " at " + iv.getStartTime() +
+                ". Type: " + (iv.getType().equals("video") ? "Video Call" : "In-Person") +
+                (iv.getLocation() != null && !iv.getLocation().isBlank() ? " at " + iv.getLocation() : "") + ".";
+        createNotification(data, candidateId, "interview_scheduled", notifTitle, notifMsg, iv.getId());
+
         dataService.save();
         result.put("interview", iv);
         return result;
@@ -600,5 +651,21 @@ public class OrganiserService {
 
     private Job findJobById(DataStore data, String jobId) {
         return data.getJobs().stream().filter(j -> j.getId().equals(jobId)).findFirst().orElse(null);
+    }
+
+    private void createNotification(DataStore data, String userId, String type, String title, String message, String relatedId) {
+        if (data.getNotifications() == null) {
+            data.setNotifications(new ArrayList<>());
+        }
+        Notification n = new Notification();
+        n.setId(dataService.generateId("n", data.getNotifications()));
+        n.setUserId(userId);
+        n.setType(type);
+        n.setTitle(title);
+        n.setMessage(message);
+        n.setRelatedId(relatedId);
+        n.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        n.setRead(false);
+        data.getNotifications().add(n);
     }
 }

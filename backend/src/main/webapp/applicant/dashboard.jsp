@@ -59,6 +59,16 @@
     </div>
 
     <div class="space-y-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-zinc-900">Notifications</h2>
+        <span id="unreadBadge" class="hidden px-2 py-0.5 text-xs font-bold bg-red-500 text-white rounded-full"></span>
+      </div>
+      <div class="card">
+        <div class="divide-y divide-zinc-100 max-h-64 overflow-y-auto" id="notificationsList">
+          <div class="p-4 text-center text-zinc-400 text-sm">Loading...</div>
+        </div>
+      </div>
+
       <h2 class="text-xl font-semibold text-zinc-900">Your Workload Tracker</h2>
       <div class="card bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-100">
         <div class="p-6" id="workloadCard">
@@ -115,6 +125,7 @@ async function loadDashboard() {
 
     renderWorkload(data.workload);
     renderSchedule(data.schedule || []);
+    renderNotifications(data.notifications || [], data.unreadNotifications || 0);
 
     const dl = document.getElementById('deadlines');
     if (jobs.length === 0) {
@@ -266,10 +277,11 @@ function renderSchedule(schedule) {
             '<span class="w-2 h-2 rounded-full bg-indigo-400 shrink-0"></span>' +
             '<span class="text-zinc-700"><strong>' + ev.data.moduleCode + '</strong> TA Duty</span></div>';
         } else {
+          const locInfo = ev.data.interviewType === 'video' ? 'Video' : (ev.data.location || 'In-Person');
           html += '<div class="flex items-center gap-2 text-xs mb-2 last:mb-0">' +
             '<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>' +
             '<span class="text-zinc-700"><strong>' + (ev.data.moduleCode || '') + '</strong> Interview ' +
-            (ev.data.startTime ? ev.data.startTime : '') + '</span></div>';
+            (ev.data.startTime ? ev.data.startTime : '') + ' • ' + locInfo + '</span></div>';
         }
       });
       html += '</div></div>';
@@ -290,18 +302,83 @@ function renderSchedule(schedule) {
       const dateStr = iv.date || 'TBD';
       const dateParts = dateStr.split('-');
       const timeStr = iv.startTime && iv.endTime ? iv.startTime + ' – ' + iv.endTime : iv.startTime || '';
+      const locationInfo = iv.interviewType === 'video' ? 'Video Call' : (iv.location || 'In-Person');
       html += '<div class="flex items-center gap-3 p-2 rounded-lg bg-amber-50/80 border border-amber-100">' +
         '<div class="h-9 w-9 rounded-lg bg-amber-500 text-white flex flex-col items-center justify-center text-xs font-bold shrink-0 leading-tight">' +
         '<span>' + dateParts[2] + '</span>' +
         '<span class="text-[9px] font-normal opacity-80">' + monthNames[parseInt(dateParts[1], 10) - 1] + '</span></div>' +
         '<div class="flex-1 min-w-0">' +
         '<p class="font-medium text-zinc-900 text-sm truncate">' + (iv.moduleCode || '') + ' ' + (iv.moduleName || 'Interview') + '</p>' +
-        '<p class="text-xs text-zinc-500">' + timeStr + (iv.interviewType === 'video' ? ' • Video' : '') + '</p></div></div>';
+        '<p class="text-xs text-zinc-500">' + timeStr + '</p>' +
+        '<p class="text-xs text-zinc-400 flex items-center gap-1 mt-0.5"><i data-lucide="' + (iv.interviewType === 'video' ? 'video' : 'map-pin') + '" class="h-3 w-3"></i>' + locationInfo + '</p></div></div>';
     });
     html += '</div></div>';
   }
 
   el.innerHTML = html;
+}
+
+function renderNotifications(notifications, unreadCount) {
+  const el = document.getElementById('notificationsList');
+  const badge = document.getElementById('unreadBadge');
+
+  if (unreadCount > 0) {
+    badge.textContent = unreadCount;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+
+  if (notifications.length === 0) {
+    el.innerHTML = '<div class="p-4 text-center text-zinc-400 text-sm">No notifications yet</div>';
+    return;
+  }
+
+  el.innerHTML = notifications.map(function(n) {
+    const iconMap = {
+      'status_change': 'refresh-cw',
+      'interview_scheduled': 'calendar-check',
+      'offer': 'trophy',
+      'rejection': 'x-circle'
+    };
+    const colorMap = {
+      'status_change': 'bg-blue-100 text-blue-600',
+      'interview_scheduled': 'bg-amber-100 text-amber-600',
+      'offer': 'bg-emerald-100 text-emerald-600',
+      'rejection': 'bg-red-100 text-red-600'
+    };
+    const icon = iconMap[n.type] || 'bell';
+    const color = colorMap[n.type] || 'bg-zinc-100 text-zinc-600';
+    const timeAgo = formatTimeAgo(n.createdAt);
+
+    return '<div class="p-4 hover:bg-zinc-50 transition-colors ' + (n.read ? 'opacity-60' : '') + '">' +
+      '<div class="flex gap-3">' +
+      '<div class="h-9 w-9 rounded-full ' + color + ' flex items-center justify-center shrink-0">' +
+      '<i data-lucide="' + icon + '" class="h-4 w-4"></i></div>' +
+      '<div class="flex-1 min-w-0">' +
+      '<p class="text-sm font-medium text-zinc-900">' + n.title + '</p>' +
+      '<p class="text-xs text-zinc-500 mt-0.5 line-clamp-2">' + n.message + '</p>' +
+      '<p class="text-xs text-zinc-400 mt-1">' + timeAgo + '</p>' +
+      '</div>' +
+      (n.read ? '' : '<span class="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1"></span>') +
+      '</div></div>';
+  }).join('');
+}
+
+function formatTimeAgo(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return diffMins + ' min ago';
+  if (diffHours < 24) return diffHours + ' hour' + (diffHours > 1 ? 's' : '') + ' ago';
+  if (diffDays < 7) return diffDays + ' day' + (diffDays > 1 ? 's' : '') + ' ago';
+  return date.toLocaleDateString();
 }
 
 loadDashboard();

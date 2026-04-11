@@ -49,7 +49,7 @@
       "department": "Computer Science",
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-10-15T14:32:01",
+      "lastLogin": "2026-04-11T18:25:48.666432",
       "createdAt": "2026-08-01T00:00:00"
     },
     {
@@ -88,8 +88,21 @@
       "department": null,
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-04-11T18:04:15.858805",
+      "lastLogin": "2026-04-11T18:26:24.549468",
       "createdAt": "2026-04-11T18:04:15.858193"
+    },
+    {
+      "id": "u008",
+      "name": "TYF",
+      "email": "yifant1584@gmail.com",
+      "password": "12",
+      "phone": null,
+      "role": "organiser",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-04-11T18:10:51.585903",
+      "createdAt": "2026-04-11T18:10:51.585792"
     }
   ],
   "profiles": [
@@ -545,6 +558,56 @@
           "error": true
         }
       ]
+    },
+    {
+      "id": "a006",
+      "jobId": "j001",
+      "applicantId": "u007",
+      "status": "interview",
+      "coverLetter": "1",
+      "documentIds": [],
+      "matchScore": 93,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-04-11T18:10:36.502434",
+      "updatedAt": "2026-04-11T18:26:17.133826",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-04-11",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-04-11",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-04-11",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-04-11",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": "2026-04-11",
+          "completed": true,
+          "pending": null,
+          "error": null
+        }
+      ]
     }
   ],
   "interviews": [
@@ -561,6 +624,38 @@
       "type": "video",
       "location": null,
       "status": "upcoming",
+      "outcome": null,
+      "organiserId": "u005"
+    },
+    {
+      "id": "i002",
+      "applicationId": "a006",
+      "candidateId": "u007",
+      "candidateName": "TYF",
+      "moduleCode": "CS201",
+      "moduleName": "Teaching Assistant - Data Structures",
+      "date": "2026-04-12",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "video",
+      "location": "",
+      "status": "scheduled",
+      "outcome": null,
+      "organiserId": "u005"
+    },
+    {
+      "id": "i003",
+      "applicationId": "a006",
+      "candidateId": "u007",
+      "candidateName": "TYF",
+      "moduleCode": "CS201",
+      "moduleName": "Teaching Assistant - Data Structures",
+      "date": "2026-04-12",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "in-person",
+      "location": "Room301",
+      "status": "scheduled",
       "outcome": null,
       "organiserId": "u005"
     }
@@ -710,6 +805,58 @@
       "hoursPerWeek": 6,
       "term": "Fall 2026",
       "status": "active"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "n001",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for CS201 has been shortlisted.",
+      "relatedId": "a006",
+      "createdAt": "2026-04-11T18:24:03.305634",
+      "read": false
+    },
+    {
+      "id": "n002",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "Application Under Review",
+      "message": "Your application for CS201 is now being reviewed.",
+      "relatedId": "a006",
+      "createdAt": "2026-04-11T18:24:05.071747",
+      "read": false
+    },
+    {
+      "id": "n003",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: CS201",
+      "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: Video Call.",
+      "relatedId": "i002",
+      "createdAt": "2026-04-11T18:24:12.668627",
+      "read": false
+    },
+    {
+      "id": "n004",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for CS201 has been shortlisted.",
+      "relatedId": "a006",
+      "createdAt": "2026-04-11T18:25:59.251441",
+      "read": false
+    },
+    {
+      "id": "n005",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: CS201",
+      "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: In-Person at Room301.",
+      "relatedId": "i003",
+      "createdAt": "2026-04-11T18:26:17.134112",
+      "read": false
     }
   ]
 }

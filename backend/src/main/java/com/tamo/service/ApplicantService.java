@@ -10,6 +10,7 @@ import com.tamo.model.User;
 import com.tamo.util.JsonUtil;
 
 import com.tamo.model.Interview;
+import com.tamo.model.Notification;
 import com.tamo.model.WorkloadAssignment;
 
 import java.time.LocalDateTime;
@@ -155,6 +156,34 @@ public class ApplicantService {
                     deadlines.add(d);
                 });
         result.add("upcomingDeadlines", deadlines);
+
+        // ── Notifications ──
+        {
+            List<Notification> notifications = (data.getNotifications() != null
+                    ? data.getNotifications() : Collections.<Notification>emptyList())
+                    .stream()
+                    .filter(n -> userId.equals(n.getUserId()))
+                    .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                    .limit(10)
+                    .collect(Collectors.toList());
+
+            JsonArray notifArr = new JsonArray();
+            notifications.forEach(n -> {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("id", n.getId());
+                obj.addProperty("type", n.getType());
+                obj.addProperty("title", n.getTitle());
+                obj.addProperty("message", n.getMessage());
+                obj.addProperty("relatedId", n.getRelatedId());
+                obj.addProperty("createdAt", n.getCreatedAt());
+                obj.addProperty("read", n.isRead());
+                notifArr.add(obj);
+            });
+            result.add("notifications", notifArr);
+
+            long unreadCount = notifications.stream().filter(n -> !n.isRead()).count();
+            result.addProperty("unreadNotifications", unreadCount);
+        }
 
         return result;
     }
