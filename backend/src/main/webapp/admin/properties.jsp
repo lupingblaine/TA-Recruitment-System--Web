@@ -100,7 +100,7 @@ async function loadProperties() {
       depts.map(d =>
         '<div class="flex items-center justify-between py-4 px-6 hover:bg-zinc-50/50 transition-colors group">' +
           '<div class="flex items-center gap-4"><span class="font-medium text-zinc-900">' + d.name + '</span>' +
-          '<span class="badge badge-success">Active</span></div></div>'
+          '<span class="badge ' + (d.status === 'active' ? 'badge-success' : 'badge-neutral') + ' capitalize">' + (d.status || 'active') + '</span></div></div>'
       ).join('');
   } catch (e) { console.error('加载属性失败', e); }
 }

@@ -2,6 +2,7 @@ package com.tamo.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.tamo.model.Application;
 import com.tamo.model.DataStore;
 import com.tamo.model.Department;
 import com.tamo.model.Job;
@@ -13,15 +14,22 @@ import com.tamo.model.User;
 import com.tamo.model.WorkloadAssignment;
 import com.tamo.util.JsonUtil;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class AdminService {
 
     private static final List<String> VALID_ROLES = Arrays.asList("applicant", "organiser", "admin");
+
+    /** Weekly buckets for dashboard line chart (fewer points, all from real application dates). */
+    private static final int APPLICATION_TREND_WEEKS = 4;
+
+    private static final DateTimeFormatter TREND_WEEK_LABEL = DateTimeFormatter.ofPattern("d MMM", Locale.UK);
 
     private final JsonDataService dataService;
 
@@ -45,15 +53,7 @@ public class AdminService {
         result.addProperty("activePostings", activePostings);
         result.addProperty("acceptanceRate", acceptanceRate);
 
-        JsonArray trendData = new JsonArray();
-        int[] weeklyApplicants = {45, 82, 120, 250, 310, (int) totalApplicants};
-        for (int i = 0; i < weeklyApplicants.length; i++) {
-            JsonObject point = new JsonObject();
-            point.addProperty("name", "Week " + (i + 1));
-            point.addProperty("applicants", weeklyApplicants[i]);
-            trendData.add(point);
-        }
-        result.add("trendData", trendData);
+        result.add("trendData", buildWeeklyApplicationTrend(data));
 
         JsonArray moduleStats = new JsonArray();
         for (Job j : data.getJobs()) {
@@ -528,6 +528,57 @@ public class AdminService {
         dataService.save();
         result.put("success", true);
         return result;
+    }
+
+    /**
+     * One point per calendar week: count of applications whose {@code appliedAt} falls in that week.
+     * Uses the Monday-start week containing the latest {@code appliedAt} (or today if none), then the 3 prior weeks.
+     */
+    private JsonArray buildWeeklyApplicationTrend(DataStore data) {
+        JsonArray trendData = new JsonArray();
+        List<Application> apps = data.getApplications();
+        LocalDate today = LocalDate.now();
+
+        LocalDate latestSubmitted = apps.stream()
+                .map(a -> parseApplicationSubmittedDate(a.getAppliedAt()))
+                .filter(Objects::nonNull)
+                .max(Comparator.naturalOrder())
+                .orElse(today);
+
+        LocalDate anchorMonday = latestSubmitted.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate oldestMonday = anchorMonday.minusWeeks(APPLICATION_TREND_WEEKS - 1);
+
+        for (int i = 0; i < APPLICATION_TREND_WEEKS; i++) {
+            LocalDate weekStart = oldestMonday.plusWeeks(i);
+            LocalDate weekEnd = weekStart.plusWeeks(1);
+            long count = apps.stream()
+                    .map(a -> parseApplicationSubmittedDate(a.getAppliedAt()))
+                    .filter(d -> d != null && !d.isBefore(weekStart) && d.isBefore(weekEnd))
+                    .count();
+            JsonObject point = new JsonObject();
+            point.addProperty("name", weekStart.format(TREND_WEEK_LABEL));
+            point.addProperty("applicants", count);
+            trendData.add(point);
+        }
+        return trendData;
+    }
+
+    private static LocalDate parseApplicationSubmittedDate(String appliedAt) {
+        if (appliedAt == null || appliedAt.isBlank()) {
+            return null;
+        }
+        String s = appliedAt.trim();
+        try {
+            if (s.contains("T")) {
+                return LocalDateTime.parse(s, DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate();
+            }
+            if (s.length() >= 10) {
+                return LocalDate.parse(s.substring(0, 10));
+            }
+        } catch (Exception ignored) {
+            // fall through
+        }
+        return null;
     }
 
     private JsonObject buildSafeUser(User user) {
