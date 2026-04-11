@@ -110,8 +110,8 @@ public class OrganiserService {
         Map<String, Object> result = new HashMap<>();
 
         String title = body.has("title") ? body.get("title").getAsString() : null;
-        String moduleCode = body.has("moduleCode") ? body.get("moduleCode").getAsString() : null;
         String moduleId = body.has("moduleId") ? body.get("moduleId").getAsString() : null;
+        String moduleCode = body.has("moduleCode") ? body.get("moduleCode").getAsString() : null;
 
         if ((moduleId == null || moduleId.isBlank()) && moduleCode != null && !moduleCode.isBlank()) {
             DataStore lookupData = dataService.getData();
@@ -142,7 +142,7 @@ public class OrganiserService {
         Job job = new Job();
         job.setId(dataService.generateId("j", data.getJobs()));
         job.setOrganiserId(organiserId);
-        job.setModuleCode(moduleCode != null ? moduleCode : "");
+        job.setModuleCode(body.has("moduleCode") ? body.get("moduleCode").getAsString() : "");
         job.setModuleId(moduleId);
         job.setTitle(title);
         job.setDescription(body.has("description") ? body.get("description").getAsString() : "");
@@ -460,9 +460,11 @@ public class OrganiserService {
         String candidateId = body.has("candidateId") ? body.get("candidateId").getAsString() : null;
         String date = body.has("date") ? body.get("date").getAsString() : null;
         String startTime = body.has("startTime") ? body.get("startTime").getAsString() : null;
+        if ((startTime == null || startTime.isBlank()) && body.has("time")) {
+            startTime = body.get("time").getAsString();
+        }
 
         if (applicationId == null || applicationId.isBlank() ||
-                candidateId == null || candidateId.isBlank() ||
                 date == null || date.isBlank() ||
                 startTime == null || startTime.isBlank()) {
             result.put("error", "缺少必填字段");
@@ -471,6 +473,9 @@ public class OrganiserService {
         }
 
         String type = body.has("type") ? body.get("type").getAsString() : "video";
+        if ("in_person".equals(type)) {
+            type = "in-person";
+        }
         if (!VALID_INTERVIEW_TYPES.contains(type)) {
             result.put("error", "面试类型不合法，仅支持 video/in-person");
             result.put("code", 400);
@@ -478,13 +483,46 @@ public class OrganiserService {
         }
 
         DataStore data = dataService.getData();
+        Application app = data.getApplications().stream()
+                .filter(a -> a.getId().equals(applicationId))
+                .findFirst().orElse(null);
+        if (app == null) {
+            result.put("error", "申请不存在");
+            result.put("code", 404);
+            return result;
+        }
+        if ((candidateId == null || candidateId.isBlank()) && app.getApplicantId() != null) {
+            candidateId = app.getApplicantId();
+        }
+        if (candidateId == null || candidateId.isBlank()) {
+            result.put("error", "缺少候选人ID");
+            result.put("code", 400);
+            return result;
+        }
+
         Interview iv = new Interview();
         iv.setId(dataService.generateId("i", data.getInterviews()));
         iv.setApplicationId(applicationId);
         iv.setCandidateId(candidateId);
         iv.setCandidateName(body.has("candidateName") ? body.get("candidateName").getAsString() : "");
-        iv.setModuleCode(body.has("moduleCode") ? body.get("moduleCode").getAsString() : "");
-        iv.setModuleName(body.has("moduleName") ? body.get("moduleName").getAsString() : "");
+        if ((iv.getCandidateName() == null || iv.getCandidateName().isBlank())) {
+            User applicant = findUserById(data, candidateId);
+            if (applicant != null) {
+                iv.setCandidateName(applicant.getName());
+            }
+        }
+        if (body.has("moduleCode")) {
+            iv.setModuleCode(body.get("moduleCode").getAsString());
+        } else {
+            Job job = findJobById(data, app.getJobId());
+            iv.setModuleCode(job != null ? job.getModuleCode() : "");
+        }
+        if (body.has("moduleName")) {
+            iv.setModuleName(body.get("moduleName").getAsString());
+        } else {
+            Job job = findJobById(data, app.getJobId());
+            iv.setModuleName(job != null ? job.getTitle() : "");
+        }
         iv.setDate(date);
         iv.setStartTime(startTime);
         iv.setEndTime(body.has("endTime") ? body.get("endTime").getAsString() : "");
@@ -493,6 +531,22 @@ public class OrganiserService {
         iv.setStatus("scheduled");
         iv.setOutcome(null);
         iv.setOrganiserId(organiserId);
+
+        if (!"interview".equals(app.getStatus())) {
+            app.setStatus("interview");
+            app.setUpdatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            if (app.getTimeline() != null) {
+                String today = LocalDate.now().toString();
+                for (Application.TimelineEntry te : app.getTimeline()) {
+                    if ("interview".equals(te.getStatus())) {
+                        te.setCompleted(true);
+                        te.setDate(today);
+                        te.setPending(null);
+                        break;
+                    }
+                }
+            }
+        }
 
         data.getInterviews().add(iv);
         dataService.save();
