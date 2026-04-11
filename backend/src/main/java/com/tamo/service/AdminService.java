@@ -199,12 +199,32 @@ public class AdminService {
 
     // ==================== Modules ====================
 
-    public List<Module> getModules(String keyword) {
+    public List<JsonObject> getModules(String keyword) {
         DataStore data = dataService.getData();
         return data.getModules().stream()
                 .filter(m -> keyword == null || keyword.isEmpty() ||
                         m.getCode().toLowerCase().contains(keyword.toLowerCase()) ||
                         m.getName().toLowerCase().contains(keyword.toLowerCase()))
+                .map(m -> {
+                    JsonObject obj = new JsonObject();
+                    obj.addProperty("id", m.getId());
+                    obj.addProperty("code", m.getCode());
+                    obj.addProperty("name", m.getName());
+                    obj.addProperty("department", m.getDepartment());
+                    obj.addProperty("organiserId", m.getOrganiserId());
+                    obj.addProperty("term", m.getTerm());
+                    obj.addProperty("status", m.getStatus());
+                    // Enrich organiserName from users if organiserId exists
+                    if (m.getOrganiserId() != null && !m.getOrganiserId().isEmpty()) {
+                        User organiser = data.getUsers().stream()
+                                .filter(u -> u.getId().equals(m.getOrganiserId()))
+                                .findFirst().orElse(null);
+                        obj.addProperty("organiserName", organiser != null ? organiser.getName() : m.getOrganiserId());
+                    } else {
+                        obj.addProperty("organiserName", "-");
+                    }
+                    return obj;
+                })
                 .collect(Collectors.toList());
     }
 
