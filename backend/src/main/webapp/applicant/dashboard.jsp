@@ -95,12 +95,12 @@ const ctx = document.querySelector('meta[name="ctx"]').content;
 async function loadDashboard() {
   try {
     const data = await applicantApi.getDashboard();
-    const apps = data.applications || [];
-    const jobs = data.activeJobs || [];
+    const apps = data.recentApplications || [];
+    const jobs = data.upcomingDeadlines || [];
 
-    document.getElementById('statActive').textContent = apps.filter(a => !['rejected','hired'].includes(a.status)).length;
-    document.getElementById('statInterviews').textContent = apps.filter(a => a.status === 'interview').length;
-    document.getElementById('statProfile').textContent = data.profile ? '85%' : '0%';
+    document.getElementById('statActive').textContent = data.activeApplications ?? 0;
+    document.getElementById('statInterviews').textContent = data.interviewCount ?? 0;
+    document.getElementById('statProfile').textContent = (data.profileCompletion != null ? data.profileCompletion : 0) + '%';
     document.getElementById('greeting').textContent = 'Welcome back, ' + (data.profile?.name || '<%= session.getAttribute("userName") %>') + '!';
 
     const container = document.getElementById('recentApps');
@@ -110,8 +110,8 @@ async function loadDashboard() {
       container.innerHTML = apps.slice(0, 5).map(app => {
         const badgeClass = app.status === 'interview' ? 'badge-warning' : app.status === 'rejected' ? 'badge-danger' : app.status === 'hired' ? 'badge-success' : 'badge-neutral';
         return '<a href="' + ctx + '/applicant/applications.jsp" class="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors cursor-pointer group block">' +
-          '<div class="space-y-1"><h3 class="font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">' + (app.jobTitle || app.jobId) + '</h3>' +
-          '<p class="text-sm text-zinc-500">' + (app.moduleCode || '') + ' • Applied ' + (app.appliedDate || '') + '</p></div>' +
+          '<div class="space-y-1"><h3 class="font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">' + (app.role || app.jobId) + '</h3>' +
+          '<p class="text-sm text-zinc-500">' + (app.module || '') + ' • Applied ' + (app.appliedAt || '').split('T')[0] + '</p></div>' +
           '<div class="flex items-center gap-4"><span class="badge ' + badgeClass + '">' + app.status + '</span>' +
           '<i data-lucide="chevron-right" class="h-5 w-5 text-zinc-300 group-hover:text-zinc-500 transition-colors"></i></div></a>';
       }).join('');

@@ -132,6 +132,26 @@ public class AdminService {
         user.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         data.getUsers().add(user);
+
+        if ("applicant".equals(user.getRole())) {
+            Profile profile = new Profile();
+            profile.setId(dataService.generateId("p", data.getProfiles()));
+            profile.setUserId(user.getId());
+            profile.setStudentId("");
+            profile.setDegree("");
+            profile.setYear(0);
+            profile.setGpa(0);
+            profile.setMaxGpa(4.0);
+            profile.setProfileCompletion(0);
+            profile.setSkills(new ArrayList<>());
+            profile.setCoursework(new ArrayList<>());
+            profile.setExperience(new ArrayList<>());
+            profile.setDocuments(new ArrayList<>());
+            profile.setMaxWeeklyHours(20);
+            profile.setCurrentWeeklyHours(0);
+            data.getProfiles().add(profile);
+        }
+
         dataService.save();
 
         result.put("user", buildSafeUser(user));

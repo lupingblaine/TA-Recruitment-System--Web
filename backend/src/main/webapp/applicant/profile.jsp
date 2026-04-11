@@ -80,6 +80,7 @@
           <p class="font-medium text-zinc-900">Upload Document</p>
           <p class="text-sm text-zinc-500">PDF up to 5MB</p>
         </div>
+        <input id="docFileInput" type="file" class="hidden" accept=".pdf,.doc,.docx,.txt,.rtf" onchange="handleFileSelected(event)">
       </div>
     </div>
   </div>
@@ -112,9 +113,7 @@ function render(p) {
   document.getElementById('pGpa').textContent = p.gpa ? p.gpa + ' / ' + (p.maxGpa || '4.0') : '-';
   document.getElementById('editPhone').value = userData.phone || '';
 
-  // Skills are not stored in profile model, show coursework as skills substitute
-  const coursework = p.coursework || [];
-  const skills = coursework.map(c => c.code).filter(Boolean);
+  const skills = p.skills || [];
   document.getElementById('editSkills').value = skills.join(', ');
   document.getElementById('pSkills').innerHTML = skills.length ?
     skills.map(s => '<span class="px-3 py-1 bg-zinc-100 text-zinc-700 rounded-full text-sm border border-zinc-200">' + s + '</span>').join('') :
@@ -162,14 +161,40 @@ async function saveProfile() {
 }
 
 async function uploadDoc() {
-  const name = prompt('Document name (e.g. CV.pdf):');
-  if (!name) return;
+  document.getElementById('docFileInput').click();
+}
+
+function inferFileType(file) {
+  const fileName = file.name || '';
+  const dotIndex = fileName.lastIndexOf('.');
+  if (dotIndex >= 0 && dotIndex < fileName.length - 1) {
+    return fileName.substring(dotIndex + 1).toLowerCase();
+  }
+  return 'file';
+}
+
+function formatFileSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) return '0 B';
+  if (bytes < 1024) return bytes + ' B';
+  const kb = bytes / 1024;
+  if (kb < 1024) return kb.toFixed(1).replace(/\.0$/, '') + ' KB';
+  const mb = kb / 1024;
+  return mb.toFixed(1).replace(/\.0$/, '') + ' MB';
+}
+
+async function handleFileSelected(event) {
+  const input = event.target;
+  const file = input.files && input.files[0];
+  if (!file) return;
+
   try {
-    await applicantApi.uploadDocument(name, 'pdf', '2.4 MB');
+    await applicantApi.uploadDocument(file.name, inferFileType(file), formatFileSize(file.size));
     showToast('Document uploaded!');
     loadProfile();
   } catch (e) {
     showToast(e.message || 'Upload failed', 'error');
+  } finally {
+    input.value = '';
   }
 }
 
