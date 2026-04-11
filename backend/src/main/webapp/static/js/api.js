@@ -23,6 +23,9 @@ const authApi = {
 
 const applicantApi = {
   getDashboard: () => request('/applicant/dashboard'),
+  getNotifications: () => request('/applicant/notifications'),
+  markNotificationRead: (id) => request('/applicant/notifications/' + id + '/read', { method: 'PUT' }),
+  markAllNotificationsRead: () => request('/applicant/notifications/read-all', { method: 'PUT' }),
   getJobs: (params) => {
     const q = params ? '?' + new URLSearchParams(params).toString() : '';
     return request('/applicant/jobs' + q);

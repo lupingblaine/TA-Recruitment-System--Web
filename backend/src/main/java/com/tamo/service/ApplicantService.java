@@ -621,4 +621,50 @@ public class ApplicantService {
                 .filter(j -> j.getId().equals(jobId))
                 .findFirst().orElse(null);
     }
+
+    public List<JsonObject> getNotifications(String userId) {
+        DataStore data = dataService.getData();
+        List<Notification> notifications = (data.getNotifications() != null
+                ? data.getNotifications() : Collections.<Notification>emptyList())
+                .stream()
+                .filter(n -> userId.equals(n.getUserId()))
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .limit(20)
+                .collect(Collectors.toList());
+
+        List<JsonObject> result = new ArrayList<>();
+        notifications.forEach(n -> {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("id", n.getId());
+            obj.addProperty("type", n.getType());
+            obj.addProperty("title", n.getTitle());
+            obj.addProperty("message", n.getMessage());
+            obj.addProperty("relatedId", n.getRelatedId());
+            obj.addProperty("createdAt", n.getCreatedAt());
+            obj.addProperty("read", n.isRead());
+            result.add(obj);
+        });
+        return result;
+    }
+
+    public void markNotificationRead(String userId, String notifId) {
+        DataStore data = dataService.getData();
+        if (data.getNotifications() == null) return;
+        data.getNotifications().stream()
+                .filter(n -> n.getId().equals(notifId) && n.getUserId().equals(userId))
+                .findFirst()
+                .ifPresent(n -> {
+                    n.setRead(true);
+                    dataService.save();
+                });
+    }
+
+    public void markAllNotificationsRead(String userId) {
+        DataStore data = dataService.getData();
+        if (data.getNotifications() == null) return;
+        data.getNotifications().stream()
+                .filter(n -> n.getUserId().equals(userId) && !n.isRead())
+                .forEach(n -> n.setRead(true));
+        dataService.save();
+    }
 }

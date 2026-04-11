@@ -88,7 +88,7 @@
       "department": null,
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-04-11T18:26:24.549468",
+      "lastLogin": "2026-04-11T20:23:43.828865",
       "createdAt": "2026-04-11T18:04:15.858193"
     },
     {
@@ -816,7 +816,7 @@
       "message": "Congratulations! Your application for CS201 has been shortlisted.",
       "relatedId": "a006",
       "createdAt": "2026-04-11T18:24:03.305634",
-      "read": false
+      "read": true
     },
     {
       "id": "n002",
@@ -826,7 +826,7 @@
       "message": "Your application for CS201 is now being reviewed.",
       "relatedId": "a006",
       "createdAt": "2026-04-11T18:24:05.071747",
-      "read": false
+      "read": true
     },
     {
       "id": "n003",
@@ -836,7 +836,7 @@
       "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: Video Call.",
       "relatedId": "i002",
       "createdAt": "2026-04-11T18:24:12.668627",
-      "read": false
+      "read": true
     },
     {
       "id": "n004",
@@ -846,7 +846,7 @@
       "message": "Congratulations! Your application for CS201 has been shortlisted.",
       "relatedId": "a006",
       "createdAt": "2026-04-11T18:25:59.251441",
-      "read": false
+      "read": true
     },
     {
       "id": "n005",
@@ -856,7 +856,7 @@
       "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: In-Person at Room301.",
       "relatedId": "i003",
       "createdAt": "2026-04-11T18:26:17.134112",
-      "read": false
+      "read": true
     }
   ]
 }
