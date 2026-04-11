@@ -32,7 +32,7 @@ public class AuthServlet extends HttpServlet {
             case "login" -> handleLogin(req, resp);
             case "signup" -> handleSignup(req, resp);
             case "logout" -> handleLogout(req, resp);
-            default -> JsonUtil.writeError(resp, 404, "接口不存在");
+            default -> JsonUtil.writeError(resp, 404, "Port is not found");
         }
     }
 
@@ -43,7 +43,7 @@ public class AuthServlet extends HttpServlet {
         if ("me".equals(path)) {
             handleMe(req, resp);
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Port is not found");
         }
     }
 
@@ -54,25 +54,26 @@ public class AuthServlet extends HttpServlet {
         String role = body.has("role") ? body.get("role").getAsString() : null;
 
         if (email == null || email.isBlank() || password == null || password.isBlank()) {
-            JsonUtil.writeError(resp, 400, "缺少必填字段");
+            JsonUtil.writeError(resp, 400, "Missing required fields");
             return;
         }
 
         User user = authService.findByEmailAndPassword(email, password);
         if (user == null) {
-            JsonUtil.writeError(resp, 401, "邮箱或密码错误");
+            JsonUtil.writeError(resp, 401, "Invalid email or password");
             return;
         }
 
         if (role != null && !role.isBlank() && !user.getRole().equals(role)) {
-            JsonUtil.writeError(resp, 403, "角色不匹配");
+            JsonUtil.writeError(resp, 403, "Role mismatch");
             return;
         }
 
         if ("suspended".equals(user.getStatus())) {
-            JsonUtil.writeError(resp, 403, "账户已被挂起");
+            JsonUtil.writeError(resp, 403, "Account has been suspended");
             return;
         }
+   
 
         authService.recordLogin(user);
 
@@ -96,25 +97,26 @@ public class AuthServlet extends HttpServlet {
         String role = body.has("role") ? body.get("role").getAsString() : "applicant";
 
         if (name == null || name.isBlank() || email == null || email.isBlank() || password == null || password.isBlank()) {
-            JsonUtil.writeError(resp, 400, "缺少必填字段");
+            JsonUtil.writeError(resp, 400, "Missing required fields");
             return;
         }
 
         if (!AuthService.isValidEmail(email)) {
-            JsonUtil.writeError(resp, 400, "邮箱格式不正确");
+            JsonUtil.writeError(resp, 400, "Invalid email format");
             return;
         }
 
         if (!AuthService.isValidRole(role)) {
-            JsonUtil.writeError(resp, 400, "角色值不合法");
+            JsonUtil.writeError(resp, 400, "Invalid role value");
             return;
         }
 
         User user = authService.signup(name, email, password, role);
         if (user == null) {
-            JsonUtil.writeError(resp, 409, "邮箱已被注册");
+            JsonUtil.writeError(resp, 409, "Email is already registered");
             return;
         }
+   
 
         HttpSession session = req.getSession(true);
         session.setAttribute("userId", user.getId());
@@ -135,21 +137,21 @@ public class AuthServlet extends HttpServlet {
             session.invalidate();
         }
         JsonObject result = new JsonObject();
-        result.addProperty("message", "退出成功");
+        result.addProperty("message", "Logout successfully");
         JsonUtil.writeJson(resp, result);
     }
 
     private void handleMe(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
-            JsonUtil.writeError(resp, 401, "未登录");
+            JsonUtil.writeError(resp, 401, "Not logged in");
             return;
         }
 
         String userId = (String) session.getAttribute("userId");
         User user = authService.getUserById(userId);
         if (user == null) {
-            JsonUtil.writeError(resp, 404, "用户不存在");
+            JsonUtil.writeError(resp, 404, "User not found");
             return;
         }
 
