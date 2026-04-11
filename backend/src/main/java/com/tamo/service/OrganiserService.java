@@ -6,6 +6,7 @@ import com.tamo.model.Application;
 import com.tamo.model.DataStore;
 import com.tamo.model.Interview;
 import com.tamo.model.Job;
+import com.tamo.model.Module;
 import com.tamo.model.Profile;
 import com.tamo.model.User;
 import com.tamo.util.JsonUtil;
@@ -109,7 +110,16 @@ public class OrganiserService {
         Map<String, Object> result = new HashMap<>();
 
         String title = body.has("title") ? body.get("title").getAsString() : null;
+        String moduleCode = body.has("moduleCode") ? body.get("moduleCode").getAsString() : null;
         String moduleId = body.has("moduleId") ? body.get("moduleId").getAsString() : null;
+
+        if ((moduleId == null || moduleId.isBlank()) && moduleCode != null && !moduleCode.isBlank()) {
+            DataStore lookupData = dataService.getData();
+            Module module = lookupData.getModules().stream()
+                    .filter(m -> moduleCode.equals(m.getCode()))
+                    .findFirst().orElse(null);
+            moduleId = module != null ? module.getId() : moduleCode;
+        }
 
         if (title == null || title.isBlank() || moduleId == null || moduleId.isBlank()) {
             result.put("error", "缺少必填字段");
@@ -132,7 +142,7 @@ public class OrganiserService {
         Job job = new Job();
         job.setId(dataService.generateId("j", data.getJobs()));
         job.setOrganiserId(organiserId);
-        job.setModuleCode(body.has("moduleCode") ? body.get("moduleCode").getAsString() : "");
+        job.setModuleCode(moduleCode != null ? moduleCode : "");
         job.setModuleId(moduleId);
         job.setTitle(title);
         job.setDescription(body.has("description") ? body.get("description").getAsString() : "");
@@ -182,10 +192,36 @@ public class OrganiserService {
         }
 
         if (body.has("title")) job.setTitle(body.get("title").getAsString());
+        if (body.has("moduleCode")) {
+            String newModuleCode = body.get("moduleCode").getAsString();
+            job.setModuleCode(newModuleCode);
+            if (newModuleCode != null && !newModuleCode.isBlank()) {
+                Module module = data.getModules().stream()
+                        .filter(m -> newModuleCode.equals(m.getCode()))
+                        .findFirst().orElse(null);
+                job.setModuleId(module != null ? module.getId() : newModuleCode);
+            }
+        }
+        if (body.has("department")) job.setDepartment(body.get("department").getAsString());
         if (body.has("description")) job.setDescription(body.get("description").getAsString());
+        if (body.has("type")) job.setType(body.get("type").getAsString());
         if (body.has("hoursPerWeek")) job.setHoursPerWeek(body.get("hoursPerWeek").getAsInt());
         if (body.has("positions")) job.setPositions(body.get("positions").getAsInt());
-        if (body.has("deadline")) job.setDeadline(body.get("deadline").getAsString());
+        if (body.has("deadline")) {
+            String deadlineStr = body.get("deadline").getAsString();
+            if (!deadlineStr.isBlank()) {
+                try {
+                    LocalDate deadline = LocalDate.parse(deadlineStr);
+                    if (deadline.isBefore(LocalDate.now())) {
+                        result.put("error", "截止日期不能为过去时间");
+                        result.put("code", 400);
+                        return result;
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+            job.setDeadline(deadlineStr);
+        }
         if (body.has("status")) job.setStatus(body.get("status").getAsString());
 
         dataService.save();
@@ -215,6 +251,14 @@ public class OrganiserService {
             result.put("code", 403);
             return result;
         }
+
+        // 删除岗位时同时清理该岗位相关申请和面试，避免 TA 页面显示遗留 pipeline
+        Set<String> deletedAppIds = data.getApplications().stream()
+                .filter(a -> a.getJobId().equals(jobId))
+                .map(Application::getId)
+                .collect(Collectors.toSet());
+        data.getApplications().removeIf(a -> deletedAppIds.contains(a.getId()));
+        data.getInterviews().removeIf(i -> deletedAppIds.contains(i.getApplicationId()));
 
         data.getJobs().remove(job);
         dataService.save();
