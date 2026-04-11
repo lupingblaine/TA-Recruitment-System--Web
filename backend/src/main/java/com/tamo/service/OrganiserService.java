@@ -300,6 +300,22 @@ public class OrganiserService {
                 obj.addProperty("matchScore", a.getMatchScore());
                 obj.addProperty("riskFlag", a.getRiskFlag());
                 obj.addProperty("aiSummary", a.getAiSummary());
+                // 如果状态是 interview，添加面试信息
+                if ("interview".equals(status)) {
+                    Interview iv = data.getInterviews().stream()
+                            .filter(i -> i.getApplicationId().equals(a.getId()))
+                            .findFirst().orElse(null);
+                    if (iv != null) {
+                        JsonObject interviewObj = new JsonObject();
+                        interviewObj.addProperty("id", iv.getId());
+                        interviewObj.addProperty("date", iv.getDate());
+                        interviewObj.addProperty("startTime", iv.getStartTime());
+                        interviewObj.addProperty("type", iv.getType());
+                        interviewObj.addProperty("location", iv.getLocation());
+                        interviewObj.addProperty("status", iv.getStatus());
+                        obj.add("interview", interviewObj);
+                    }
+                }
                 arr.add(obj);
             });
             result.add(status, arr);

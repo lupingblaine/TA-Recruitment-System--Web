@@ -43,6 +43,30 @@
       </div>
     </div>
 
+    <!-- Schedule Interview Modal -->
+    <div id="scheduleModal" class="fixed inset-0 z-50 items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+      <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
+        <div class="bg-zinc-50 border-b border-zinc-200/60 p-6">
+          <h2 class="text-xl font-bold text-zinc-900">Schedule Interview</h2>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Date</label><input id="iDate" type="date" class="input"></div>
+            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Start Time</label><input id="iTime" type="time" class="input"></div>
+          </div>
+          <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Location</label><input id="iLocation" class="input" placeholder="Room 402 / Zoom link"></div>
+          <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Type</label>
+            <select id="iType" class="input"><option value="video">Video Call</option><option value="in_person">In Person</option></select>
+          </div>
+          <div id="schedError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3"></div>
+        </div>
+        <div class="p-6 border-t border-zinc-200 flex justify-end gap-3">
+          <button onclick="closeSchedule()" class="btn btn-secondary">Cancel</button>
+          <button onclick="saveInterview()" class="btn btn-primary">Schedule</button>
+        </div>
+      </div>
+    </div>
+
     <jsp:include page="/common/layout-bottom.jsp" />
     <script>
       const ctx = document.querySelector('meta[name="ctx"]').content;
@@ -100,6 +124,10 @@
       }
 
       function renderCard(a) {
+        let extraInfo = '';
+        if (a.interview) {
+          extraInfo = '<div class="text-xs text-zinc-500 mt-2"><i data-lucide="calendar" class="h-3 w-3 inline mr-1"></i>' + (a.interview.date || '') + ' ' + (a.interview.startTime || '') + '<br><i data-lucide="' + (a.interview.type === 'video' ? 'video' : 'user') + '" class="h-3 w-3 inline mr-1"></i>' + (a.interview.location || a.interview.type || '') + '</div>';
+        }
         return '<div class="bg-white p-4 rounded-xl border border-zinc-200/60 shadow-sm hover:shadow-md transition-all cursor-grab kanban-card" draggable="true" data-id="' + a.id + '" ondragstart="onDragStart(event, \'' + a.id + '\')" onclick="showCandidate(\'' + a.id + '\')">' +
           '<div class="flex justify-between items-start mb-3">' +
           '<div class="flex items-center gap-3">' +
@@ -107,6 +135,7 @@
           '<div><h4 class="font-semibold text-sm text-zinc-900">' + (a.name || 'Applicant') + '</h4>' + '<p class="text-xs text-zinc-500">ID: ' + (a.id || '-') + '</p>' + '<p class="text-xs text-zinc-500">' + (a.role || '') + '</p></div>' +
           '</div>' +
           '</div>' +
+          extraInfo +
           '<div class="flex items-center justify-between text-xs text-zinc-500 mt-4 pt-4 border-t border-zinc-100">' +
           '<span class="text-zinc-900 font-bold">Applied ' + (a.date || '') + '</span>' +
           '</div></div>';
@@ -118,7 +147,13 @@
       function onDrop(e, status) {
         e.preventDefault();
         e.currentTarget.classList.remove('drag-over');
-        if (dragId) updateStatus(dragId, status);
+        if (dragId) {
+          if (status === 'interview') {
+            openSchedule(dragId);
+          } else {
+            updateStatus(dragId, status);
+          }
+        }
       }
 
       async function updateStatus(appId, newStatus) {
@@ -137,6 +172,12 @@
         const app = allApps.find(a => a.id === id);
         if (!app) return;
         const panel = document.getElementById('panelContent');
+        let interviewInfo = '';
+        if (app.interview) {
+          interviewInfo = '<div class="p-4 rounded-xl bg-amber-50 border border-amber-100"><h4 class="text-sm font-semibold text-zinc-900 mb-2">Interview Scheduled</h4>' +
+            '<p class="text-sm text-zinc-600"><i data-lucide="calendar" class="h-4 w-4 inline mr-1"></i>' + (app.interview.date || '') + ' at ' + (app.interview.startTime || '') + '</p>' +
+            '<p class="text-sm text-zinc-600"><i data-lucide="' + (app.interview.type === 'video' ? 'video' : 'user') + '" class="h-4 w-4 inline mr-1"></i>' + (app.interview.location || app.interview.type || '') + '</p></div>';
+        }
         panel.innerHTML = '<div class="flex items-center gap-4">' +
           '<div class="h-16 w-16 rounded-full bg-zinc-100 flex items-center justify-center text-xl font-bold text-zinc-700">' + ((app.name || 'A').charAt(0)) + '</div>' +
           '<div class="flex-1"><h3 class="text-xl font-bold text-zinc-900">' + (app.name || 'Applicant') + '</h3>' +
@@ -147,6 +188,7 @@
           '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Applied On</p><p class="text-lg font-bold text-zinc-900">' + (app.date || '-') + '</p></div>' +
           '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Status</p><p class="text-lg font-bold text-zinc-900 capitalize">' + app.status + '</p></div>' +
           '</div>' +
+          interviewInfo +
           (app.coverLetter ? '<div><h4 class="text-sm font-semibold text-zinc-900 mb-2">Cover Letter</h4><p class="text-sm text-zinc-600 leading-relaxed">' + app.coverLetter.substring(0, 200) + '...</p></div>' : '');
 
         document.getElementById('viewFullApp').href = ctx + '/organiser/application-detail.jsp?id=' + app.id;
@@ -155,6 +197,41 @@
       }
 
       function closePanel() { document.getElementById('candidatePanel').classList.add('hidden'); }
+
+      let currentAppId = null;
+      function openSchedule(appId) {
+        currentAppId = appId;
+        document.getElementById('scheduleModal').classList.remove('hidden');
+      }
+      function closeSchedule() {
+        document.getElementById('scheduleModal').classList.add('hidden');
+        currentAppId = null;
+      }
+
+      async function saveInterview() {
+        const errDiv = document.getElementById('schedError');
+        errDiv.classList.add('hidden');
+        const payload = {
+          applicationId: currentAppId,
+          date: document.getElementById('iDate').value,
+          startTime: document.getElementById('iTime').value,
+          location: document.getElementById('iLocation').value.trim(),
+          type: document.getElementById('iType').value,
+        };
+        try {
+          await organiserApi.createInterview(payload);
+          closeSchedule();
+          // 更新状态到 interview
+          await organiserApi.updateCandidateStatus(currentAppId, 'interview');
+          const app = allApps.find(a => a.id === currentAppId);
+          if (app) app.status = 'interview';
+          loadPipeline(); // 重新加载以获取面试信息
+          showToast('Interview scheduled!');
+        } catch (e) {
+          errDiv.textContent = e.message || 'Schedule failed';
+          errDiv.classList.remove('hidden');
+        }
+      }
 
       loadPipeline();
     </script>
