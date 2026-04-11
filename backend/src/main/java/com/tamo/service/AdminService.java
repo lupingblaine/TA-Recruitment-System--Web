@@ -11,7 +11,6 @@ import com.tamo.model.Profile;
 import com.tamo.model.Term;
 import com.tamo.model.User;
 import com.tamo.model.WorkloadAssignment;
-import com.tamo.util.JsonUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

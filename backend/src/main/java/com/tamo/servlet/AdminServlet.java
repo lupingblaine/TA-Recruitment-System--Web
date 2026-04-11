@@ -1,9 +1,6 @@
 package com.tamo.servlet;
 
 import com.google.gson.JsonObject;
-import com.tamo.model.Department;
-import com.tamo.model.Term;
-import com.tamo.model.User;
 import com.tamo.model.Module;
 import com.tamo.service.AdminService;
 import com.tamo.service.JsonDataService;
