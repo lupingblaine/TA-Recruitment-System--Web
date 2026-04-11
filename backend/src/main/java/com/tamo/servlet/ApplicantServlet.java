@@ -1,9 +1,7 @@
 package com.tamo.servlet;
 
 import com.google.gson.JsonObject;
-import com.tamo.model.Application;
 import com.tamo.model.Job;
-import com.tamo.model.Profile;
 import com.tamo.service.ApplicantService;
 import com.tamo.service.JsonDataService;
 import com.tamo.util.JsonUtil;
@@ -149,7 +147,18 @@ public class ApplicantServlet extends HttpServlet {
         String path = JsonUtil.getPathInfo(req);
         String userId = getUserId(req);
 
-        if (path.matches("profile/documents/[\\w]+")) {
+        if (path.matches("applications/[\\w]+")) {
+            String appId = path.split("/")[1];
+            Map<String, Object> result = service.withdrawApplication(userId, appId);
+            if (result.containsKey("error")) {
+                int code = (int) result.get("code");
+                JsonUtil.writeError(resp, code, (String) result.get("error"));
+            } else {
+                JsonObject ok = new JsonObject();
+                ok.addProperty("message", "申请已撤销");
+                JsonUtil.writeJson(resp, ok);
+            }
+        } else if (path.matches("profile/documents/[\\w]+")) {
             String docId = path.split("/")[2];
             Map<String, Object> result = service.deleteDocument(userId, docId);
             if (result.containsKey("error")) {

@@ -95,12 +95,12 @@ const ctx = document.querySelector('meta[name="ctx"]').content;
 async function loadDashboard() {
   try {
     const data = await applicantApi.getDashboard();
-    const apps = data.applications || [];
-    const jobs = data.activeJobs || [];
+    const apps = data.recentApplications || [];
+    const jobs = data.upcomingDeadlines || [];
 
-    document.getElementById('statActive').textContent = apps.filter(a => !['rejected','hired'].includes(a.status)).length;
-    document.getElementById('statInterviews').textContent = apps.filter(a => a.status === 'interview').length;
-    document.getElementById('statProfile').textContent = data.profile ? '85%' : '0%';
+    document.getElementById('statActive').textContent = data.activeApplications ?? 0;
+    document.getElementById('statInterviews').textContent = data.interviewCount ?? 0;
+    document.getElementById('statProfile').textContent = (data.profileCompletion != null ? data.profileCompletion : 0) + '%';
     document.getElementById('greeting').textContent = 'Welcome back, ' + (data.profile?.name || '<%= session.getAttribute("userName") %>') + '!';
 
     const container = document.getElementById('recentApps');

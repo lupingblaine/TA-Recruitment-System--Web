@@ -112,9 +112,7 @@ function render(p) {
   document.getElementById('pGpa').textContent = p.gpa ? p.gpa + ' / ' + (p.maxGpa || '4.0') : '-';
   document.getElementById('editPhone').value = userData.phone || '';
 
-  // Skills are not stored in profile model, show coursework as skills substitute
-  const coursework = p.coursework || [];
-  const skills = coursework.map(c => c.code).filter(Boolean);
+  const skills = p.skills || [];
   document.getElementById('editSkills').value = skills.join(', ');
   document.getElementById('pSkills').innerHTML = skills.length ?
     skills.map(s => '<span class="px-3 py-1 bg-zinc-100 text-zinc-700 rounded-full text-sm border border-zinc-200">' + s + '</span>').join('') :

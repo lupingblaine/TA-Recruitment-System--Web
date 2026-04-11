@@ -53,10 +53,10 @@ public class ApplicantService {
                     Job job = findJobById(data, app.getJobId());
                     JsonObject appObj = new JsonObject();
                     appObj.addProperty("id", app.getId());
-                    appObj.addProperty("role", job != null ? job.getTitle() : "Unknown");
-                    appObj.addProperty("module", job != null ? job.getModuleCode() : "");
+                    appObj.addProperty("jobId", app.getJobId());
                     appObj.addProperty("status", app.getStatus());
                     appObj.addProperty("appliedAt", app.getAppliedAt());
+                    enrichApplicationForApplicantApi(appObj, job, app.getJobId(), app.getAppliedAt());
                     recentApps.add(appObj);
                 });
         result.add("recentApplications", recentApps);
@@ -77,6 +77,7 @@ public class ApplicantService {
                     JsonObject d = new JsonObject();
                     d.addProperty("jobId", j.getId());
                     d.addProperty("title", j.getTitle());
+                    d.addProperty("moduleCode", j.getModuleCode() != null ? j.getModuleCode() : "");
                     d.addProperty("deadline", j.getDeadline());
                     deadlines.add(d);
                 });
@@ -196,10 +197,7 @@ public class ApplicantService {
                 .map(a -> {
                     JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(a);
                     Job job = findJobById(data, a.getJobId());
-                    if (job != null) {
-                        obj.addProperty("role", job.getTitle());
-                        obj.addProperty("module", job.getModuleCode());
-                    }
+                    enrichApplicationForApplicantApi(obj, job, a.getJobId(), a.getAppliedAt());
                     return obj;
                 })
                 .collect(Collectors.toList());
@@ -231,11 +229,44 @@ public class ApplicantService {
 
         JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(app);
         Job job = findJobById(data, app.getJobId());
-        if (job != null) {
-            obj.addProperty("role", job.getTitle());
-            obj.addProperty("module", job.getModuleCode());
-        }
+        enrichApplicationForApplicantApi(obj, job, app.getJobId(), app.getAppliedAt());
         result.put("data", obj);
+        return result;
+    }
+
+    public Map<String, Object> withdrawApplication(String userId, String appId) {
+        DataStore data = dataService.getData();
+        Map<String, Object> result = new HashMap<>();
+
+        Application app = data.getApplications().stream()
+                .filter(a -> a.getId().equals(appId))
+                .findFirst().orElse(null);
+
+        if (app == null) {
+            result.put("error", "申请不存在");
+            result.put("code", 404);
+            return result;
+        }
+
+        if (!app.getApplicantId().equals(userId)) {
+            result.put("error", "无权限撤销该申请");
+            result.put("code", 403);
+            return result;
+        }
+
+        if ("offer".equals(app.getStatus()) || "rejected".equals(app.getStatus())) {
+            result.put("error", "当前申请状态不支持撤销");
+            result.put("code", 400);
+            return result;
+        }
+
+        data.getApplications().remove(app);
+        if (data.getInterviews() != null) {
+            data.getInterviews().removeIf(i -> appId.equals(i.getApplicationId()));
+        }
+        dataService.save();
+
+        result.put("success", true);
         return result;
     }
 
@@ -253,6 +284,7 @@ public class ApplicantService {
         safeUser.addProperty("id", user.getId());
         safeUser.addProperty("name", user.getName());
         safeUser.addProperty("email", user.getEmail());
+        safeUser.addProperty("phone", user.getPhone());
         safeUser.addProperty("role", user.getRole());
         safeUser.addProperty("department", user.getDepartment());
         safeUser.addProperty("avatar", user.getAvatar());
@@ -263,6 +295,7 @@ public class ApplicantService {
         } else {
             JsonObject emptyProfile = new JsonObject();
             emptyProfile.addProperty("profileCompletion", 0);
+            emptyProfile.add("skills", new JsonArray());
             emptyProfile.add("coursework", new JsonArray());
             emptyProfile.add("experience", new JsonArray());
             emptyProfile.add("documents", new JsonArray());
@@ -276,7 +309,7 @@ public class ApplicantService {
      */
     public String updateProfile(String userId, JsonObject updates) {
         DataStore data = dataService.getData();
-        Profile profile = findProfileByUserId(data, userId);
+        Profile profile = getOrCreateProfile(data, userId);
         User user = data.getUsers().stream()
                 .filter(u -> u.getId().equals(userId)).findFirst().orElse(null);
         if (profile == null || user == null) return "用户资料不存在";
@@ -300,6 +333,11 @@ public class ApplicantService {
         if (updates.has("year")) profile.setYear(updates.get("year").getAsInt());
         if (updates.has("gpa")) profile.setGpa(updates.get("gpa").getAsDouble());
         if (updates.has("maxGpa")) profile.setMaxGpa(updates.get("maxGpa").getAsDouble());
+        if (updates.has("skills")) {
+            List<String> skills = new ArrayList<>();
+            updates.getAsJsonArray("skills").forEach(e -> skills.add(e.getAsString()));
+            profile.setSkills(skills);
+        }
 
         if (updates.has("coursework")) {
             List<Profile.Coursework> courseworkList = new ArrayList<>();
@@ -353,7 +391,7 @@ public class ApplicantService {
             return result;
         }
 
-        Profile profile = findProfileByUserId(data, userId);
+        Profile profile = getOrCreateProfile(data, userId);
         if (profile == null) {
             result.put("error", "用户资料不存在");
             result.put("code", 404);
@@ -413,10 +451,67 @@ public class ApplicantService {
         return result;
     }
 
+    /**
+     * 与前端约定：jobTitle、moduleCode、appliedDate；并保留 role、module 供旧调用方使用。
+     */
+    private void enrichApplicationForApplicantApi(JsonObject obj, Job job, String jobId, String appliedAt) {
+        if (job != null) {
+            obj.addProperty("jobTitle", job.getTitle());
+            obj.addProperty("moduleCode", job.getModuleCode() != null ? job.getModuleCode() : "");
+            obj.addProperty("role", job.getTitle());
+            obj.addProperty("module", job.getModuleCode() != null ? job.getModuleCode() : "");
+        } else {
+            String fallback = (jobId != null && !jobId.isEmpty()) ? ("Job " + jobId) : "Unknown position";
+            obj.addProperty("jobTitle", fallback);
+            obj.addProperty("moduleCode", "");
+            obj.addProperty("role", fallback);
+            obj.addProperty("module", "");
+        }
+        if (appliedAt != null && !appliedAt.isEmpty()) {
+            obj.addProperty("appliedDate", formatDisplayDate(appliedAt));
+        }
+    }
+
+    private static String formatDisplayDate(String isoDateTime) {
+        if (isoDateTime == null || isoDateTime.isEmpty()) {
+            return "";
+        }
+        int t = isoDateTime.indexOf('T');
+        if (t > 0) {
+            return isoDateTime.substring(0, t);
+        }
+        return isoDateTime.length() >= 10 ? isoDateTime.substring(0, 10) : isoDateTime;
+    }
+
     private Profile findProfileByUserId(DataStore data, String userId) {
         return data.getProfiles().stream()
                 .filter(p -> p.getUserId().equals(userId))
                 .findFirst().orElse(null);
+    }
+
+    private Profile getOrCreateProfile(DataStore data, String userId) {
+        Profile profile = findProfileByUserId(data, userId);
+        if (profile != null) {
+            return profile;
+        }
+
+        Profile created = new Profile();
+        created.setId(dataService.generateId("p", data.getProfiles()));
+        created.setUserId(userId);
+        created.setStudentId("");
+        created.setDegree("");
+        created.setYear(0);
+        created.setGpa(0);
+        created.setMaxGpa(4.0);
+        created.setProfileCompletion(0);
+        created.setSkills(new ArrayList<>());
+        created.setCoursework(new ArrayList<>());
+        created.setExperience(new ArrayList<>());
+        created.setDocuments(new ArrayList<>());
+        created.setMaxWeeklyHours(20);
+        created.setCurrentWeeklyHours(0);
+        data.getProfiles().add(created);
+        return created;
     }
 
     private Job findJobById(DataStore data, String jobId) {

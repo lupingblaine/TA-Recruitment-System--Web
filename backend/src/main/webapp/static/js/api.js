@@ -32,6 +32,7 @@ const applicantApi = {
     request('/applicant/jobs/' + jobId + '/apply', { method: 'POST', body: JSON.stringify({ coverLetter, documentIds }) }),
   getApplications: () => request('/applicant/applications'),
   getApplicationById: (id) => request('/applicant/applications/' + id),
+  withdrawApplication: (id) => request('/applicant/applications/' + id, { method: 'DELETE' }),
   getProfile: () => request('/applicant/profile'),
   updateProfile: (data) => request('/applicant/profile', { method: 'PUT', body: JSON.stringify(data) }),
   uploadDocument: (fileName, fileType, fileSize) =>

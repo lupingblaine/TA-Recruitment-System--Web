@@ -18,6 +18,7 @@
 const ctx = document.querySelector('meta[name="ctx"]').content;
 const STEPS = ['applied', 'under_review', 'shortlisted', 'interview', 'hired'];
 const STEP_LABELS = ['Applied', 'Under Review', 'Shortlisted', 'Interview', 'Offer / Rejected'];
+const WITHDRAWABLE_STATUSES = ['applied', 'review', 'shortlisted', 'interview'];
 
 function getStepIndex(status) {
   const s = (status || '').toLowerCase();
@@ -72,6 +73,11 @@ async function loadApplications() {
       });
       timelineHTML += '</div></div>';
 
+      const canWithdraw = WITHDRAWABLE_STATUSES.includes((app.status || '').toLowerCase());
+      const actionsHTML = canWithdraw
+        ? '<button class="btn btn-outline text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300" onclick="withdrawApplication(\'' + app.id + '\')">Withdraw</button>'
+        : '';
+
       return '<div class="card overflow-hidden shadow-sm hover:shadow-md transition-shadow fade-in">' +
         '<div class="p-6 sm:p-8 bg-white border-b border-zinc-200 flex flex-col md:flex-row justify-between items-start gap-6">' +
           '<div class="space-y-2">' +
@@ -80,6 +86,7 @@ async function loadApplications() {
             '<h3 class="text-xl font-bold text-zinc-900 mt-2">' + (app.jobTitle || app.jobId) + '</h3>' +
             '<p class="text-zinc-500">' + (app.moduleCode || '') + '</p>' +
           '</div>' +
+          actionsHTML +
         '</div>' +
         '<div class="p-6 sm:p-8 bg-zinc-50/50">' + timelineHTML + '</div></div>';
     }).join('');
@@ -89,5 +96,24 @@ async function loadApplications() {
     document.getElementById('appList').innerHTML = '<div class="text-center text-red-500 py-12">Failed to load applications</div>';
   }
 }
+
+async function withdrawApplication(id) {
+  if (!confirm('Are you sure you want to withdraw this application?')) {
+    return;
+  }
+
+  try {
+    if (applicantApi.withdrawApplication) {
+      await applicantApi.withdrawApplication(id);
+    } else {
+      await request('/applicant/applications/' + id, { method: 'DELETE' });
+    }
+    showToast('Application withdrawn');
+    loadApplications();
+  } catch (e) {
+    showToast(e.message || 'Failed to withdraw application', 'error');
+  }
+}
+
 loadApplications();
 </script>

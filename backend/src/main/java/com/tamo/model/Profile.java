@@ -11,6 +11,7 @@ public class Profile {
     private double gpa;
     private double maxGpa;
     private int profileCompletion;
+    private List<String> skills;
     private List<Coursework> coursework;
     private List<Experience> experience;
     private List<Document> documents;
@@ -84,6 +85,8 @@ public class Profile {
     public void setMaxGpa(double maxGpa) { this.maxGpa = maxGpa; }
     public int getProfileCompletion() { return profileCompletion; }
     public void setProfileCompletion(int profileCompletion) { this.profileCompletion = profileCompletion; }
+    public List<String> getSkills() { return skills; }
+    public void setSkills(List<String> skills) { this.skills = skills; }
     public List<Coursework> getCoursework() { return coursework; }
     public void setCoursework(List<Coursework> coursework) { this.coursework = coursework; }
     public List<Experience> getExperience() { return experience; }
