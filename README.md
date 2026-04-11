@@ -37,20 +37,20 @@ TA&MO is a full-stack web application for managing the TA recruitment lifecycle 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│              Embedded Tomcat (port 8080)         │
-│                                                  │
-│  ┌──────────────┐     ┌───────────────────────┐  │
+┌───────────────────────────────────────────────────┐
+│              Embedded Tomcat (port 8080)          │
+│                                                   │
+│  ┌───────────────┐     ┌───────────────────────┐  │
 │  │  JSP Frontend │     │  Servlet Backend API  │  │
-│  │  (18 pages)   │────▶│  (42 REST endpoints)  │  │
+│  │  (18 pages)   │────▶│  (42 REST endpoints)  │  │ 
 │  │  Tailwind CSS │     │  Session Auth + RBAC  │  │
 │  │  Vanilla JS   │     │  JSON file storage    │  │
-│  └──────────────┘     └───────────────────────┘  │
+│  └───────────────┘     └───────────────────────┘  │
 │                              │                    │
 │                        ┌─────▼─────┐              │
 │                        │ data.json │              │
 │                        └───────────┘              │
-└─────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────┘
 ```
 
 - **Frontend**: JSP pages served by Tomcat, styled with Tailwind CSS CDN, interactive via vanilla JavaScript + Fetch API
