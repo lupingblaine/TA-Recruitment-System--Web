@@ -95,7 +95,7 @@ function renderModules(modules) {
       '<td class="px-6 py-4 whitespace-nowrap"><div class="flex items-center gap-3">' +
         '<div class="h-8 w-8 rounded-md bg-zinc-100 flex items-center justify-center text-zinc-500"><i data-lucide="book-open" class="h-4 w-4"></i></div>' +
         '<div><div class="font-semibold text-zinc-900">' + m.code + '</div><div class="text-zinc-500 text-xs">' + (m.name || '') + '</div></div></div></td>' +
-      '<td class="px-6 py-4 whitespace-nowrap text-zinc-700">' + (m.organiserId || '-') + '</td>' +
+      '<td class="px-6 py-4 whitespace-nowrap text-zinc-700">' + (m.organiserName || m.organiserId || '-') + '</td>' +
       '<td class="px-6 py-4 whitespace-nowrap text-zinc-600">' + (m.department || '-') + '</td>' +
       '<td class="px-6 py-4 whitespace-nowrap text-zinc-600">' + (m.term || '-') + '</td>' +
       '<td class="px-6 py-4 whitespace-nowrap"><span class="badge ' + statusBadge + ' capitalize">' + (m.status || 'active') + '</span></td>' +

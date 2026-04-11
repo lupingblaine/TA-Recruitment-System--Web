@@ -88,10 +88,12 @@
 <jsp:include page="/common/layout-bottom.jsp"/>
 <script>
 let profileData = null;
+let userData = null;
 
 async function loadProfile() {
   try {
     const data = await applicantApi.getProfile();
+    userData = data.user || {};
     profileData = data.profile || data;
     render(profileData);
   } catch (e) {
@@ -100,38 +102,38 @@ async function loadProfile() {
 }
 
 function render(p) {
-  document.getElementById('pName').textContent = p.name || '-';
-  document.getElementById('pEmail').textContent = p.email || '-';
-  document.getElementById('pPhone').textContent = p.phone || '-';
+  // User info comes from user object, profile info from profile object
+  document.getElementById('pName').textContent = userData.name || '-';
+  document.getElementById('pEmail').textContent = userData.email || '-';
+  document.getElementById('pPhone').textContent = userData.phone || '-';
   document.getElementById('pStudentId').textContent = p.studentId || '-';
   document.getElementById('pDegree').textContent = p.degree || '-';
   document.getElementById('pYear').textContent = p.year || '-';
-  document.getElementById('pGpa').textContent = p.gpa ? p.gpa + ' / 4.0' : '-';
-  document.getElementById('editPhone').value = p.phone || '';
-  document.getElementById('editSkills').value = (p.skills || []).join(', ');
+  document.getElementById('pGpa').textContent = p.gpa ? p.gpa + ' / ' + (p.maxGpa || '4.0') : '-';
+  document.getElementById('editPhone').value = userData.phone || '';
 
-  const skillsDiv = document.getElementById('pSkills');
-  skillsDiv.innerHTML = (p.skills || []).map(s =>
-    '<span class="px-3 py-1 bg-zinc-100 text-zinc-700 rounded-full text-sm border border-zinc-200">' + s + '</span>'
-  ).join('');
+  // Skills are not stored in profile model, show coursework as skills substitute
+  const coursework = p.coursework || [];
+  const skills = coursework.map(c => c.code).filter(Boolean);
+  document.getElementById('editSkills').value = skills.join(', ');
+  document.getElementById('pSkills').innerHTML = skills.length ?
+    skills.map(s => '<span class="px-3 py-1 bg-zinc-100 text-zinc-700 rounded-full text-sm border border-zinc-200">' + s + '</span>').join('') :
+    '<span class="text-zinc-400 text-sm">No skills added</span>';
 
+  // Documents - API uses 'name' not 'fileName', 'size' not 'fileSize'
   const docs = p.documents || [];
-  document.getElementById('docList').innerHTML = docs.map(d =>
+  document.getElementById('docList').innerHTML = docs.length ? docs.map(d =>
     '<div class="border border-zinc-200 rounded-xl p-4 flex justify-between items-center bg-zinc-50 mb-3">' +
       '<div class="flex items-center gap-4">' +
         '<div class="h-10 w-10 bg-red-100 text-red-600 rounded-lg flex items-center justify-center"><i data-lucide="file-text" class="h-5 w-5"></i></div>' +
-        '<div><p class="font-medium text-zinc-900">' + d.fileName + '</p><p class="text-sm text-zinc-500">' + (d.fileSize || '') + '</p></div>' +
+        '<div><p class="font-medium text-zinc-900">' + (d.name || 'Untitled') + '</p><p class="text-sm text-zinc-500">' + (d.size || '') + '</p></div>' +
       '</div>' +
       '<button onclick="deleteDoc(\'' + d.id + '\')" class="btn btn-ghost text-red-500 hover:text-red-600 text-sm">Delete</button>' +
     '</div>'
-  ).join('');
+  ).join('') : '<p class="text-zinc-400 text-sm">No documents uploaded</p>';
 
-  let completeness = 0;
-  if (p.name) completeness += 20;
-  if (p.email) completeness += 20;
-  if (p.gpa) completeness += 20;
-  if (p.skills && p.skills.length) completeness += 20;
-  if (docs.length) completeness += 20;
+  // Use profileCompletion from API if available, otherwise calculate
+  const completeness = p.profileCompletion || 0;
   document.getElementById('completionPct').textContent = completeness + '% Complete';
   document.getElementById('completionBar').style.width = completeness + '%';
   lucide.createIcons();

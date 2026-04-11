@@ -46,20 +46,24 @@
 const ctx = document.querySelector('meta[name="ctx"]').content;
 const COLUMNS = [
   { id: 'applied', title: 'Applied', color: 'bg-zinc-100' },
-  { id: 'under_review', title: 'Review', color: 'bg-blue-100 text-blue-800' },
+  { id: 'review', title: 'Review', color: 'bg-blue-100 text-blue-800' },
   { id: 'shortlisted', title: 'Shortlist', color: 'bg-purple-100 text-purple-800' },
   { id: 'interview', title: 'Interview', color: 'bg-amber-100 text-amber-800' },
-  { id: 'hired', title: 'Offer', color: 'bg-emerald-100 text-emerald-800' },
+  { id: 'offer', title: 'Offer', color: 'bg-emerald-100 text-emerald-800' },
 ];
 let allApps = [];
+let pipelineData = {};
 
 async function loadPipeline() {
   const module = document.getElementById('moduleFilter').value;
   try {
     const data = await organiserApi.getPipeline(module || undefined);
-    allApps = data.applications || data || [];
+    // API returns {applied: [], review: [], shortlisted: [], interview: [], offer: []}
+    pipelineData = data;
+    // Flatten to array for backward compatibility while preserving stage info
+    allApps = Object.values(data).flat();
 
-    const mods = [...new Set(allApps.map(a => a.moduleCode).filter(Boolean))];
+    const mods = [...new Set(allApps.map(a => a.role).filter(Boolean))];
     const sel = document.getElementById('moduleFilter');
     const current = sel.value;
     sel.innerHTML = '<option value="">All Modules</option>' + mods.map(m => '<option value="' + m + '"' + (m === current ? ' selected' : '') + '>' + m + '</option>').join('');
@@ -77,7 +81,7 @@ function filterView() {
 
 function renderKanban() {
   const search = (document.getElementById('searchInput').value || '').toLowerCase();
-  const apps = allApps.filter(a => !search || (a.applicantName || '').toLowerCase().includes(search) || (a.moduleCode || '').toLowerCase().includes(search));
+  const apps = allApps.filter(a => !search || (a.name || '').toLowerCase().includes(search) || (a.role || '').toLowerCase().includes(search));
 
   document.getElementById('kanban').innerHTML = COLUMNS.map(col => {
     const colApps = apps.filter(a => a.status === col.id);
@@ -97,13 +101,13 @@ function renderCard(a) {
   return '<div class="bg-white p-4 rounded-xl border border-zinc-200/60 shadow-sm hover:shadow-md transition-all cursor-grab kanban-card" draggable="true" data-id="' + a.id + '" ondragstart="onDragStart(event, \'' + a.id + '\')" onclick="showCandidate(\'' + a.id + '\')">' +
     '<div class="flex justify-between items-start mb-3">' +
       '<div class="flex items-center gap-3">' +
-        '<div class="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-700">' + ((a.applicantName || 'A').charAt(0)) + '</div>' +
-        '<div><h4 class="font-semibold text-sm text-zinc-900">' + (a.applicantName || 'Applicant') + '</h4>' +
-        '<p class="text-xs text-zinc-500">' + (a.moduleCode || '') + '</p></div>' +
+        '<div class="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-700">' + ((a.name || 'A').charAt(0)) + '</div>' +
+        '<div><h4 class="font-semibold text-sm text-zinc-900">' + (a.name || 'Applicant') + '</h4>' +
+        '<p class="text-xs text-zinc-500">' + (a.role || '') + '</p></div>' +
       '</div>' +
     '</div>' +
     '<div class="flex items-center justify-between text-xs text-zinc-500 mt-4 pt-4 border-t border-zinc-100">' +
-      '<span class="text-zinc-900 font-bold">Applied ' + (a.appliedDate || '') + '</span>' +
+      '<span class="text-zinc-900 font-bold">Applied ' + (a.date || '') + '</span>' +
     '</div></div>';
 }
 
@@ -133,12 +137,12 @@ function showCandidate(id) {
   if (!app) return;
   const panel = document.getElementById('panelContent');
   panel.innerHTML = '<div class="flex items-center gap-4">' +
-    '<div class="h-16 w-16 rounded-full bg-zinc-100 flex items-center justify-center text-xl font-bold text-zinc-700">' + ((app.applicantName || 'A').charAt(0)) + '</div>' +
-    '<div class="flex-1"><h3 class="text-xl font-bold text-zinc-900">' + (app.applicantName || 'Applicant') + '</h3>' +
-    '<p class="text-sm text-zinc-500">Applied for ' + (app.moduleCode || '') + '</p>' +
+    '<div class="h-16 w-16 rounded-full bg-zinc-100 flex items-center justify-center text-xl font-bold text-zinc-700">' + ((app.name || 'A').charAt(0)) + '</div>' +
+    '<div class="flex-1"><h3 class="text-xl font-bold text-zinc-900">' + (app.name || 'Applicant') + '</h3>' +
+    '<p class="text-sm text-zinc-500">Applied for ' + (app.role || '') + '</p>' +
     '<span class="badge badge-neutral mt-2 capitalize">' + app.status + '</span></div></div>' +
     '<div class="grid grid-cols-2 gap-4">' +
-      '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Applied On</p><p class="text-lg font-bold text-zinc-900">' + (app.appliedDate || '-') + '</p></div>' +
+      '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Applied On</p><p class="text-lg font-bold text-zinc-900">' + (app.date || '-') + '</p></div>' +
       '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Status</p><p class="text-lg font-bold text-zinc-900 capitalize">' + app.status + '</p></div>' +
     '</div>' +
     (app.coverLetter ? '<div><h4 class="text-sm font-semibold text-zinc-900 mb-2">Cover Letter</h4><p class="text-sm text-zinc-600 leading-relaxed">' + app.coverLetter.substring(0, 200) + '...</p></div>' : '');
