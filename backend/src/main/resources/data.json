@@ -75,7 +75,7 @@
       "department": "System",
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-04-11T16:56:36.535687",
+      "lastLogin": "2026-04-11T17:21:36.381538",
       "createdAt": "2026-07-01T00:00:00"
     }
   ],
@@ -640,6 +640,26 @@
       "actorId": "u010",
       "type": "success",
       "details": "Created module: test - test",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9010",
+      "timestamp": "2026-04-11T17:21:29.487625",
+      "action": "Failed Login",
+      "actor": "admin@university.edu",
+      "actorId": null,
+      "type": "error",
+      "details": "Invalid credentials for admin@university.edu",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9011",
+      "timestamp": "2026-04-11T17:21:36.387052",
+      "action": "User Login",
+      "actor": "admin@university.edu",
+      "actorId": "u010",
+      "type": "info",
+      "details": "Successful login as admin.",
       "ip": "0:0:0:0:0:0:0:1"
     }
   ],
