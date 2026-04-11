@@ -1,9 +1,6 @@
 package com.tamo.servlet;
 
 import com.google.gson.JsonObject;
-import com.tamo.model.Department;
-import com.tamo.model.Term;
-import com.tamo.model.User;
 import com.tamo.model.Module;
 import com.tamo.service.AdminService;
 import com.tamo.service.JsonDataService;
@@ -19,15 +16,20 @@ import java.util.Map;
 public class AdminServlet extends HttpServlet {
 
     private AdminService service;
+    private JsonDataService dataService;
 
     @Override
     public void init() throws ServletException {
-        JsonDataService dataService = JsonDataService.getInstance();
+        this.dataService = JsonDataService.getInstance();
         this.service = new AdminService(dataService);
     }
 
     private String getUserId(HttpServletRequest req) {
         return (String) req.getSession().getAttribute("userId");
+    }
+
+    private String getUserName(HttpServletRequest req) {
+        return (String) req.getSession().getAttribute("userName");
     }
 
     @Override
@@ -73,6 +75,9 @@ public class AdminServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         JsonObject body = JsonUtil.readRequestBodyAsJson(req);
+        String actor = getUserName(req);
+        String actorId = getUserId(req);
+        String ip = req.getRemoteAddr();
 
         switch (path) {
             case "users" -> {
@@ -83,6 +88,9 @@ public class AdminServlet extends HttpServlet {
                 } else {
                     resp.setStatus(201);
                     JsonUtil.writeJson(resp, result.get("user"));
+                    String newName = body.has("name") ? body.get("name").getAsString() : "";
+                    dataService.addLog("User Created", "success", actor, actorId,
+                            "Created user: " + newName, ip);
                 }
             }
 
@@ -94,6 +102,10 @@ public class AdminServlet extends HttpServlet {
                 } else {
                     resp.setStatus(201);
                     JsonUtil.writeJson(resp, result.get("module"));
+                    String modCode = body.has("code") ? body.get("code").getAsString() : "";
+                    String modName = body.has("name") ? body.get("name").getAsString() : "";
+                    dataService.addLog("Module Created", "success", actor, actorId,
+                            "Created module: " + modCode + " - " + modName, ip);
                 }
             }
 
@@ -105,6 +117,9 @@ public class AdminServlet extends HttpServlet {
                 } else {
                     resp.setStatus(201);
                     JsonUtil.writeJson(resp, result.get("term"));
+                    String termName = body.has("name") ? body.get("name").getAsString() : "";
+                    dataService.addLog("Term Created", "success", actor, actorId,
+                            "Created term: " + termName, ip);
                 }
             }
 
@@ -116,6 +131,9 @@ public class AdminServlet extends HttpServlet {
                 } else {
                     resp.setStatus(201);
                     JsonUtil.writeJson(resp, result.get("department"));
+                    String deptName = body.has("name") ? body.get("name").getAsString() : "";
+                    dataService.addLog("Department Created", "success", actor, actorId,
+                            "Created department: " + deptName, ip);
                 }
             }
 
@@ -127,6 +145,8 @@ public class AdminServlet extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         String adminId = getUserId(req);
+        String actor = getUserName(req);
+        String ip = req.getRemoteAddr();
         JsonObject body = JsonUtil.readRequestBodyAsJson(req);
 
         if (path.matches("users/[\\w]+")) {
@@ -137,6 +157,8 @@ public class AdminServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonUtil.writeJson(resp, result.get("user"));
+                dataService.addLog("User Updated", "info", actor, adminId,
+                        "Updated user " + userId, ip);
             }
 
         } else if (path.matches("modules/[\\w]+")) {
@@ -146,6 +168,8 @@ public class AdminServlet extends HttpServlet {
                 JsonUtil.writeError(resp, 404, "模块不存在");
             } else {
                 JsonUtil.writeJson(resp, module);
+                dataService.addLog("Module Updated", "info", actor, adminId,
+                        "Updated module " + moduleId + " (" + module.getCode() + ")", ip);
             }
 
         } else if (path.matches("workload/[\\w]+/reassign")) {
@@ -158,6 +182,8 @@ public class AdminServlet extends HttpServlet {
                 JsonObject ok = new JsonObject();
                 ok.addProperty("message", "重新分配成功");
                 JsonUtil.writeJson(resp, ok);
+                dataService.addLog("Workload Reassigned", "info", actor, adminId,
+                        "Reassigned workload for TA " + taId, ip);
             }
 
         } else {
@@ -169,6 +195,8 @@ public class AdminServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         String adminId = getUserId(req);
+        String actor = getUserName(req);
+        String ip = req.getRemoteAddr();
 
         if (path.matches("users/[\\w]+")) {
             String userId = path.split("/")[1];
@@ -180,6 +208,8 @@ public class AdminServlet extends HttpServlet {
                 JsonObject ok = new JsonObject();
                 ok.addProperty("message", "用户删除成功");
                 JsonUtil.writeJson(resp, ok);
+                dataService.addLog("User Deleted", "warning", actor, adminId,
+                        "Deleted user " + userId, ip);
             }
 
         } else if (path.matches("modules/[\\w]+")) {
@@ -192,6 +222,8 @@ public class AdminServlet extends HttpServlet {
                 JsonObject ok = new JsonObject();
                 ok.addProperty("message", "模块删除成功");
                 JsonUtil.writeJson(resp, ok);
+                dataService.addLog("Module Deleted", "warning", actor, adminId,
+                        "Deleted module " + moduleId, ip);
             }
 
         } else {

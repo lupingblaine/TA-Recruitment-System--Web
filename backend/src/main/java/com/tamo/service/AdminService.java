@@ -11,7 +11,6 @@ import com.tamo.model.Profile;
 import com.tamo.model.Term;
 import com.tamo.model.User;
 import com.tamo.model.WorkloadAssignment;
-import com.tamo.util.JsonUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,14 +44,7 @@ public class AdminService {
         result.addProperty("activePostings", activePostings);
         result.addProperty("acceptanceRate", acceptanceRate);
 
-        JsonArray trendData = new JsonArray();
-        int[] weeklyApplicants = {45, 82, 120, 250, 310, (int) totalApplicants};
-        for (int i = 0; i < weeklyApplicants.length; i++) {
-            JsonObject point = new JsonObject();
-            point.addProperty("name", "Week " + (i + 1));
-            point.addProperty("applicants", weeklyApplicants[i]);
-            trendData.add(point);
-        }
+        JsonArray trendData = buildWeeklyApplicationTrend(data);
         result.add("trendData", trendData);
 
         JsonArray moduleStats = new JsonArray();
@@ -541,5 +533,46 @@ public class AdminService {
         obj.addProperty("lastLogin", user.getLastLogin());
         obj.addProperty("createdAt", user.getCreatedAt());
         return obj;
+    }
+
+    /**
+     * Build weekly application trend from real appliedAt dates.
+     * Groups applications by ISO week and returns the most recent 6 weeks.
+     */
+    private JsonArray buildWeeklyApplicationTrend(DataStore data) {
+        JsonArray trendData = new JsonArray();
+
+        Map<LocalDate, Long> weekCounts = new TreeMap<>();
+
+        for (com.tamo.model.Application app : data.getApplications()) {
+            String appliedAt = app.getAppliedAt();
+            if (appliedAt == null || appliedAt.isBlank()) continue;
+            try {
+                LocalDate date = LocalDate.parse(appliedAt.substring(0, 10));
+                LocalDate weekStart = date.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+                weekCounts.merge(weekStart, 1L, Long::sum);
+            } catch (Exception ignored) {}
+        }
+
+        if (weekCounts.isEmpty()) {
+            JsonObject point = new JsonObject();
+            point.addProperty("name", "No data");
+            point.addProperty("applicants", 0);
+            trendData.add(point);
+            return trendData;
+        }
+
+        DateTimeFormatter labelFmt = DateTimeFormatter.ofPattern("MM/dd");
+        List<Map.Entry<LocalDate, Long>> entries = new ArrayList<>(weekCounts.entrySet());
+        int start = Math.max(0, entries.size() - 6);
+        for (int i = start; i < entries.size(); i++) {
+            Map.Entry<LocalDate, Long> e = entries.get(i);
+            JsonObject point = new JsonObject();
+            point.addProperty("name", "Week " + e.getKey().format(labelFmt));
+            point.addProperty("applicants", e.getValue());
+            trendData.add(point);
+        }
+
+        return trendData;
     }
 }

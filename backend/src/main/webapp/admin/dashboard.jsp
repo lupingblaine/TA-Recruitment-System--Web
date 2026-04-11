@@ -13,15 +13,15 @@
     <div class="card fade-in"><div class="p-6"><div class="flex justify-between items-start">
       <div><p class="text-sm font-medium text-zinc-500">Total Applicants</p><p class="text-3xl font-bold text-zinc-900 mt-2" id="statApplicants">-</p></div>
       <div class="stat-icon"><i data-lucide="users" class="h-5 w-5"></i></div>
-    </div><div class="mt-4 flex items-center text-sm"><span class="text-emerald-500 font-medium">+12%</span><span class="text-zinc-500 ml-2">from last month</span></div></div></div>
+    </div><div class="mt-4 text-sm text-zinc-400" id="statApplicantsNote">Users with applicant role</div></div></div>
     <div class="card fade-in"><div class="p-6"><div class="flex justify-between items-start">
       <div><p class="text-sm font-medium text-zinc-500">Active Postings</p><p class="text-3xl font-bold text-zinc-900 mt-2" id="statPostings">-</p></div>
       <div class="stat-icon"><i data-lucide="briefcase" class="h-5 w-5"></i></div>
-    </div><div class="mt-4 flex items-center text-sm"><span class="text-emerald-500 font-medium">+4</span><span class="text-zinc-500 ml-2">from last month</span></div></div></div>
+    </div><div class="mt-4 text-sm text-zinc-400" id="statPostingsNote">Jobs with active status</div></div></div>
     <div class="card fade-in"><div class="p-6"><div class="flex justify-between items-start">
-      <div><p class="text-sm font-medium text-zinc-500">Offers Accepted</p><p class="text-3xl font-bold text-zinc-900 mt-2" id="statOffers">85%</p></div>
+      <div><p class="text-sm font-medium text-zinc-500">Offer Rate</p><p class="text-3xl font-bold text-zinc-900 mt-2" id="statOffers">-</p></div>
       <div class="stat-icon"><i data-lucide="trending-up" class="h-5 w-5"></i></div>
-    </div><div class="mt-4 flex items-center text-sm"><span class="text-emerald-500 font-medium">+2%</span><span class="text-zinc-500 ml-2">from last month</span></div></div></div>
+    </div><div class="mt-4 text-sm text-zinc-400" id="statOffersNote">Offer / total applications</div></div></div>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -30,7 +30,7 @@
       <div class="h-72"><canvas id="areaChart"></canvas></div>
     </div>
     <div class="card p-6">
-      <h3 class="text-lg font-bold text-zinc-900 mb-6">Applicants per Module</h3>
+      <h3 class="text-lg font-bold text-zinc-900 mb-6">Applicants per Module (jobs)</h3>
       <div class="h-72"><canvas id="barChart"></canvas></div>
     </div>
   </div>
@@ -50,23 +50,24 @@
 
 <jsp:include page="/common/layout-bottom.jsp"/>
 <script>
-async function loadDashboard() {
-  try {
-    const data = await adminApi.getDashboard();
-    document.getElementById('statApplicants').textContent = data.totalUsers || '-';
-    document.getElementById('statPostings').textContent = data.totalJobs || '-';
-    document.getElementById('alertText').textContent = (data.alerts && data.alerts.length) ? data.alerts.join('. ') : 'No active alerts.';
-  } catch (e) { console.error('加载仪表盘失败', e); }
-}
+const chartOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 12 } } },
+    y: { grid: { color: '#e4e4e7', drawBorder: false }, ticks: { color: '#71717a', font: { size: 12 } } }
+  }
+};
 
 const areaCtx = document.getElementById('areaChart').getContext('2d');
-new Chart(areaCtx, {
+const areaChart = new Chart(areaCtx, {
   type: 'line',
   data: {
-    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+    labels: [],
     datasets: [{
       label: 'Applicants',
-      data: [45, 82, 120, 250, 310, 342],
+      data: [],
       fill: true,
       backgroundColor: 'rgba(24,24,27,0.08)',
       borderColor: '#18181b',
@@ -76,38 +77,72 @@ new Chart(areaCtx, {
       pointBackgroundColor: '#18181b',
     }]
   },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 12 } } },
-      y: { grid: { color: '#e4e4e7', drawBorder: false }, ticks: { color: '#71717a', font: { size: 12 } } }
-    }
-  }
+  options: chartOpts
 });
 
 const barCtx = document.getElementById('barChart').getContext('2d');
-new Chart(barCtx, {
+const barChart = new Chart(barCtx, {
   type: 'bar',
   data: {
-    labels: ['CS101', 'CS201', 'CS301', 'CS405', 'CS502'],
+    labels: [],
     datasets: [{
       label: 'Applicants',
-      data: [120, 85, 40, 65, 32],
+      data: [],
       backgroundColor: '#18181b',
       borderRadius: 4,
       barThickness: 40,
     }]
   },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 12 } } },
-      y: { grid: { color: '#e4e4e7', drawBorder: false }, ticks: { color: '#71717a', font: { size: 12 } } }
-    }
-  }
+  options: chartOpts
 });
+
+function formatSystemAlerts(alerts) {
+  if (!alerts || !alerts.length) return 'No active alerts.';
+  return alerts.map(a => {
+    const mod = a.module != null ? a.module : '';
+    const n = a.unfilled != null ? a.unfilled : 0;
+    return mod + ': ' + n + ' unfilled position' + (n === 1 ? '' : 's');
+  }).join('. ');
+}
+
+function updateChartsFromDashboard(data) {
+  const trend = data.trendData || [];
+  if (trend.length) {
+    areaChart.data.labels = trend.map(p => p.name || '');
+    areaChart.data.datasets[0].data = trend.map(p => Number(p.applicants) || 0);
+  } else {
+    areaChart.data.labels = ['—'];
+    areaChart.data.datasets[0].data = [0];
+  }
+  areaChart.update();
+
+  const mods = data.moduleStats || [];
+  if (mods.length) {
+    barChart.data.labels = mods.map(m => m.name || '');
+    barChart.data.datasets[0].data = mods.map(m => Number(m.applicants) || 0);
+  } else {
+    barChart.data.labels = ['—'];
+    barChart.data.datasets[0].data = [0];
+  }
+  barChart.update();
+}
+
+async function loadDashboard() {
+  try {
+    const data = await adminApi.getDashboard();
+    document.getElementById('statApplicants').textContent =
+      data.totalApplicants != null ? String(data.totalApplicants) : '-';
+    document.getElementById('statPostings').textContent =
+      data.activePostings != null ? String(data.activePostings) : '-';
+    document.getElementById('statOffers').textContent =
+      data.acceptanceRate != null ? String(data.acceptanceRate) : '-';
+    document.getElementById('alertText').textContent = formatSystemAlerts(data.systemAlerts);
+    updateChartsFromDashboard(data);
+  } catch (e) {
+    console.error('加载仪表盘失败', e);
+    document.getElementById('alertText').textContent = 'Failed to load dashboard. Please refresh.';
+  }
+}
 
 loadDashboard();
 </script>

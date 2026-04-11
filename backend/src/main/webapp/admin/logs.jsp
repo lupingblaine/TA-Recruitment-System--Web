@@ -17,10 +17,10 @@
     </div>
     <select id="typeFilter" class="input w-auto" onchange="loadLogs()">
       <option value="">All Types</option>
-      <option value="auth">Auth</option>
-      <option value="user">User</option>
-      <option value="job">Job</option>
-      <option value="application">Application</option>
+      <option value="info">Info</option>
+      <option value="success">Success</option>
+      <option value="warning">Warning</option>
+      <option value="error">Error</option>
     </select>
   </div>
 

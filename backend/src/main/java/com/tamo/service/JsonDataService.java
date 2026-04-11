@@ -1,12 +1,15 @@
 package com.tamo.service;
 
-import com.google.gson.Gson;
 import com.tamo.model.DataStore;
 import com.tamo.util.JsonUtil;
 
+import com.tamo.model.LogEntry;
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * 线程安全的 JSON 文件读写核心服务（单例模式）
@@ -15,12 +18,35 @@ public class JsonDataService {
 
     private static JsonDataService instance;
     private final String dataFilePath;
+    private String sourceFilePath;
     private DataStore cache;
     private final Object lock = new Object();
 
     private JsonDataService(String dataFilePath) {
         this.dataFilePath = dataFilePath;
         this.cache = loadFromFile();
+        resolveSourcePath();
+    }
+
+    private void resolveSourcePath() {
+        try {
+            URL resource = getClass().getClassLoader().getResource("data.json");
+            if (resource != null && "file".equals(resource.getProtocol())) {
+                Path classesPath = Paths.get(resource.toURI());
+                Path projectRoot = classesPath.getParent();
+                while (projectRoot != null && !Files.exists(projectRoot.resolve("pom.xml"))) {
+                    projectRoot = projectRoot.getParent();
+                }
+                if (projectRoot != null) {
+                    Path srcPath = projectRoot.resolve("src/main/resources/data.json");
+                    if (Files.exists(srcPath)) {
+                        this.sourceFilePath = srcPath.toString();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            this.sourceFilePath = null;
+        }
     }
 
     public static synchronized JsonDataService getInstance(String basePath) {
@@ -69,12 +95,15 @@ public class JsonDataService {
     }
 
     /**
-     * 保存数据到文件
+     * 保存数据到文件 — 同时写入 target/classes 和 src/main/resources
      */
     private void saveToFile() {
         try {
             String json = JsonUtil.getGson().toJson(cache);
             Files.writeString(Paths.get(dataFilePath), json, StandardCharsets.UTF_8);
+            if (sourceFilePath != null) {
+                Files.writeString(Paths.get(sourceFilePath), json, StandardCharsets.UTF_8);
+            }
         } catch (IOException e) {
             System.err.println("保存数据文件失败: " + e.getMessage());
             e.printStackTrace();
@@ -114,6 +143,29 @@ public class JsonDataService {
     public String generateId(String prefix, java.util.List<?> list) {
         synchronized (lock) {
             return prefix + String.format("%03d", list.size() + 1);
+        }
+    }
+
+    /**
+     * Append an audit log entry and persist.
+     */
+    public void addLog(String action, String type, String actor, String actorId, String details, String ip) {
+        synchronized (lock) {
+            LogEntry entry = new LogEntry();
+            int nextNum = cache.getLogs() != null ? cache.getLogs().size() + 1 : 1;
+            entry.setId("EVT-" + (9000 + nextNum));
+            entry.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            entry.setAction(action);
+            entry.setType(type);
+            entry.setActor(actor != null ? actor : "System");
+            entry.setActorId(actorId);
+            entry.setDetails(details);
+            entry.setIp(ip != null ? ip : "127.0.0.1");
+            if (cache.getLogs() == null) {
+                cache.setLogs(new java.util.ArrayList<>());
+            }
+            cache.getLogs().add(entry);
+            saveToFile();
         }
     }
 }

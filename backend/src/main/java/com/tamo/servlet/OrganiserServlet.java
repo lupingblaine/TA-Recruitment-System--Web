@@ -1,8 +1,6 @@
 package com.tamo.servlet;
 
 import com.google.gson.JsonObject;
-import com.tamo.model.Interview;
-import com.tamo.model.Job;
 import com.tamo.service.JsonDataService;
 import com.tamo.service.OrganiserService;
 import com.tamo.util.JsonUtil;
