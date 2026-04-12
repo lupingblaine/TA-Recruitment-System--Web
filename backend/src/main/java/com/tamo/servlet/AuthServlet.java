@@ -16,11 +16,12 @@ import java.io.IOException;
 public class AuthServlet extends HttpServlet {
 
     private AuthService authService;
+    private JsonDataService dataService;
 
     @Override
     public void init() throws ServletException {
         String basePath = getServletContext().getRealPath("/WEB-INF/classes");
-        JsonDataService dataService = JsonDataService.getInstance(basePath);
+        this.dataService = JsonDataService.getInstance(basePath);
         this.authService = new AuthService(dataService);
     }
 
@@ -82,6 +83,10 @@ public class AuthServlet extends HttpServlet {
         session.setAttribute("role", user.getRole());
         session.setAttribute("userName", user.getName());
 
+        String ip = req.getRemoteAddr();
+        dataService.addLog("User Login", "info", user.getName(), user.getId(),
+                "User " + user.getName() + " (" + user.getRole() + ") logged in", ip);
+
         JsonObject safeUser = buildSafeUser(user);
         JsonObject result = new JsonObject();
         result.addProperty("success", true);
@@ -123,6 +128,10 @@ public class AuthServlet extends HttpServlet {
         session.setAttribute("role", user.getRole());
         session.setAttribute("userName", user.getName());
 
+        String ip = req.getRemoteAddr();
+        dataService.addLog("User Signup", "success", user.getName(), user.getId(),
+                "New " + user.getRole() + " account registered: " + user.getEmail(), ip);
+
         resp.setStatus(201);
         JsonObject safeUser = buildSafeUser(user);
         JsonObject result = new JsonObject();
@@ -133,9 +142,17 @@ public class AuthServlet extends HttpServlet {
 
     private void handleLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
+        String userName = null;
+        String userId = null;
         if (session != null) {
+            userName = (String) session.getAttribute("userName");
+            userId = (String) session.getAttribute("userId");
             session.invalidate();
         }
+        String ip = req.getRemoteAddr();
+        dataService.addLog("User Logout", "info", userName, userId,
+                "User " + (userName != null ? userName : "unknown") + " logged out", ip);
+
         JsonObject result = new JsonObject();
         result.addProperty("message", "Logout successfully");
         JsonUtil.writeJson(resp, result);

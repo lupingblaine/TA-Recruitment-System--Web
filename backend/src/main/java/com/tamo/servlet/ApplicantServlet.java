@@ -17,15 +17,20 @@ import java.util.Map;
 public class ApplicantServlet extends HttpServlet {
 
     private ApplicantService service;
+    private JsonDataService dataService;
 
     @Override
     public void init() throws ServletException {
-        JsonDataService dataService = JsonDataService.getInstance();
+        this.dataService = JsonDataService.getInstance();
         this.service = new ApplicantService(dataService);
     }
 
     private String getUserId(HttpServletRequest req) {
         return (String) req.getSession().getAttribute("userId");
+    }
+
+    private String getUserName(HttpServletRequest req) {
+        return (String) req.getSession().getAttribute("userName");
     }
 
     @Override
@@ -102,6 +107,8 @@ public class ApplicantServlet extends HttpServlet {
             } else {
                 resp.setStatus(201);
                 JsonUtil.writeJson(resp, result.get("application"));
+                dataService.addLog("Application Submitted", "success", getUserName(req), userId,
+                        "Applied for job " + jobId, req.getRemoteAddr());
             }
 
         } else if ("profile/documents".equals(path)) {
@@ -117,6 +124,8 @@ public class ApplicantServlet extends HttpServlet {
             } else {
                 resp.setStatus(201);
                 JsonUtil.writeJson(resp, result.get("document"));
+                dataService.addLog("Document Uploaded", "info", getUserName(req), userId,
+                        "Uploaded document: " + fileName, req.getRemoteAddr());
             }
 
         } else {
@@ -135,6 +144,8 @@ public class ApplicantServlet extends HttpServlet {
             if (error == null) {
                 JsonObject profile = service.getProfile(userId);
                 JsonUtil.writeJson(resp, profile);
+                dataService.addLog("Profile Updated", "info", getUserName(req), userId,
+                        "Applicant updated their profile", req.getRemoteAddr());
             } else if ("GPA 不能超过最大值".equals(error)) {
                 JsonUtil.writeError(resp, 400, error);
             } else {
@@ -171,6 +182,8 @@ public class ApplicantServlet extends HttpServlet {
                 JsonObject ok = new JsonObject();
                 ok.addProperty("message", "申请已撤销");
                 JsonUtil.writeJson(resp, ok);
+                dataService.addLog("Application Withdrawn", "warning", getUserName(req), userId,
+                        "Withdrew application " + appId, req.getRemoteAddr());
             }
         } else if (path.matches("profile/documents/[\\w]+")) {
             String docId = path.split("/")[2];
@@ -182,6 +195,8 @@ public class ApplicantServlet extends HttpServlet {
                 JsonObject ok = new JsonObject();
                 ok.addProperty("message", "文档删除成功");
                 JsonUtil.writeJson(resp, ok);
+                dataService.addLog("Document Deleted", "warning", getUserName(req), userId,
+                        "Deleted document " + docId, req.getRemoteAddr());
             }
         } else {
             JsonUtil.writeError(resp, 404, "接口不存在");

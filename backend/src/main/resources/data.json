@@ -75,7 +75,7 @@
       "department": "System",
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-04-11T17:44:49.32121",
+      "lastLogin": "2026-04-12T11:58:55.980112",
       "createdAt": "2026-07-01T00:00:00"
     },
     {
@@ -740,52 +740,12 @@
     },
     {
       "id": "EVT-9007",
-      "timestamp": "2026-04-11T16:56:34.84091",
-      "action": "Failed Login",
-      "actor": "admin@university.edu",
-      "actorId": "u010",
-      "type": "warning",
-      "details": "Role mismatch: requested applicant, actual admin",
-      "ip": "0:0:0:0:0:0:0:1"
-    },
-    {
-      "id": "EVT-9008",
-      "timestamp": "2026-04-11T16:56:36.539355",
+      "timestamp": "2026-04-12T11:58:55.988798",
       "action": "User Login",
-      "actor": "admin@university.edu",
-      "actorId": "u010",
-      "type": "info",
-      "details": "Successful login as admin.",
-      "ip": "0:0:0:0:0:0:0:1"
-    },
-    {
-      "id": "EVT-9009",
-      "timestamp": "2026-04-11T16:57:30.725255",
-      "action": "Module Created",
       "actor": "Admin Root",
       "actorId": "u010",
-      "type": "success",
-      "details": "Created module: test - test",
-      "ip": "0:0:0:0:0:0:0:1"
-    },
-    {
-      "id": "EVT-9010",
-      "timestamp": "2026-04-11T17:21:29.487625",
-      "action": "Failed Login",
-      "actor": "admin@university.edu",
-      "actorId": null,
-      "type": "error",
-      "details": "Invalid credentials for admin@university.edu",
-      "ip": "0:0:0:0:0:0:0:1"
-    },
-    {
-      "id": "EVT-9011",
-      "timestamp": "2026-04-11T17:21:36.387052",
-      "action": "User Login",
-      "actor": "admin@university.edu",
-      "actorId": "u010",
       "type": "info",
-      "details": "Successful login as admin.",
+      "details": "User Admin Root (admin) logged in",
       "ip": "0:0:0:0:0:0:0:1"
     }
   ],

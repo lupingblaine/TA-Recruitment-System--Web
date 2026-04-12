@@ -15,15 +15,20 @@ import java.util.Map;
 public class OrganiserServlet extends HttpServlet {
 
     private OrganiserService service;
+    private JsonDataService dataService;
 
     @Override
     public void init() throws ServletException {
-        JsonDataService dataService = JsonDataService.getInstance();
+        this.dataService = JsonDataService.getInstance();
         this.service = new OrganiserService(dataService);
     }
 
     private String getUserId(HttpServletRequest req) {
         return (String) req.getSession().getAttribute("userId");
+    }
+
+    private String getUserName(HttpServletRequest req) {
+        return (String) req.getSession().getAttribute("userName");
     }
 
     @Override
@@ -73,6 +78,9 @@ public class OrganiserServlet extends HttpServlet {
             } else {
                 resp.setStatus(201);
                 JsonUtil.writeJson(resp, result.get("job"));
+                String title = body.has("title") ? body.get("title").getAsString() : "";
+                dataService.addLog("Job Posted", "success", getUserName(req), userId,
+                        "Posted new job: " + title, req.getRemoteAddr());
             }
 
         } else if ("interviews".equals(path)) {
@@ -84,6 +92,9 @@ public class OrganiserServlet extends HttpServlet {
             } else {
                 resp.setStatus(201);
                 JsonUtil.writeJson(resp, result.get("interview"));
+                String appId = body.has("applicationId") ? body.get("applicationId").getAsString() : "";
+                dataService.addLog("Interview Scheduled", "info", getUserName(req), userId,
+                        "Scheduled interview for application " + appId, req.getRemoteAddr());
             }
 
         } else {
@@ -105,6 +116,8 @@ public class OrganiserServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonUtil.writeJson(resp, result.get("job"));
+                dataService.addLog("Job Updated", "info", getUserName(req), userId,
+                        "Updated job " + jobId, req.getRemoteAddr());
             }
 
         } else if (path.matches("pipeline/[\\w]+/status")) {
@@ -117,6 +130,8 @@ public class OrganiserServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonUtil.writeJson(resp, result.get("application"));
+                dataService.addLog("Candidate Status Changed", "info", getUserName(req), userId,
+                        "Changed application " + appId + " status to " + newStatus, req.getRemoteAddr());
             }
 
         } else if (path.matches("applications/[\\w]+/action")) {
@@ -129,6 +144,9 @@ public class OrganiserServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonUtil.writeJson(resp, result.get("application"));
+                dataService.addLog("Application " + (action != null ? action.substring(0, 1).toUpperCase() + action.substring(1) : "Action"),
+                        "approve".equals(action) ? "success" : "warning", getUserName(req), userId,
+                        "Application " + appId + " " + action, req.getRemoteAddr());
             }
 
         } else if (path.matches("interviews/[\\w]+")) {
@@ -140,6 +158,8 @@ public class OrganiserServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonUtil.writeJson(resp, result.get("interview"));
+                dataService.addLog("Interview Updated", "info", getUserName(req), userId,
+                        "Updated interview " + ivId, req.getRemoteAddr());
             }
 
         } else {
@@ -162,6 +182,8 @@ public class OrganiserServlet extends HttpServlet {
                 JsonObject ok = new JsonObject();
                 ok.addProperty("message", "岗位删除成功");
                 JsonUtil.writeJson(resp, ok);
+                dataService.addLog("Job Deleted", "warning", getUserName(req), userId,
+                        "Deleted job " + jobId, req.getRemoteAddr());
             }
         } else {
             JsonUtil.writeError(resp, 404, "接口不存在");

@@ -415,9 +415,14 @@ public class AdminService {
     public List<LogEntry> getLogs(String keyword, String type) {
         DataStore data = dataService.getData();
         return data.getLogs().stream()
-                .filter(l -> keyword == null || keyword.isEmpty() ||
-                        l.getAction().toLowerCase().contains(keyword.toLowerCase()) ||
-                        (l.getDetails() != null && l.getDetails().toLowerCase().contains(keyword.toLowerCase())))
+                .filter(l -> {
+                    if (keyword == null || keyword.isEmpty()) return true;
+                    String kw = keyword.toLowerCase();
+                    return l.getAction().toLowerCase().contains(kw)
+                            || (l.getDetails() != null && l.getDetails().toLowerCase().contains(kw))
+                            || (l.getActor() != null && l.getActor().toLowerCase().contains(kw))
+                            || (l.getId() != null && l.getId().toLowerCase().contains(kw));
+                })
                 .filter(l -> type == null || type.isEmpty() || l.getType().equalsIgnoreCase(type))
                 .sorted((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()))
                 .collect(Collectors.toList());

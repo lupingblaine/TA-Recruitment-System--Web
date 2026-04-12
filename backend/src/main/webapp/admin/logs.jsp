@@ -15,13 +15,22 @@
       <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400"></i>
       <input id="searchInput" type="text" placeholder="Search events, actors, or IDs..." class="input pl-10" onkeyup="debounceSearch()">
     </div>
-    <select id="typeFilter" class="input w-auto" onchange="loadLogs()">
-      <option value="">All Types</option>
-      <option value="info">Info</option>
-      <option value="success">Success</option>
-      <option value="warning">Warning</option>
-      <option value="error">Error</option>
-    </select>
+    <div class="flex items-center gap-3">
+      <div id="autoRefreshIndicator" class="flex items-center gap-2 text-xs text-emerald-600">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        Live
+      </div>
+      <select id="typeFilter" class="input w-auto" onchange="loadLogs()">
+        <option value="">All Types</option>
+        <option value="info">Info</option>
+        <option value="success">Success</option>
+        <option value="warning">Warning</option>
+        <option value="error">Error</option>
+      </select>
+    </div>
   </div>
 
   <div class="card overflow-hidden">
@@ -46,6 +55,9 @@
 <jsp:include page="/common/layout-bottom.jsp"/>
 <script>
 let searchTimer;
+let pollTimer;
+const POLL_INTERVAL = 5000;
+
 function debounceSearch() { clearTimeout(searchTimer); searchTimer = setTimeout(loadLogs, 300); }
 
 async function loadLogs() {
@@ -58,7 +70,7 @@ async function loadLogs() {
     const data = await adminApi.getLogs(Object.keys(params).length ? params : undefined);
     const logs = data.logs || data || [];
     renderLogs(logs);
-  } catch (e) { console.error('加载日志失败', e); }
+  } catch (e) { console.error('Failed to load logs', e); }
 }
 
 function renderLogs(logs) {
@@ -89,5 +101,19 @@ function renderLogs(logs) {
   lucide.createIcons();
 }
 
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(loadLogs, POLL_INTERVAL);
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) { stopPolling(); } else { loadLogs(); startPolling(); }
+});
+
 loadLogs();
+startPolling();
 </script>
