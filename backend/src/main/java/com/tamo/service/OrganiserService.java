@@ -9,7 +9,7 @@ import com.tamo.model.Job;
 import com.tamo.model.Module;
 import com.tamo.model.Notification;
 import com.tamo.model.Profile;
-import com.tamo.model.Notification;
+
 import com.tamo.model.User;
 import com.tamo.util.JsonUtil;
 
@@ -74,7 +74,7 @@ public class OrganiserService {
                     obj.addProperty("role", job != null ? job.getModuleCode() + " " + job.getTitle().replaceAll(".*-\\s*", "") : "");
                     obj.addProperty("status", a.getStatus());
 
-                    String oldStatus = app.getStatus();
+                    String oldStatus = a.getStatus();
                     obj.addProperty("date", a.getUpdatedAt());
                     recentActivities.add(obj);
                 });
@@ -762,19 +762,5 @@ public class OrganiserService {
         return data.getJobs().stream().filter(j -> j.getId().equals(jobId)).findFirst().orElse(null);
     }
 
-    private void createNotification(DataStore data, String userId, String type, String title, String message, String relatedId) {
-        if (data.getNotifications() == null) {
-            data.setNotifications(new ArrayList<>());
-        }
-        Notification n = new Notification();
-        n.setId(dataService.generateId("n", data.getNotifications()));
-        n.setUserId(userId);
-        n.setType(type);
-        n.setTitle(title);
-        n.setMessage(message);
-        n.setRelatedId(relatedId);
-        n.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        n.setRead(false);
-        data.getNotifications().add(n);
-    }
+
 }

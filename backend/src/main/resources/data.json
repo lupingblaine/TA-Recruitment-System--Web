@@ -88,7 +88,7 @@
       "department": null,
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-04-11T20:23:43.828865",
+      "lastLogin": "2026-05-18T00:13:21.547567",
       "createdAt": "2026-04-11T18:04:15.858193"
     },
     {
@@ -103,6 +103,19 @@
       "status": "active",
       "lastLogin": "2026-04-11T18:10:51.585903",
       "createdAt": "2026-04-11T18:10:51.585792"
+    },
+    {
+      "id": "u009",
+      "name": "1",
+      "email": "1@qq.com",
+      "password": "1",
+      "phone": null,
+      "role": "organiser",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-05-18T00:14:21.983777",
+      "createdAt": "2026-05-18T00:12:27.156406"
     }
   ],
   "profiles": [
@@ -312,6 +325,44 @@
       ],
       "organiserId": "u006",
       "createdAt": "2026-09-20T00:00:00"
+    },
+    {
+      "id": "j004",
+      "moduleId": "1",
+      "moduleCode": "1",
+      "title": "1",
+      "description": "1",
+      "professor": "",
+      "department": "1",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 1,
+      "deadline": "2026-05-30",
+      "status": "active",
+      "tags": [],
+      "requirements": [],
+      "responsibilities": [],
+      "organiserId": "u009",
+      "createdAt": "2026-05-18T00:12:45.566199"
+    },
+    {
+      "id": "j005",
+      "moduleId": "2",
+      "moduleCode": "2",
+      "title": "2",
+      "description": "2",
+      "professor": "",
+      "department": "2",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 1,
+      "deadline": "2026-05-30",
+      "status": "active",
+      "tags": [],
+      "requirements": [],
+      "responsibilities": [],
+      "organiserId": "u009",
+      "createdAt": "2026-05-18T00:13:00.346731"
     }
   ],
   "applications": [
@@ -608,6 +659,106 @@
           "error": null
         }
       ]
+    },
+    {
+      "id": "a007",
+      "jobId": "j004",
+      "applicantId": "u007",
+      "status": "rejected",
+      "coverLetter": "1",
+      "documentIds": [],
+      "matchScore": 97,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-05-18T00:13:43.747183",
+      "updatedAt": "2026-05-18T00:17:34.829716",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-05-18",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-05-18",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "a008",
+      "jobId": "j005",
+      "applicantId": "u007",
+      "status": "interview",
+      "coverLetter": "2",
+      "documentIds": [],
+      "matchScore": 95,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-05-18T00:13:53.798708",
+      "updatedAt": "2026-05-18T00:16:31.447566",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-05-18",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-05-18",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-05-18",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-05-18",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
+      ]
     }
   ],
   "interviews": [
@@ -658,6 +809,258 @@
       "status": "scheduled",
       "outcome": null,
       "organiserId": "u005"
+    },
+    {
+      "id": "i004",
+      "applicationId": "a007",
+      "candidateId": "u007",
+      "candidateName": "TYF",
+      "moduleCode": "1",
+      "moduleName": "1",
+      "date": "2026-05-22",
+      "startTime": "03:14",
+      "endTime": "",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u009"
+    },
+    {
+      "id": "i005",
+      "applicationId": "a007",
+      "candidateId": "u007",
+      "candidateName": "TYF",
+      "moduleCode": "1",
+      "moduleName": "1",
+      "date": "2026-05-22",
+      "startTime": "03:14",
+      "endTime": "",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u009"
+    },
+    {
+      "id": "i006",
+      "applicationId": "a007",
+      "candidateId": "u007",
+      "candidateName": "TYF",
+      "moduleCode": "1",
+      "moduleName": "1",
+      "date": "2026-05-31",
+      "startTime": "08:19",
+      "endTime": "",
+      "type": "video",
+      "location": "12",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u009"
+    },
+    {
+      "id": "i007",
+      "applicationId": "a007",
+      "candidateId": "u007",
+      "candidateName": "TYF",
+      "moduleCode": "1",
+      "moduleName": "1",
+      "date": "2026-05-20",
+      "startTime": "04:19",
+      "endTime": "",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u009"
+    },
+    {
+      "id": "i008",
+      "applicationId": "a008",
+      "candidateId": "u007",
+      "candidateName": "TYF",
+      "moduleCode": "2",
+      "moduleName": "2",
+      "date": "2026-05-30",
+      "startTime": "06:22",
+      "endTime": "",
+      "type": "video",
+      "location": "",
+      "status": "scheduled",
+      "outcome": null,
+      "organiserId": "u009"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "n001",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for CS201 has been shortlisted.",
+      "relatedId": "a006",
+      "createdAt": "2026-04-11T18:24:03.305634",
+      "read": true
+    },
+    {
+      "id": "n002",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "Application Under Review",
+      "message": "Your application for CS201 is now being reviewed.",
+      "relatedId": "a006",
+      "createdAt": "2026-04-11T18:24:05.071747",
+      "read": true
+    },
+    {
+      "id": "n003",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: CS201",
+      "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: Video Call.",
+      "relatedId": "i002",
+      "createdAt": "2026-04-11T18:24:12.668627",
+      "read": true
+    },
+    {
+      "id": "n004",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for CS201 has been shortlisted.",
+      "relatedId": "a006",
+      "createdAt": "2026-04-11T18:25:59.251441",
+      "read": true
+    },
+    {
+      "id": "n005",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: CS201",
+      "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: In-Person at Room301.",
+      "relatedId": "i003",
+      "createdAt": "2026-04-11T18:26:17.134112",
+      "read": true
+    },
+    {
+      "id": "n006",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 1",
+      "message": "Your interview for 1 1 is scheduled on 2026-05-22 at 03:14. Type: Video Call.",
+      "relatedId": "i004",
+      "createdAt": "2026-05-18T00:14:51.464791",
+      "read": false
+    },
+    {
+      "id": "n007",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 1",
+      "message": "Your interview for 1 1 is scheduled on 2026-05-22 at 03:14. Type: Video Call.",
+      "relatedId": "i005",
+      "createdAt": "2026-05-18T00:14:59.612528",
+      "read": false
+    },
+    {
+      "id": "n008",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 1",
+      "message": "Your interview for 1 1 is scheduled on 2026-05-31 at 08:19. Type: Video Call at 12.",
+      "relatedId": "i006",
+      "createdAt": "2026-05-18T00:15:25.765555",
+      "read": false
+    },
+    {
+      "id": "n009",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 1",
+      "message": "Your interview for 1 1 is scheduled on 2026-05-20 at 04:19. Type: Video Call.",
+      "relatedId": "i007",
+      "createdAt": "2026-05-18T00:15:47.545712",
+      "read": false
+    },
+    {
+      "id": "n010",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "Application Under Review",
+      "message": "Your application for 2 is now being reviewed.",
+      "relatedId": "a008",
+      "createdAt": "2026-05-18T00:16:03.004304",
+      "read": false
+    },
+    {
+      "id": "n011",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for 2 has been shortlisted.",
+      "relatedId": "a008",
+      "createdAt": "2026-05-18T00:16:05.553734",
+      "read": false
+    },
+    {
+      "id": "n012",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 2",
+      "message": "Your interview for 2 2 is scheduled on 2026-05-30 at 06:22. Type: Video Call.",
+      "relatedId": "i008",
+      "createdAt": "2026-05-18T00:16:31.447799",
+      "read": false
+    },
+    {
+      "id": "n013",
+      "userId": "u007",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 1 was not successful.",
+      "relatedId": "a007",
+      "createdAt": "2026-05-18T00:17:34.829999",
+      "read": false
+    },
+    {
+      "id": "n014",
+      "userId": "u007",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 1",
+      "message": "Your interview for 1 1 scheduled on 2026-05-22 at 03:14 has been cancelled because the application moved out of the interview stage.",
+      "relatedId": "i004",
+      "createdAt": "2026-05-18T00:17:34.831937",
+      "read": false
+    },
+    {
+      "id": "n015",
+      "userId": "u007",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 1",
+      "message": "Your interview for 1 1 scheduled on 2026-05-22 at 03:14 has been cancelled because the application moved out of the interview stage.",
+      "relatedId": "i005",
+      "createdAt": "2026-05-18T00:17:34.833551",
+      "read": false
+    },
+    {
+      "id": "n016",
+      "userId": "u007",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 1",
+      "message": "Your interview for 1 1 scheduled on 2026-05-31 at 08:19 has been cancelled because the application moved out of the interview stage.",
+      "relatedId": "i006",
+      "createdAt": "2026-05-18T00:17:34.840658",
+      "read": false
+    },
+    {
+      "id": "n017",
+      "userId": "u007",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 1",
+      "message": "Your interview for 1 1 scheduled on 2026-05-20 at 04:19 has been cancelled because the application moved out of the interview stage.",
+      "relatedId": "i007",
+      "createdAt": "2026-05-18T00:17:34.842504",
+      "read": false
     }
   ],
   "terms": [
@@ -747,6 +1150,196 @@
       "type": "info",
       "details": "User Admin Root (admin) logged in",
       "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9008",
+      "timestamp": "2026-05-18T00:10:34.514068",
+      "action": "User Login",
+      "actor": "TYF",
+      "actorId": "u007",
+      "type": "info",
+      "details": "User TYF (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9009",
+      "timestamp": "2026-05-18T00:11:11.731138",
+      "action": "User Logout",
+      "actor": "TYF",
+      "actorId": "u007",
+      "type": "info",
+      "details": "User TYF logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9010",
+      "timestamp": "2026-05-18T00:12:27.162124",
+      "action": "User Signup",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "success",
+      "details": "New organiser account registered: 1@qq.com",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9011",
+      "timestamp": "2026-05-18T00:12:45.583336",
+      "action": "Job Posted",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "success",
+      "details": "Posted new job: 1",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9012",
+      "timestamp": "2026-05-18T00:13:00.35518",
+      "action": "Job Posted",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "success",
+      "details": "Posted new job: 2",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9013",
+      "timestamp": "2026-05-18T00:13:11.745867",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9014",
+      "timestamp": "2026-05-18T00:13:21.549811",
+      "action": "User Login",
+      "actor": "TYF",
+      "actorId": "u007",
+      "type": "info",
+      "details": "User TYF (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9015",
+      "timestamp": "2026-05-18T00:13:43.758838",
+      "action": "Application Submitted",
+      "actor": "TYF",
+      "actorId": "u007",
+      "type": "success",
+      "details": "Applied for job j004",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9016",
+      "timestamp": "2026-05-18T00:13:53.812856",
+      "action": "Application Submitted",
+      "actor": "TYF",
+      "actorId": "u007",
+      "type": "success",
+      "details": "Applied for job j005",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9017",
+      "timestamp": "2026-05-18T00:14:00.696396",
+      "action": "User Logout",
+      "actor": "TYF",
+      "actorId": "u007",
+      "type": "info",
+      "details": "User TYF logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9018",
+      "timestamp": "2026-05-18T00:14:21.997768",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "User 1 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9019",
+      "timestamp": "2026-05-18T00:14:51.472037",
+      "action": "Interview Scheduled",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "Scheduled interview for application a007",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9020",
+      "timestamp": "2026-05-18T00:14:59.629755",
+      "action": "Interview Scheduled",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "Scheduled interview for application a007",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9021",
+      "timestamp": "2026-05-18T00:15:25.774657",
+      "action": "Interview Scheduled",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "Scheduled interview for application a007",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9022",
+      "timestamp": "2026-05-18T00:15:47.552972",
+      "action": "Interview Scheduled",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "Scheduled interview for application a007",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9023",
+      "timestamp": "2026-05-18T00:16:03.010499",
+      "action": "Candidate Status Changed",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "Changed application a008 status to review",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9024",
+      "timestamp": "2026-05-18T00:16:05.557327",
+      "action": "Candidate Status Changed",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "Changed application a008 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9025",
+      "timestamp": "2026-05-18T00:16:31.460306",
+      "action": "Interview Scheduled",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "Scheduled interview for application a008",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9026",
+      "timestamp": "2026-05-18T00:17:34.846678",
+      "action": "Application Reject",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "warning",
+      "details": "Application a007 reject",
+      "ip": "0:0:0:0:0:0:0:1"
     }
   ],
   "workloadAssignments": [
@@ -765,58 +1358,6 @@
       "hoursPerWeek": 6,
       "term": "Fall 2026",
       "status": "active"
-    }
-  ],
-  "notifications": [
-    {
-      "id": "n001",
-      "userId": "u007",
-      "type": "status_change",
-      "title": "You\u0027ve Been Shortlisted!",
-      "message": "Congratulations! Your application for CS201 has been shortlisted.",
-      "relatedId": "a006",
-      "createdAt": "2026-04-11T18:24:03.305634",
-      "read": true
-    },
-    {
-      "id": "n002",
-      "userId": "u007",
-      "type": "status_change",
-      "title": "Application Under Review",
-      "message": "Your application for CS201 is now being reviewed.",
-      "relatedId": "a006",
-      "createdAt": "2026-04-11T18:24:05.071747",
-      "read": true
-    },
-    {
-      "id": "n003",
-      "userId": "u007",
-      "type": "interview_scheduled",
-      "title": "Interview Scheduled: CS201",
-      "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: Video Call.",
-      "relatedId": "i002",
-      "createdAt": "2026-04-11T18:24:12.668627",
-      "read": true
-    },
-    {
-      "id": "n004",
-      "userId": "u007",
-      "type": "status_change",
-      "title": "You\u0027ve Been Shortlisted!",
-      "message": "Congratulations! Your application for CS201 has been shortlisted.",
-      "relatedId": "a006",
-      "createdAt": "2026-04-11T18:25:59.251441",
-      "read": true
-    },
-    {
-      "id": "n005",
-      "userId": "u007",
-      "type": "interview_scheduled",
-      "title": "Interview Scheduled: CS201",
-      "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: In-Person at Room301.",
-      "relatedId": "i003",
-      "createdAt": "2026-04-11T18:26:17.134112",
-      "read": true
     }
   ]
 }
