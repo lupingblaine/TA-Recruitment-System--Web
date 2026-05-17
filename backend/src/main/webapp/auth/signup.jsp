@@ -2,96 +2,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Sign Up - TA RecruitPro</title>
+  <title>Create Account - TA RecruitPro</title>
   <meta name="ctx" content="<%= request.getContextPath() %>">
   <jsp:include page="/common/head.jsp"/>
 </head>
-<body class="flex min-h-screen bg-zinc-50 items-center justify-center p-6 text-zinc-900">
+<body class="flex flex-col min-h-screen bg-zinc-50 text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900">
   <%
     String ctx = request.getContextPath();
   %>
-  <div class="absolute top-6 left-6 flex items-center gap-2 font-semibold text-lg">
-    <a href="<%= ctx %>/index.jsp" class="flex items-center gap-2">
-      <div class="h-8 w-8 rounded-lg bg-zinc-900 flex items-center justify-center shadow-sm">
-        <span class="text-white text-sm font-bold">TA</span>
+  
+  <!-- Top Dark Header Section -->
+  <div class="relative bg-zinc-950 text-white pt-8 pb-32 px-8 flex flex-col justify-between dynamic-bg overflow-hidden">
+    <canvas id="auth-canvas" class="absolute inset-0 z-0 opacity-50"></canvas>
+    <!-- Back to home nav -->
+    <div class="flex items-center justify-between w-full max-w-5xl mx-auto relative z-10">
+      <a href="<%= ctx %>/index.jsp" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
+        <i data-lucide="arrow-left" class="h-5 w-5 group-hover:-translate-x-1 transition-transform"></i>
+        <span class="font-medium text-base">Back to Home</span>
+      </a>
+      <div class="text-sm font-semibold tracking-widest text-zinc-500 uppercase">
+        / Sign Up
       </div>
-      <span>RecruitPro</span>
-    </a>
+    </div>
+    
+    <!-- Title Area -->
+    <div class="w-full max-w-5xl mx-auto mt-16 slide-up-element">
+      <div class="text-zinc-400 font-medium tracking-wide mb-3 text-lg">Join the platform</div>
+      <h1 class="text-6xl md:text-8xl font-black tracking-tighter h-[96px] flex flex-col justify-end">
+        <span id="typewriter-text" class="text-white"></span>
+      </h1>
+      <div class="mt-6 text-zinc-400 text-xl flex items-center gap-2 font-medium">
+        <span>Already have an account?</span>
+        <a href="<%= ctx %>/auth/login.jsp" class="text-white border-b-2 border-white/30 border-dashed hover:border-solid hover:border-white transition-all ml-1">Log in &rarr;</a>
+      </div>
+    </div>
   </div>
 
-  <div class="w-full max-w-md rounded-2xl border border-zinc-200/60 bg-white p-8 shadow-xl fade-in">
-    <div class="mb-8">
-      <h1 class="text-2xl font-bold tracking-tight mb-2">Create your account</h1>
-      <p class="text-zinc-500 text-sm">Join the TA recruitment platform</p>
+  <!-- Bottom Form Panel -->
+  <div class="flex-grow bg-white rounded-t-[3rem] -mt-16 relative z-10 shadow-[0_-20px_50px_rgba(0,0,0,0.4)] overflow-hidden">
+    <!-- Stitch Matrix Canvas -->
+    <div class="absolute inset-0 z-0 pointer-events-none"><canvas id="stitch-matrix-signup" class="w-full h-full"></canvas></div>
+    
+    <div class="max-w-5xl mx-auto w-full pt-16 px-6 pb-24 slide-up-element delay-200 relative z-10">
+      
+      <div class="flex flex-col md:flex-row items-center gap-16 bg-white/70 backdrop-blur-2xl border border-zinc-100 rounded-[2.5rem] p-10 md:p-16 shadow-[0_20px_60px_rgba(0,0,0,0.05)]">
+        
+        <!-- Left Side: Form -->
+        <div class="w-full md:w-1/2">
+          <form id="signupForm" class="space-y-8" onsubmit="return handleSignup(event)">
+            <!-- Inputs -->
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-bold text-zinc-900 mb-2 pl-2">Full Name</label>
+                <input type="text" id="name" class="apple-input" placeholder="John Doe" required>
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-zinc-900 mb-2 pl-2">Email address</label>
+                <input type="email" id="email" class="apple-input" placeholder="you@university.edu" required>
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-zinc-900 mb-2 pl-2">Password</label>
+                <input type="password" id="password" class="apple-input" placeholder="••••••••" required>
+              </div>
+            </div>
+
+            <!-- Role Selector -->
+            <div>
+              <label class="block text-sm font-bold text-zinc-900 text-center mb-3">Register As</label>
+              <div class="segmented-control">
+                <input type="radio" id="role-applicant" name="role" value="APPLICANT" checked onchange="selectedRole='applicant'; if(riveAnim) riveAnim.setRoleColor('applicant');">
+                <label for="role-applicant">Applicant</label>
+
+                <input type="radio" id="role-organiser" name="role" value="ORGANISER" onchange="selectedRole='organiser'; if(riveAnim) riveAnim.setRoleColor('organiser');">
+                <label for="role-organiser">Organiser</label>
+
+                <input type="radio" id="role-admin" name="role" value="ADMIN" onchange="selectedRole='admin'; if(riveAnim) riveAnim.setRoleColor('admin');">
+                <label for="role-admin">Admin</label>
+                
+                <div class="segmented-highlight"></div>
+              </div>
+            </div>
+            
+            <div id="errorMsg" class="hidden text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl px-6 py-3 text-center"></div>
+
+            <!-- Buttons -->
+            <div class="pt-4 space-y-4">
+              <button type="submit" id="submitBtn" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-xl shadow-zinc-900/20 hover:shadow-zinc-900/30 flex justify-center items-center gap-2 group">
+                Create Account
+                <i data-lucide="arrow-right" class="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors"></i>
+              </button>
+              <div class="text-center pt-2">
+                <span class="text-zinc-500 font-medium">Already have an account?</span>
+                <a href="<%= ctx %>/auth/login.jsp" class="text-zinc-900 font-bold hover:underline ml-1">Log In</a>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Side: Animated Cat -->
+        <div class="w-full md:w-1/2 flex flex-col items-center justify-center relative">
+          <!-- Subtle decorative background for cat -->
+          <div class="absolute inset-0 bg-gradient-to-tr from-indigo-50 to-purple-50 rounded-[3rem] -z-10 blur-3xl opacity-50"></div>
+          
+          <div id="signup-cat-container" class="cat-container w-full max-w-[300px] aspect-square flex items-center justify-center relative z-10">
+            <!-- Cat SVG will be injected here by JS -->
+          </div>
+          <p class="text-zinc-400 font-medium text-sm mt-8 text-center">We'll keep a close eye on your data.</p>
+        </div>
+        
+      </div>
+
+      <div class="mt-12 text-center text-sm text-zinc-500 font-medium pb-8">
+        By creating an account, you agree to our <a href="#" class="text-zinc-950 hover:underline transition-all">Terms of Service</a>.
+      </div>
     </div>
-
-    <form id="signupForm" class="space-y-6" onsubmit="return handleSignup(event)">
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-zinc-700 mb-1.5">Full Name</label>
-          <input id="name" type="text" placeholder="John Doe" required class="input">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-zinc-700 mb-1.5">Email address</label>
-          <input id="email" type="email" placeholder="name@university.edu" required class="input">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-zinc-700 mb-1.5">Password</label>
-          <input id="password" type="password" placeholder="••••••••" required class="input">
-        </div>
-      </div>
-
-      <div class="space-y-3">
-        <label class="text-sm font-medium text-zinc-700">Register as</label>
-        <div class="grid grid-cols-3 gap-3" id="roleSelector">
-          <button type="button" data-role="applicant" onclick="selectRole('applicant')"
-                  class="role-btn flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all border-zinc-900 bg-zinc-50 text-zinc-900 ring-1 ring-zinc-900">
-            <i data-lucide="user" class="h-5 w-5"></i>
-            <span class="text-sm font-medium">Applicant</span>
-          </button>
-          <button type="button" data-role="organiser" onclick="selectRole('organiser')"
-                  class="role-btn flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50">
-            <i data-lucide="briefcase" class="h-5 w-5"></i>
-            <span class="text-sm font-medium">Organiser</span>
-          </button>
-          <button type="button" data-role="admin" onclick="selectRole('admin')"
-                  class="role-btn flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50">
-            <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-            <span class="text-sm font-medium">Admin</span>
-          </button>
-        </div>
-      </div>
-
-      <div id="errorMsg" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3"></div>
-
-      <button type="submit" class="btn btn-primary w-full h-11 text-base">Create Account</button>
-
-      <p class="text-center text-sm text-zinc-500">
-        Already have an account? <a href="<%= ctx %>/auth/login.jsp" class="text-zinc-900 font-medium hover:underline">Sign in</a>
-      </p>
-    </form>
   </div>
 
   <script src="<%= ctx %>/static/js/api.js"></script>
+  <script src="<%= ctx %>/static/js/particles.js"></script>
+  <script src="<%= ctx %>/static/js/typewriter.js"></script>
+  <script src="<%= ctx %>/static/js/stitch-matrix.js?v=<%= System.currentTimeMillis() %>"></script>
+  <script src="https://unpkg.com/@rive-app/canvas@2.7.0"></script>
+  <script src="<%= ctx %>/static/js/rive-anim.js?v=<%= System.currentTimeMillis() %>"></script>
   <script>
     lucide.createIcons();
-    let selectedRole = 'applicant';
+    let riveAnim = null;
+    
+    // Initialize interactive particles and typewriter
+    window.addEventListener('DOMContentLoaded', () => {
+      if(window.initParticles) {
+        window.initParticles('auth-canvas');
+      }
+      if(window.initStitchMatrix) {
+        window.initStitchMatrix('signup-stitch-matrix', { avoidSelector: '.apple-input, .segmented-control, button, a' });
+      }
+      if(window.initSimpleTypewriter) window.initSimpleTypewriter('typewriter-text', ["Create account.", "Join us.", "Get started."]);
+      if(window.initRiveLogin) {
+        riveAnim = window.initRiveLogin('signup-cat-container', '<%= ctx %>');
+      }
+    });
 
-    function selectRole(r) {
-      selectedRole = r;
-      document.querySelectorAll('.role-btn').forEach(btn => {
-        if (btn.dataset.role === r) {
-          btn.className = 'role-btn flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all border-zinc-900 bg-zinc-50 text-zinc-900 ring-1 ring-zinc-900';
-        } else {
-          btn.className = 'role-btn flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50';
-        }
-      });
-    }
+    // Trigger slide up animation
+    setTimeout(() => {
+      document.querySelectorAll('.slide-up-element').forEach(el => el.classList.add('visible'));
+    }, 50);
+
+    let selectedRole = 'applicant';
 
     async function handleSignup(e) {
       e.preventDefault();
       const errDiv = document.getElementById('errorMsg');
       errDiv.classList.add('hidden');
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i data-lucide="loader-2" class="h-6 w-6 animate-spin"></i> Creating...';
+      submitBtn.disabled = true;
+      lucide.createIcons();
+
       const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
       const pwd = document.getElementById('password').value;
@@ -99,10 +167,17 @@
 
       try {
         await authApi.signup(name, email, pwd, selectedRole);
-        window.location.href = ctx + '/' + selectedRole + '/dashboard.jsp';
+        if(riveAnim) riveAnim.triggerSuccess();
+        setTimeout(() => {
+          window.location.href = ctx + '/' + selectedRole + '/dashboard.jsp';
+        }, 1000);
       } catch (err) {
-        errDiv.textContent = err.message || '注册失败';
+        if(riveAnim) riveAnim.triggerFail();
+        errDiv.textContent = err.message || 'Registration failed.';
         errDiv.classList.remove('hidden');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        lucide.createIcons();
       }
       return false;
     }

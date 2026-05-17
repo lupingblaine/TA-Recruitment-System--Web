@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/custom.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/custom.css?v=<%= System.currentTimeMillis() %>">
 <script>
 tailwind.config = {
   theme: {
