@@ -89,7 +89,9 @@
               '</div>' +
               '<div class="flex flex-row md:flex-col justify-between items-end gap-4 md:gap-0">' +
               '<div class="flex items-center gap-6 text-center">' +
-              '<div class="flex flex-col items-center"><span class="text-2xl font-bold text-zinc-900">' + (job.applicationCount || 0) + '</span><span class="text-xs text-zinc-500">Total</span></div>' +
+              '<div class="flex flex-col items-center"><span class="text-2xl font-bold text-zinc-900">' + (job.applicationCount || 0) + '</span><span class="text-xs text-zinc-500">Current</span></div>' +
+              '<div class="h-8 w-px bg-zinc-200 hidden md:block"></div>' +
+              '<div class="flex flex-col items-center"><span class="text-2xl font-bold text-zinc-900">' + (job.totalApplications || 0) + '</span><span class="text-xs text-zinc-500">Total</span></div>' +
               '<div class="h-8 w-px bg-zinc-200 hidden md:block"></div>' +
               '<div class="flex flex-col items-center"><span class="text-2xl font-bold text-zinc-900">' + (job.positions || 0) + '</span><span class="text-xs text-zinc-500">Positions</span></div>' +
               '</div>' +

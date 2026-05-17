@@ -9,6 +9,7 @@ public class DataStore {
     private List<Job> jobs;
     private List<Application> applications;
     private List<Interview> interviews;
+    private List<Notification> notifications;
     private List<Term> terms;
     private List<Department> departments;
     private List<LogEntry> logs;
@@ -27,6 +28,8 @@ public class DataStore {
     public void setApplications(List<Application> applications) { this.applications = applications; }
     public List<Interview> getInterviews() { return interviews; }
     public void setInterviews(List<Interview> interviews) { this.interviews = interviews; }
+    public List<Notification> getNotifications() { return notifications; }
+    public void setNotifications(List<Notification> notifications) { this.notifications = notifications; }
     public List<Term> getTerms() { return terms; }
     public void setTerms(List<Term> terms) { this.terms = terms; }
     public List<Department> getDepartments() { return departments; }
