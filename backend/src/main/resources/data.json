@@ -77,6 +77,126 @@
       "status": "active",
       "lastLogin": "2026-10-15T09:45:00",
       "createdAt": "2026-07-01T00:00:00"
+<<<<<<< Updated upstream
+=======
+    },
+    {
+      "id": "u007",
+      "name": "TYF",
+      "email": "yifant584@gmail.com",
+      "password": "123456",
+      "phone": null,
+      "role": "applicant",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-04-11T20:23:43.828865",
+      "createdAt": "2026-04-11T18:04:15.858193"
+    },
+    {
+      "id": "u008",
+      "name": "TYF",
+      "email": "yifant1584@gmail.com",
+      "password": "12",
+      "phone": null,
+      "role": "organiser",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-04-11T18:10:51.585903",
+      "createdAt": "2026-04-11T18:10:51.585792"
+    },
+    {
+      "id": "u009",
+      "name": "Duwenjun",
+      "email": "3@qq.com",
+      "password": "1",
+      "phone": null,
+      "role": "organiser",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-04-11T20:36:14.9082816",
+      "createdAt": "2026-04-11T20:34:28.171413"
+    },
+    {
+      "id": "u010",
+      "name": "HANBINGJUN",
+      "email": "2@qq.com",
+      "password": "1",
+      "phone": null,
+      "role": "applicant",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-05-17T15:29:17.2027818",
+      "createdAt": "2026-04-11T20:35:09.5291531"
+    },
+    {
+      "id": "u011",
+      "name": "11",
+      "email": "1@qq.com",
+      "password": "1",
+      "phone": null,
+      "role": "organiser",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-05-17T16:33:17.7917428",
+      "createdAt": "2026-05-17T15:20:00.0871826"
+    },
+    {
+      "id": "u012",
+      "name": "1",
+      "email": "4@qq.com",
+      "password": "1",
+      "phone": null,
+      "role": "applicant",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-05-17T15:51:32.1492091",
+      "createdAt": "2026-05-17T15:30:06.1168467"
+    },
+    {
+      "id": "u013",
+      "name": "1",
+      "email": "5@qq.com",
+      "password": "1",
+      "phone": null,
+      "role": "applicant",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-05-17T16:34:22.7428067",
+      "createdAt": "2026-05-17T15:53:05.2673714"
+    },
+    {
+      "id": "u014",
+      "name": "1",
+      "email": "6@qq.com",
+      "password": "1",
+      "phone": null,
+      "role": "organiser",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-05-17T17:04:20.0676034",
+      "createdAt": "2026-05-17T16:35:51.5122886"
+    },
+    {
+      "id": "u015",
+      "name": "7",
+      "email": "7@qq.com",
+      "password": "1",
+      "phone": null,
+      "role": "applicant",
+      "department": null,
+      "avatar": null,
+      "status": "active",
+      "lastLogin": "2026-05-17T17:04:06.6419207",
+      "createdAt": "2026-05-17T16:36:27.5901324"
+>>>>>>> Stashed changes
     }
   ],
   "profiles": [
@@ -122,6 +242,89 @@
       ],
       "maxWeeklyHours": 20,
       "currentWeeklyHours": 0
+<<<<<<< Updated upstream
+=======
+    },
+    {
+      "id": "p003",
+      "userId": "u007",
+      "studentId": "",
+      "degree": "",
+      "year": 0,
+      "gpa": 0.0,
+      "maxGpa": 4.0,
+      "profileCompletion": 0,
+      "skills": [],
+      "coursework": [],
+      "experience": [],
+      "documents": [],
+      "maxWeeklyHours": 20,
+      "currentWeeklyHours": 0
+    },
+    {
+      "id": "p004",
+      "userId": "u010",
+      "studentId": "",
+      "degree": "",
+      "year": 0,
+      "gpa": 0.0,
+      "maxGpa": 4.0,
+      "profileCompletion": 0,
+      "skills": [],
+      "coursework": [],
+      "experience": [],
+      "documents": [],
+      "maxWeeklyHours": 20,
+      "currentWeeklyHours": 0
+    },
+    {
+      "id": "p005",
+      "userId": "u012",
+      "studentId": "",
+      "degree": "",
+      "year": 0,
+      "gpa": 0.0,
+      "maxGpa": 4.0,
+      "profileCompletion": 0,
+      "skills": [],
+      "coursework": [],
+      "experience": [],
+      "documents": [],
+      "maxWeeklyHours": 20,
+      "currentWeeklyHours": 0
+    },
+    {
+      "id": "p006",
+      "userId": "u013",
+      "studentId": "",
+      "degree": "",
+      "year": 0,
+      "gpa": 0.0,
+      "maxGpa": 4.0,
+      "profileCompletion": 0,
+      "skills": [],
+      "coursework": [],
+      "experience": [],
+      "documents": [],
+      "maxWeeklyHours": 20,
+      "currentWeeklyHours": 0
+    },
+    {
+      "id": "p007",
+      "userId": "u015",
+      "studentId": "",
+      "degree": "",
+      "year": 0,
+      "gpa": 0.0,
+      "maxGpa": 4.0,
+      "profileCompletion": 0,
+      "skills": [],
+      "coursework": [],
+      "experience": [],
+      "documents": [],
+      "maxWeeklyHours": 20,
+      "currentWeeklyHours": 0
+>>>>>>> Stashed changes
     }
   ],
   "modules": [
@@ -191,6 +394,139 @@
       "responsibilities": ["Grade SQL assignments", "Hold office hours"],
       "organiserId": "u006",
       "createdAt": "2026-09-20T00:00:00"
+    },
+    {
+      "id": "j005",
+      "moduleId": "1",
+      "moduleCode": "1",
+      "title": "1",
+      "description": "11",
+      "professor": "",
+      "department": "1",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 1,
+      "deadline": "2026-05-29",
+      "status": "active",
+      "tags": [],
+      "requirements": [],
+      "responsibilities": [],
+      "organiserId": "u011",
+      "createdAt": "2026-05-17T15:48:46.7076349"
+    },
+    {
+      "id": "j005",
+      "moduleId": "33",
+      "moduleCode": "33",
+      "title": "3333",
+      "description": "33",
+      "professor": "",
+      "department": "33",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 1,
+      "deadline": "2026-05-31",
+      "status": "active",
+      "tags": [],
+      "requirements": [],
+      "responsibilities": [],
+      "organiserId": "u011",
+      "createdAt": "2026-05-17T16:23:42.7959577"
+    },
+    {
+      "id": "j006",
+      "moduleId": "44",
+      "moduleCode": "44",
+      "title": "444",
+      "description": "44",
+      "professor": "",
+      "department": "44",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 1,
+      "deadline": "2026-05-29",
+      "status": "active",
+      "tags": [],
+      "requirements": [],
+      "responsibilities": [],
+      "organiserId": "u011",
+      "createdAt": "2026-05-17T16:23:53.0761097"
+    },
+    {
+      "id": "j007",
+      "moduleId": "55",
+      "moduleCode": "55",
+      "title": "555",
+      "description": "55",
+      "professor": "",
+      "department": "55",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 1,
+      "deadline": "2026-05-23",
+      "status": "active",
+      "tags": [],
+      "requirements": [],
+      "responsibilities": [],
+      "organiserId": "u011",
+      "createdAt": "2026-05-17T16:29:40.1732466"
+    },
+    {
+      "id": "j008",
+      "moduleId": "1",
+      "moduleCode": "1",
+      "title": "11",
+      "description": "1",
+      "professor": "",
+      "department": "1",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 1,
+      "deadline": "2026-05-24",
+      "status": "active",
+      "tags": [],
+      "requirements": [],
+      "responsibilities": [],
+      "organiserId": "u014",
+      "createdAt": "2026-05-17T16:36:00.7062604"
+    },
+    {
+      "id": "j009",
+      "moduleId": "2",
+      "moduleCode": "2",
+      "title": "2",
+      "description": "2",
+      "professor": "",
+      "department": "2",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 1,
+      "deadline": "2026-05-30",
+      "status": "active",
+      "tags": [],
+      "requirements": [],
+      "responsibilities": [],
+      "organiserId": "u014",
+      "createdAt": "2026-05-17T16:36:06.5159083"
+    },
+    {
+      "id": "j010",
+      "moduleId": "3",
+      "moduleCode": "3",
+      "title": "3",
+      "description": "3",
+      "professor": "",
+      "department": "3",
+      "type": "Part-time",
+      "hoursPerWeek": 10,
+      "positions": 1,
+      "deadline": "2026-05-29",
+      "status": "active",
+      "tags": [],
+      "requirements": [],
+      "responsibilities": [],
+      "organiserId": "u014",
+      "createdAt": "2026-05-17T17:03:56.5100091"
     }
   ],
   "applications": [
@@ -213,6 +549,356 @@
         { "status": "interview", "date": "2026-10-15", "completed": false, "pending": true },
         { "status": "offer", "date": null, "completed": false }
       ]
+    },
+    {
+      "id": "a009",
+      "jobId": "j005",
+      "applicantId": "u012",
+      "status": "rejected",
+      "coverLetter": "1",
+      "documentIds": [],
+      "matchScore": 73,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-05-17T15:49:52.5698821",
+      "updatedAt": "2026-05-17T16:34:13.1300514",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "a008",
+      "jobId": "j005",
+      "applicantId": "u013",
+      "status": "rejected",
+      "coverLetter": "1",
+      "documentIds": [],
+      "matchScore": 99,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-05-17T15:53:11.0479882",
+      "updatedAt": "2026-05-17T15:54:42.9788727",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "a009",
+      "jobId": "j006",
+      "applicantId": "u013",
+      "status": "applied",
+      "coverLetter": "111",
+      "documentIds": [],
+      "matchScore": 75,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-05-17T16:31:17.7606635",
+      "updatedAt": "2026-05-17T16:31:17.7606635",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "a010",
+      "jobId": "j007",
+      "applicantId": "u013",
+      "status": "rejected",
+      "coverLetter": "111",
+      "documentIds": [],
+      "matchScore": 94,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-05-17T16:31:21.9371691",
+      "updatedAt": "2026-05-17T16:34:04.4344372",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "a011",
+      "jobId": "j008",
+      "applicantId": "u015",
+      "status": "shortlisted",
+      "coverLetter": "1",
+      "documentIds": [],
+      "matchScore": 96,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-05-17T16:37:27.3883095",
+      "updatedAt": "2026-05-17T16:50:36.1519121",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "a012",
+      "jobId": "j009",
+      "applicantId": "u015",
+      "status": "rejected",
+      "coverLetter": "2",
+      "documentIds": [],
+      "matchScore": 77,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-05-17T16:37:32.9295847",
+      "updatedAt": "2026-05-17T16:38:49.1576505",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "a013",
+      "jobId": "j010",
+      "applicantId": "u015",
+      "status": "rejected",
+      "coverLetter": "1",
+      "documentIds": [],
+      "matchScore": 74,
+      "riskFlag": null,
+      "aiSummary": "Application auto-analyzed by system.",
+      "appliedAt": "2026-05-17T17:04:13.654843",
+      "updatedAt": "2026-05-17T17:04:33.949843",
+      "timeline": [
+        {
+          "status": "applied",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-05-17",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
+      ]
     }
   ],
   "interviews": [
@@ -231,6 +917,169 @@
       "status": "upcoming",
       "outcome": null,
       "organiserId": "u005"
+<<<<<<< Updated upstream
+=======
+    },
+    {
+      "id": "i002",
+      "applicationId": "a006",
+      "candidateId": "u007",
+      "candidateName": "TYF",
+      "moduleCode": "CS201",
+      "moduleName": "Teaching Assistant - Data Structures",
+      "date": "2026-04-12",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "video",
+      "location": "",
+      "status": "scheduled",
+      "outcome": null,
+      "organiserId": "u005"
+    },
+    {
+      "id": "i003",
+      "applicationId": "a006",
+      "candidateId": "u007",
+      "candidateName": "TYF",
+      "moduleCode": "CS201",
+      "moduleName": "Teaching Assistant - Data Structures",
+      "date": "2026-04-12",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "in-person",
+      "location": "Room301",
+      "status": "scheduled",
+      "outcome": null,
+      "organiserId": "u005"
+    },
+    {
+      "id": "i008",
+      "applicationId": "a009",
+      "candidateId": "u012",
+      "candidateName": "1",
+      "moduleCode": "1",
+      "moduleName": "1",
+      "date": "2026-05-18",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u011"
+    },
+    {
+      "id": "i005",
+      "applicationId": "a008",
+      "candidateId": "u013",
+      "candidateName": "1",
+      "moduleCode": "1",
+      "moduleName": "1",
+      "date": "2026-05-18",
+      "startTime": "13:00",
+      "endTime": "15:33",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u011"
+    },
+    {
+      "id": "i006",
+      "applicationId": "a010",
+      "candidateId": "u013",
+      "candidateName": "1",
+      "moduleCode": "55",
+      "moduleName": "555",
+      "date": "2026-05-18",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u011"
+    },
+    {
+      "id": "i007",
+      "applicationId": "a009",
+      "candidateId": "u012",
+      "candidateName": "1",
+      "moduleCode": "44",
+      "moduleName": "1",
+      "date": "2026-05-18",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u011"
+    },
+    {
+      "id": "i008",
+      "applicationId": "a009",
+      "candidateId": "u012",
+      "candidateName": "1",
+      "moduleCode": "44",
+      "moduleName": "1",
+      "date": "2026-05-18",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u011"
+    },
+    {
+      "id": "i009",
+      "applicationId": "a011",
+      "candidateId": "u015",
+      "candidateName": "7",
+      "moduleCode": "1",
+      "moduleName": "1",
+      "date": "2026-05-18",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u014"
+    },
+    {
+      "id": "i010",
+      "applicationId": "a012",
+      "candidateId": "u015",
+      "candidateName": "7",
+      "moduleCode": "2",
+      "moduleName": "2",
+      "date": "2026-05-18",
+      "startTime": "11:00",
+      "endTime": "14:33",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u014"
+    },
+    {
+      "id": "i011",
+      "applicationId": "a013",
+      "candidateId": "u015",
+      "candidateName": "7",
+      "moduleCode": "3",
+      "moduleName": "3",
+      "date": "2026-05-18",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "type": "video",
+      "location": "",
+      "status": "cancelled",
+      "outcome": null,
+      "organiserId": "u014"
+>>>>>>> Stashed changes
     }
   ],
   "terms": [
@@ -240,6 +1089,7 @@
     { "id": "d001", "name": "Computer Science", "moduleCount": 14, "status": "active" }
   ],
   "logs": [
+<<<<<<< Updated upstream
     { "id": "EVT-9321", "timestamp": "2026-10-15T14:32:01", "action": "User Login", "actor": "alan@university.edu", "actorId": "u005", "type": "info", "details": "Successful authentication via SSO.", "ip": "192.168.1.10" },
     { "id": "EVT-9320", "timestamp": "2026-10-15T13:15:44", "action": "Job Posted", "actor": "grace@university.edu", "actorId": "u006", "type": "success", "details": "Created new TA position for CS201.", "ip": "192.168.1.11" },
     { "id": "EVT-9319", "timestamp": "2026-10-15T11:05:12", "action": "Role Update", "actor": "admin@university.edu", "actorId": "u010", "type": "warning", "details": "Elevated user role to Organiser.", "ip": "192.168.1.12" },
@@ -249,5 +1099,2197 @@
   ],
   "workloadAssignments": [
     { "id": "w001", "taUserId": "u001", "moduleCode": "CS201", "hoursPerWeek": 10, "term": "Fall 2026", "status": "active" }
+=======
+    {
+      "id": "EVT-9321",
+      "timestamp": "2026-10-15T14:32:01",
+      "action": "User Login",
+      "actor": "alan@university.edu",
+      "actorId": "u005",
+      "type": "info",
+      "details": "Successful authentication via SSO.",
+      "ip": "192.168.1.10"
+    },
+    {
+      "id": "EVT-9320",
+      "timestamp": "2026-10-15T13:15:44",
+      "action": "Job Posted",
+      "actor": "grace@university.edu",
+      "actorId": "u006",
+      "type": "success",
+      "details": "Created new TA position for CS201.",
+      "ip": "192.168.1.11"
+    },
+    {
+      "id": "EVT-9319",
+      "timestamp": "2026-10-15T11:05:12",
+      "action": "Role Update",
+      "actor": "admin@university.edu",
+      "actorId": "u010",
+      "type": "warning",
+      "details": "Elevated user role to Organiser.",
+      "ip": "192.168.1.12"
+    },
+    {
+      "id": "EVT-9318",
+      "timestamp": "2026-10-15T09:45:00",
+      "action": "Failed Login",
+      "actor": "unknown (IP: 192.168.1.45)",
+      "actorId": null,
+      "type": "error",
+      "details": "Invalid credentials. 3rd attempt.",
+      "ip": "192.168.1.45"
+    },
+    {
+      "id": "EVT-9317",
+      "timestamp": "2026-10-14T16:20:11",
+      "action": "Application Submitted",
+      "actor": "alex.j@university.edu",
+      "actorId": "u001",
+      "type": "info",
+      "details": "Applied for CS201 TA position.",
+      "ip": "192.168.1.20"
+    },
+    {
+      "id": "EVT-9316",
+      "timestamp": "2026-10-14T15:10:05",
+      "action": "System Backup",
+      "actor": "System",
+      "actorId": null,
+      "type": "info",
+      "details": "Automated database snapshot completed.",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "EVT-9007",
+      "timestamp": "2026-04-12T11:58:55.988798",
+      "action": "User Login",
+      "actor": "Admin Root",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User Admin Root (admin) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9008",
+      "timestamp": "2026-05-17T15:20:00.0944471",
+      "action": "User Signup",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "success",
+      "details": "New organiser account registered: 1@qq.com",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9009",
+      "timestamp": "2026-05-17T15:24:08.2626975",
+      "action": "Job Posted",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "success",
+      "details": "Posted new job: 11",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9010",
+      "timestamp": "2026-05-17T15:24:16.4226182",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9011",
+      "timestamp": "2026-05-17T15:25:04.1433191",
+      "action": "User Login",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9012",
+      "timestamp": "2026-05-17T15:25:32.0715444",
+      "action": "Application Submitted",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "success",
+      "details": "Applied for job j004",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9013",
+      "timestamp": "2026-05-17T15:25:49.9892668",
+      "action": "User Logout",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9014",
+      "timestamp": "2026-05-17T15:25:58.4571822",
+      "action": "User Login",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9015",
+      "timestamp": "2026-05-17T15:26:01.6441805",
+      "action": "User Logout",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9016",
+      "timestamp": "2026-05-17T15:26:13.3893262",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9017",
+      "timestamp": "2026-05-17T15:26:23.1731881",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a007 status to review",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9018",
+      "timestamp": "2026-05-17T15:26:27.6577427",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a007 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9019",
+      "timestamp": "2026-05-17T15:26:45.002322",
+      "action": "Interview Scheduled",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Scheduled interview for application a007",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9020",
+      "timestamp": "2026-05-17T15:26:48.3960992",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9021",
+      "timestamp": "2026-05-17T15:26:57.3161229",
+      "action": "User Login",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9022",
+      "timestamp": "2026-05-17T15:27:39.7917056",
+      "action": "User Logout",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9023",
+      "timestamp": "2026-05-17T15:27:44.7794614",
+      "action": "User Login",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9024",
+      "timestamp": "2026-05-17T15:27:46.0350218",
+      "action": "User Logout",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9025",
+      "timestamp": "2026-05-17T15:27:52.1605771",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9026",
+      "timestamp": "2026-05-17T15:27:57.4464301",
+      "action": "Application Reject",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Application a007 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9027",
+      "timestamp": "2026-05-17T15:28:08.7799326",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9028",
+      "timestamp": "2026-05-17T15:28:15.9376778",
+      "action": "User Login",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9029",
+      "timestamp": "2026-05-17T15:28:38.5835485",
+      "action": "User Logout",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9030",
+      "timestamp": "2026-05-17T15:28:47.5914362",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9031",
+      "timestamp": "2026-05-17T15:29:08.0578974",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9032",
+      "timestamp": "2026-05-17T15:29:17.2058554",
+      "action": "User Login",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9033",
+      "timestamp": "2026-05-17T15:29:26.1148015",
+      "action": "User Logout",
+      "actor": "HANBINGJUN",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User HANBINGJUN logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9034",
+      "timestamp": "2026-05-17T15:30:06.1188528",
+      "action": "User Signup",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "success",
+      "details": "New applicant account registered: 4@qq.com",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9035",
+      "timestamp": "2026-05-17T15:30:13.505735",
+      "action": "Application Submitted",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "success",
+      "details": "Applied for job j004",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9036",
+      "timestamp": "2026-05-17T15:30:20.3050377",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9037",
+      "timestamp": "2026-05-17T15:30:27.7819146",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9038",
+      "timestamp": "2026-05-17T15:30:35.4126449",
+      "action": "Interview Scheduled",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Scheduled interview for application a008",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9039",
+      "timestamp": "2026-05-17T15:31:30.7253187",
+      "action": "Interview Scheduled",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Scheduled interview for application a008",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9040",
+      "timestamp": "2026-05-17T15:31:54.9550123",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9041",
+      "timestamp": "2026-05-17T15:31:58.678836",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9042",
+      "timestamp": "2026-05-17T15:32:04.078397",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9043",
+      "timestamp": "2026-05-17T15:32:08.0273891",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9044",
+      "timestamp": "2026-05-17T15:32:12.2612318",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9045",
+      "timestamp": "2026-05-17T15:32:17.1217583",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9046",
+      "timestamp": "2026-05-17T15:32:19.9096407",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9047",
+      "timestamp": "2026-05-17T15:32:27.3229235",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9048",
+      "timestamp": "2026-05-17T15:32:31.5702522",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9049",
+      "timestamp": "2026-05-17T15:33:43.9945362",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9050",
+      "timestamp": "2026-05-17T15:33:52.6560486",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9051",
+      "timestamp": "2026-05-17T15:34:16.2557776",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9052",
+      "timestamp": "2026-05-17T15:34:32.9165508",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9053",
+      "timestamp": "2026-05-17T15:34:36.5412097",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9054",
+      "timestamp": "2026-05-17T15:34:41.0078536",
+      "action": "Interview Scheduled",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Scheduled interview for application a008",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9055",
+      "timestamp": "2026-05-17T15:35:14.8382643",
+      "action": "Application Reject",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Application a008 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9056",
+      "timestamp": "2026-05-17T15:48:40.2438139",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9057",
+      "timestamp": "2026-05-17T15:48:46.7156328",
+      "action": "Job Posted",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "success",
+      "details": "Posted new job: 1",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9058",
+      "timestamp": "2026-05-17T15:48:48.6367196",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9059",
+      "timestamp": "2026-05-17T15:48:55.2348704",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9060",
+      "timestamp": "2026-05-17T15:49:52.5739159",
+      "action": "Application Submitted",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "success",
+      "details": "Applied for job j005",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9061",
+      "timestamp": "2026-05-17T15:49:53.908695",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9062",
+      "timestamp": "2026-05-17T15:50:01.0242791",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9063",
+      "timestamp": "2026-05-17T15:50:08.2823459",
+      "action": "Interview Scheduled",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Scheduled interview for application a009",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9064",
+      "timestamp": "2026-05-17T15:50:18.0753267",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9065",
+      "timestamp": "2026-05-17T15:50:20.8814349",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9066",
+      "timestamp": "2026-05-17T15:50:51.5590646",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9067",
+      "timestamp": "2026-05-17T15:51:05.6366774",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9068",
+      "timestamp": "2026-05-17T15:51:28.6827482",
+      "action": "Job Deleted",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Deleted job j004",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9069",
+      "timestamp": "2026-05-17T15:51:29.8220553",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9070",
+      "timestamp": "2026-05-17T15:51:32.1521147",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9071",
+      "timestamp": "2026-05-17T15:52:24.6379753",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u012",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9072",
+      "timestamp": "2026-05-17T15:52:30.1356492",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9073",
+      "timestamp": "2026-05-17T15:52:51.8039173",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9074",
+      "timestamp": "2026-05-17T15:53:05.2703744",
+      "action": "User Signup",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "success",
+      "details": "New applicant account registered: 5@qq.com",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9075",
+      "timestamp": "2026-05-17T15:53:11.0509374",
+      "action": "Application Submitted",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "success",
+      "details": "Applied for job j005",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9076",
+      "timestamp": "2026-05-17T15:53:17.4751119",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9077",
+      "timestamp": "2026-05-17T15:53:21.308193",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9078",
+      "timestamp": "2026-05-17T15:53:36.8013075",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a008 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9079",
+      "timestamp": "2026-05-17T15:53:49.9261791",
+      "action": "Interview Scheduled",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Scheduled interview for application a008",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9080",
+      "timestamp": "2026-05-17T15:54:06.4328411",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9081",
+      "timestamp": "2026-05-17T15:54:18.6024485",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9082",
+      "timestamp": "2026-05-17T15:54:27.2928253",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9083",
+      "timestamp": "2026-05-17T15:54:30.7596326",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9084",
+      "timestamp": "2026-05-17T15:54:42.9828782",
+      "action": "Application Reject",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Application a008 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9085",
+      "timestamp": "2026-05-17T15:54:49.9018067",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9086",
+      "timestamp": "2026-05-17T15:55:02.7296499",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9087",
+      "timestamp": "2026-05-17T15:55:12.7466892",
+      "action": "Application Reject",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Application a009 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9088",
+      "timestamp": "2026-05-17T15:55:13.2755936",
+      "action": "Application Reject",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Application a009 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9089",
+      "timestamp": "2026-05-17T15:55:16.4130746",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9090",
+      "timestamp": "2026-05-17T15:55:26.5765456",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9091",
+      "timestamp": "2026-05-17T15:57:05.9891977",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9092",
+      "timestamp": "2026-05-17T15:57:21.407593",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9093",
+      "timestamp": "2026-05-17T16:22:06.2113632",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9094",
+      "timestamp": "2026-05-17T16:23:42.8009628",
+      "action": "Job Posted",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "success",
+      "details": "Posted new job: 3333",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9095",
+      "timestamp": "2026-05-17T16:23:53.0861529",
+      "action": "Job Posted",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "success",
+      "details": "Posted new job: 444",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9096",
+      "timestamp": "2026-05-17T16:29:12.049345",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9097",
+      "timestamp": "2026-05-17T16:29:40.1782232",
+      "action": "Job Posted",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "success",
+      "details": "Posted new job: 555",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9098",
+      "timestamp": "2026-05-17T16:30:46.6362246",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9099",
+      "timestamp": "2026-05-17T16:30:49.442192",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9100",
+      "timestamp": "2026-05-17T16:31:17.7649732",
+      "action": "Application Submitted",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "success",
+      "details": "Applied for job j006",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9101",
+      "timestamp": "2026-05-17T16:31:21.9440763",
+      "action": "Application Submitted",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "success",
+      "details": "Applied for job j007",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9102",
+      "timestamp": "2026-05-17T16:31:24.9713847",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9103",
+      "timestamp": "2026-05-17T16:31:28.0979135",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9104",
+      "timestamp": "2026-05-17T16:32:30.7506126",
+      "action": "Interview Scheduled",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Scheduled interview for application a010",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9105",
+      "timestamp": "2026-05-17T16:32:33.8141097",
+      "action": "Interview Scheduled",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Scheduled interview for application a009",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9106",
+      "timestamp": "2026-05-17T16:32:42.0899386",
+      "action": "Interview Scheduled",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Scheduled interview for application a009",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9107",
+      "timestamp": "2026-05-17T16:32:58.2364661",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9108",
+      "timestamp": "2026-05-17T16:33:01.5192381",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9109",
+      "timestamp": "2026-05-17T16:33:14.7352002",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9110",
+      "timestamp": "2026-05-17T16:33:17.7947575",
+      "action": "User Login",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9111",
+      "timestamp": "2026-05-17T16:33:27.2158824",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a010 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9112",
+      "timestamp": "2026-05-17T16:33:29.0372736",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a009 status to review",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9113",
+      "timestamp": "2026-05-17T16:33:33.5795877",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a009 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9114",
+      "timestamp": "2026-05-17T16:33:34.3701366",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a009 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9115",
+      "timestamp": "2026-05-17T16:33:35.181114",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a009 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9116",
+      "timestamp": "2026-05-17T16:33:36.0500395",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a009 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9117",
+      "timestamp": "2026-05-17T16:33:53.5298471",
+      "action": "Application Reject",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Application a009 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9118",
+      "timestamp": "2026-05-17T16:33:58.0877752",
+      "action": "Application Reject",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Application a009 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9119",
+      "timestamp": "2026-05-17T16:34:04.4373378",
+      "action": "Application Reject",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Application a010 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9120",
+      "timestamp": "2026-05-17T16:34:09.6486284",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a009 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9121",
+      "timestamp": "2026-05-17T16:34:11.0649994",
+      "action": "Candidate Status Changed",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "Changed application a009 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9122",
+      "timestamp": "2026-05-17T16:34:13.1329803",
+      "action": "Application Reject",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "warning",
+      "details": "Application a009 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9123",
+      "timestamp": "2026-05-17T16:34:16.6029864",
+      "action": "User Logout",
+      "actor": "11",
+      "actorId": "u011",
+      "type": "info",
+      "details": "User 11 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9124",
+      "timestamp": "2026-05-17T16:34:22.7458069",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9125",
+      "timestamp": "2026-05-17T16:35:34.2985347",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u013",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9126",
+      "timestamp": "2026-05-17T16:35:51.5161863",
+      "action": "User Signup",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "success",
+      "details": "New organiser account registered: 6@qq.com",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9127",
+      "timestamp": "2026-05-17T16:36:00.7092597",
+      "action": "Job Posted",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "success",
+      "details": "Posted new job: 1",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9128",
+      "timestamp": "2026-05-17T16:36:06.5199079",
+      "action": "Job Posted",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "success",
+      "details": "Posted new job: 2",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9129",
+      "timestamp": "2026-05-17T16:36:15.965033",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9130",
+      "timestamp": "2026-05-17T16:36:27.5930724",
+      "action": "User Signup",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "success",
+      "details": "New applicant account registered: 7@qq.com",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9131",
+      "timestamp": "2026-05-17T16:37:27.396308",
+      "action": "Application Submitted",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "success",
+      "details": "Applied for job j008",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9132",
+      "timestamp": "2026-05-17T16:37:32.932674",
+      "action": "Application Submitted",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "success",
+      "details": "Applied for job j009",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9133",
+      "timestamp": "2026-05-17T16:37:36.1580118",
+      "action": "User Logout",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "info",
+      "details": "User 7 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9134",
+      "timestamp": "2026-05-17T16:37:41.8733917",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9135",
+      "timestamp": "2026-05-17T16:37:50.6402684",
+      "action": "Interview Scheduled",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "Scheduled interview for application a011",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9136",
+      "timestamp": "2026-05-17T16:37:54.0155286",
+      "action": "Candidate Status Changed",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "Changed application a012 status to review",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9137",
+      "timestamp": "2026-05-17T16:37:54.6395693",
+      "action": "Candidate Status Changed",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "Changed application a012 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9138",
+      "timestamp": "2026-05-17T16:38:02.6270986",
+      "action": "Interview Scheduled",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "Scheduled interview for application a012",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9139",
+      "timestamp": "2026-05-17T16:38:06.4289801",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9140",
+      "timestamp": "2026-05-17T16:38:15.4522627",
+      "action": "User Login",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "info",
+      "details": "User 7 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9141",
+      "timestamp": "2026-05-17T16:38:19.9395823",
+      "action": "User Logout",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "info",
+      "details": "User 7 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9142",
+      "timestamp": "2026-05-17T16:38:34.0924218",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9143",
+      "timestamp": "2026-05-17T16:38:41.5370995",
+      "action": "Candidate Status Changed",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "Changed application a012 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9144",
+      "timestamp": "2026-05-17T16:38:49.1605516",
+      "action": "Application Reject",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "warning",
+      "details": "Application a012 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9145",
+      "timestamp": "2026-05-17T16:38:52.3297004",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9146",
+      "timestamp": "2026-05-17T16:38:56.878116",
+      "action": "User Login",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "info",
+      "details": "User 7 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9147",
+      "timestamp": "2026-05-17T16:38:58.2272011",
+      "action": "User Logout",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "info",
+      "details": "User 7 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9148",
+      "timestamp": "2026-05-17T16:50:31.1067638",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9149",
+      "timestamp": "2026-05-17T16:50:36.1807608",
+      "action": "Candidate Status Changed",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "Changed application a011 status to shortlisted",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9150",
+      "timestamp": "2026-05-17T16:50:40.9903324",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9151",
+      "timestamp": "2026-05-17T16:50:44.304658",
+      "action": "User Login",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "info",
+      "details": "User 7 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9152",
+      "timestamp": "2026-05-17T16:50:52.3705266",
+      "action": "User Logout",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "info",
+      "details": "User 7 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9153",
+      "timestamp": "2026-05-17T16:50:56.587714",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9154",
+      "timestamp": "2026-05-17T16:52:45.7973275",
+      "action": "Job Updated",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "Updated job j008",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9155",
+      "timestamp": "2026-05-17T17:03:35.6433354",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9156",
+      "timestamp": "2026-05-17T17:03:56.5262928",
+      "action": "Job Posted",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "success",
+      "details": "Posted new job: 3",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9157",
+      "timestamp": "2026-05-17T17:04:02.194826",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9158",
+      "timestamp": "2026-05-17T17:04:06.6449201",
+      "action": "User Login",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "info",
+      "details": "User 7 (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9159",
+      "timestamp": "2026-05-17T17:04:13.6598256",
+      "action": "Application Submitted",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "success",
+      "details": "Applied for job j010",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9160",
+      "timestamp": "2026-05-17T17:04:14.9627215",
+      "action": "User Logout",
+      "actor": "7",
+      "actorId": "u015",
+      "type": "info",
+      "details": "User 7 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9161",
+      "timestamp": "2026-05-17T17:04:20.0756567",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9162",
+      "timestamp": "2026-05-17T17:04:30.957215",
+      "action": "Interview Scheduled",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "Scheduled interview for application a013",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9163",
+      "timestamp": "2026-05-17T17:04:33.9548419",
+      "action": "Application Reject",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "warning",
+      "details": "Application a013 reject",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9164",
+      "timestamp": "2026-05-17T17:04:48.7447378",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u014",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    }
+  ],
+  "workloadAssignments": [
+    {
+      "id": "w001",
+      "taUserId": "u001",
+      "moduleCode": "CS201",
+      "hoursPerWeek": 10,
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "w002",
+      "taUserId": "u001",
+      "moduleCode": "MATH101",
+      "hoursPerWeek": 6,
+      "term": "Fall 2026",
+      "status": "active"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "n001",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for CS201 has been shortlisted.",
+      "relatedId": "a006",
+      "createdAt": "2026-04-11T18:24:03.305634",
+      "read": true
+    },
+    {
+      "id": "n002",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "Application Under Review",
+      "message": "Your application for CS201 is now being reviewed.",
+      "relatedId": "a006",
+      "createdAt": "2026-04-11T18:24:05.071747",
+      "read": true
+    },
+    {
+      "id": "n003",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: CS201",
+      "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: Video Call.",
+      "relatedId": "i002",
+      "createdAt": "2026-04-11T18:24:12.668627",
+      "read": true
+    },
+    {
+      "id": "n004",
+      "userId": "u007",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for CS201 has been shortlisted.",
+      "relatedId": "a006",
+      "createdAt": "2026-04-11T18:25:59.251441",
+      "read": true
+    },
+    {
+      "id": "n005",
+      "userId": "u007",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: CS201",
+      "message": "Your interview for CS201 Teaching Assistant - Data Structures is scheduled on 2026-04-12 at 10:00. Type: In-Person at Room301.",
+      "relatedId": "i003",
+      "createdAt": "2026-04-11T18:26:17.134112",
+      "read": false
+    },
+    {
+      "id": "n006",
+      "userId": "u010",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 123231",
+      "message": "Your interview for 123231 213 is scheduled on 2026-04-12 at 10:00. Type: Video Call.",
+      "relatedId": "i004",
+      "createdAt": "2026-04-11T20:35:26.6490701",
+      "read": true
+    },
+    {
+      "id": "n007",
+      "userId": "u010",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 123231",
+      "message": "Your interview for 123231 213 scheduled on 2026-04-12 at 10:00 has been cancelled.",
+      "relatedId": "i004",
+      "createdAt": "2026-04-11T20:35:29.3360779",
+      "read": true
+    },
+    {
+      "id": "n008",
+      "userId": "u010",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 123231",
+      "message": "Your interview for 123231 213 is scheduled on 2026-04-12 at 10:00. Type: Video Call.",
+      "relatedId": "i005",
+      "createdAt": "2026-04-11T20:35:40.9985144",
+      "read": true
+    },
+    {
+      "id": "n009",
+      "userId": "u010",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 123231",
+      "message": "Your interview for 123231 213 scheduled on 2026-04-12 at 10:00 has been cancelled.",
+      "relatedId": "i005",
+      "createdAt": "2026-04-11T20:36:01.7313451",
+      "read": true
+    },
+    {
+      "id": "n010",
+      "userId": "u010",
+      "type": "status_change",
+      "title": "Application Under Review",
+      "message": "Your application for 11 is now being reviewed.",
+      "relatedId": "a007",
+      "createdAt": "2026-05-17T15:26:23.169744",
+      "read": true
+    },
+    {
+      "id": "n011",
+      "userId": "u010",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for 11 has been shortlisted.",
+      "relatedId": "a007",
+      "createdAt": "2026-05-17T15:26:27.6547297",
+      "read": true
+    },
+    {
+      "id": "n012",
+      "userId": "u010",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 11",
+      "message": "Your interview for 11 11 is scheduled on 2026-05-18 at 10:00. Type: Video Call.",
+      "relatedId": "i004",
+      "createdAt": "2026-05-17T15:26:44.9993363",
+      "read": true
+    },
+    {
+      "id": "n013",
+      "userId": "u010",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 11 was not successful.",
+      "relatedId": "a007",
+      "createdAt": "2026-05-17T15:27:57.4433127",
+      "read": false
+    },
+    {
+      "id": "n014",
+      "userId": "u012",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 11",
+      "message": "Your interview for 11 11 is scheduled on 2026-05-18 at 10:00. Type: Video Call.",
+      "relatedId": "i005",
+      "createdAt": "2026-05-17T15:30:35.4107492",
+      "read": false
+    },
+    {
+      "id": "n015",
+      "userId": "u010",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 11",
+      "message": "Your interview for 11 11 scheduled on 2026-05-18 at 10:00 has been cancelled.",
+      "relatedId": "i004",
+      "createdAt": "2026-05-17T15:30:48.1538374",
+      "read": false
+    },
+    {
+      "id": "n016",
+      "userId": "u012",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 11",
+      "message": "Your interview for 11 11 is scheduled on 2026-05-30 at 18:34. Type: In-Person at 2.",
+      "relatedId": "i006",
+      "createdAt": "2026-05-17T15:31:30.7228441",
+      "read": false
+    },
+    {
+      "id": "n017",
+      "userId": "u012",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 11",
+      "message": "Your interview for 11 11 scheduled on 2026-05-30 at 18:34 has been cancelled.",
+      "relatedId": "i006",
+      "createdAt": "2026-05-17T15:32:11.2107526",
+      "read": false
+    },
+    {
+      "id": "n018",
+      "userId": "u012",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 11",
+      "message": "Your interview for 11 11 scheduled on 2026-05-18 at 10:00 has been cancelled.",
+      "relatedId": "i005",
+      "createdAt": "2026-05-17T15:33:49.7686409",
+      "read": false
+    },
+    {
+      "id": "n019",
+      "userId": "u012",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 11",
+      "message": "Your interview for 11 11 is scheduled on 2026-05-18 at 10:00. Type: Video Call.",
+      "relatedId": "i007",
+      "createdAt": "2026-05-17T15:34:41.0048698",
+      "read": false
+    },
+    {
+      "id": "n020",
+      "userId": "u012",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 11 was not successful.",
+      "relatedId": "a008",
+      "createdAt": "2026-05-17T15:35:14.8351909",
+      "read": false
+    },
+    {
+      "id": "n021",
+      "userId": "u012",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 11",
+      "message": "Your interview for 11 11 scheduled on 2026-05-18 at 10:00 has been cancelled.",
+      "relatedId": "i007",
+      "createdAt": "2026-05-17T15:50:04.5257311",
+      "read": false
+    },
+    {
+      "id": "n022",
+      "userId": "u012",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 1",
+      "message": "Your interview for 1 1 is scheduled on 2026-05-18 at 10:00. Type: Video Call.",
+      "relatedId": "i008",
+      "createdAt": "2026-05-17T15:50:08.2793458",
+      "read": false
+    },
+    {
+      "id": "n023",
+      "userId": "u013",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for 1 has been shortlisted.",
+      "relatedId": "a008",
+      "createdAt": "2026-05-17T15:53:36.7982074",
+      "read": false
+    },
+    {
+      "id": "n024",
+      "userId": "u013",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 1",
+      "message": "Your interview for 1 1 is scheduled on 2026-05-18 at 13:00. Type: Video Call.",
+      "relatedId": "i005",
+      "createdAt": "2026-05-17T15:53:49.9231929",
+      "read": false
+    },
+    {
+      "id": "n025",
+      "userId": "u013",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 1 was not successful.",
+      "relatedId": "a008",
+      "createdAt": "2026-05-17T15:54:42.9788727",
+      "read": false
+    },
+    {
+      "id": "n026",
+      "userId": "u013",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 1",
+      "message": "Your interview for 1 1 scheduled on 2026-05-18 at 13:00 has been cancelled because the application was rejected.",
+      "relatedId": "i005",
+      "createdAt": "2026-05-17T15:54:42.9799012",
+      "read": false
+    },
+    {
+      "id": "n027",
+      "userId": "u012",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 1 was not successful.",
+      "relatedId": "a009",
+      "createdAt": "2026-05-17T15:55:12.7438466",
+      "read": false
+    },
+    {
+      "id": "n028",
+      "userId": "u012",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 1",
+      "message": "Your interview for 1 1 scheduled on 2026-05-18 at 10:00 has been cancelled because the application was rejected.",
+      "relatedId": "i008",
+      "createdAt": "2026-05-17T15:55:12.7438466",
+      "read": false
+    },
+    {
+      "id": "n029",
+      "userId": "u013",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 55",
+      "message": "Your interview for 55 555 is scheduled on 2026-05-18 at 10:00. Type: Video Call.",
+      "relatedId": "i006",
+      "createdAt": "2026-05-17T16:32:30.7476017",
+      "read": false
+    },
+    {
+      "id": "n030",
+      "userId": "u012",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 44",
+      "message": "Your interview for 44 1 is scheduled on 2026-05-18 at 10:00. Type: Video Call.",
+      "relatedId": "i007",
+      "createdAt": "2026-05-17T16:32:33.8110956",
+      "read": false
+    },
+    {
+      "id": "n031",
+      "userId": "u012",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 44",
+      "message": "Your interview for 44 1 is scheduled on 2026-05-18 at 10:00. Type: Video Call.",
+      "relatedId": "i008",
+      "createdAt": "2026-05-17T16:32:42.0858241",
+      "read": false
+    },
+    {
+      "id": "n032",
+      "userId": "u013",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for 55 has been shortlisted.",
+      "relatedId": "a010",
+      "createdAt": "2026-05-17T16:33:27.2158824",
+      "read": false
+    },
+    {
+      "id": "n033",
+      "userId": "u012",
+      "type": "status_change",
+      "title": "Application Under Review",
+      "message": "Your application for 1 is now being reviewed.",
+      "relatedId": "a009",
+      "createdAt": "2026-05-17T16:33:29.0346061",
+      "read": false
+    },
+    {
+      "id": "n034",
+      "userId": "u012",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for 1 has been shortlisted.",
+      "relatedId": "a009",
+      "createdAt": "2026-05-17T16:33:33.5772162",
+      "read": false
+    },
+    {
+      "id": "n035",
+      "userId": "u012",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 1 was not successful.",
+      "relatedId": "a009",
+      "createdAt": "2026-05-17T16:33:53.525801",
+      "read": false
+    },
+    {
+      "id": "n036",
+      "userId": "u012",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 44",
+      "message": "Your interview for 44 1 scheduled on 2026-05-18 at 10:00 has been cancelled because the application was rejected.",
+      "relatedId": "i007",
+      "createdAt": "2026-05-17T16:33:53.5268009",
+      "read": false
+    },
+    {
+      "id": "n037",
+      "userId": "u012",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 44",
+      "message": "Your interview for 44 1 scheduled on 2026-05-18 at 10:00 has been cancelled because the application was rejected.",
+      "relatedId": "i008",
+      "createdAt": "2026-05-17T16:33:53.5268009",
+      "read": false
+    },
+    {
+      "id": "n038",
+      "userId": "u013",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 55 was not successful.",
+      "relatedId": "a010",
+      "createdAt": "2026-05-17T16:34:04.4344372",
+      "read": false
+    },
+    {
+      "id": "n039",
+      "userId": "u013",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 55",
+      "message": "Your interview for 55 555 scheduled on 2026-05-18 at 10:00 has been cancelled because the application was rejected.",
+      "relatedId": "i006",
+      "createdAt": "2026-05-17T16:34:04.4353385",
+      "read": false
+    },
+    {
+      "id": "n040",
+      "userId": "u012",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for 1 has been shortlisted.",
+      "relatedId": "a009",
+      "createdAt": "2026-05-17T16:34:09.6456492",
+      "read": false
+    },
+    {
+      "id": "n041",
+      "userId": "u012",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 1 was not successful.",
+      "relatedId": "a009",
+      "createdAt": "2026-05-17T16:34:13.1300514",
+      "read": false
+    },
+    {
+      "id": "n042",
+      "userId": "u015",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 1",
+      "message": "Your interview for 1 1 is scheduled on 2026-05-18 at 10:00. Type: Video Call.",
+      "relatedId": "i009",
+      "createdAt": "2026-05-17T16:37:50.6369404",
+      "read": false
+    },
+    {
+      "id": "n043",
+      "userId": "u015",
+      "type": "status_change",
+      "title": "Application Under Review",
+      "message": "Your application for 2 is now being reviewed.",
+      "relatedId": "a012",
+      "createdAt": "2026-05-17T16:37:54.0128701",
+      "read": false
+    },
+    {
+      "id": "n044",
+      "userId": "u015",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for 2 has been shortlisted.",
+      "relatedId": "a012",
+      "createdAt": "2026-05-17T16:37:54.6394421",
+      "read": false
+    },
+    {
+      "id": "n045",
+      "userId": "u015",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 2",
+      "message": "Your interview for 2 2 is scheduled on 2026-05-18 at 11:00. Type: Video Call.",
+      "relatedId": "i010",
+      "createdAt": "2026-05-17T16:38:02.6240931",
+      "read": false
+    },
+    {
+      "id": "n046",
+      "userId": "u015",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for 2 has been shortlisted.",
+      "relatedId": "a012",
+      "createdAt": "2026-05-17T16:38:41.5337813",
+      "read": false
+    },
+    {
+      "id": "n047",
+      "userId": "u015",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 2 was not successful.",
+      "relatedId": "a012",
+      "createdAt": "2026-05-17T16:38:49.1576505",
+      "read": false
+    },
+    {
+      "id": "n048",
+      "userId": "u015",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 2",
+      "message": "Your interview for 2 2 scheduled on 2026-05-18 at 11:00 has been cancelled because the application was rejected.",
+      "relatedId": "i010",
+      "createdAt": "2026-05-17T16:38:49.1576505",
+      "read": false
+    },
+    {
+      "id": "n049",
+      "userId": "u015",
+      "type": "status_change",
+      "title": "You\u0027ve Been Shortlisted!",
+      "message": "Congratulations! Your application for 1 has been shortlisted.",
+      "relatedId": "a011",
+      "createdAt": "2026-05-17T16:50:36.1519121",
+      "read": false
+    },
+    {
+      "id": "n050",
+      "userId": "u015",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 1",
+      "message": "Your interview for 1 1 scheduled on 2026-05-18 at 10:00 has been cancelled because the application moved out of the interview stage.",
+      "relatedId": "i009",
+      "createdAt": "2026-05-17T16:50:36.1549145",
+      "read": false
+    },
+    {
+      "id": "n051",
+      "userId": "u015",
+      "type": "interview_scheduled",
+      "title": "Interview Scheduled: 3",
+      "message": "Your interview for 3 3 is scheduled on 2026-05-18 at 10:00. Type: Video Call.",
+      "relatedId": "i011",
+      "createdAt": "2026-05-17T17:04:30.9211669",
+      "read": false
+    },
+    {
+      "id": "n052",
+      "userId": "u015",
+      "type": "rejection",
+      "title": "Application Update",
+      "message": "We regret to inform you that your application for 3 was not successful.",
+      "relatedId": "a013",
+      "createdAt": "2026-05-17T17:04:33.949843",
+      "read": false
+    },
+    {
+      "id": "n053",
+      "userId": "u015",
+      "type": "interview_cancelled",
+      "title": "Interview Cancelled: 3",
+      "message": "Your interview for 3 3 scheduled on 2026-05-18 at 10:00 has been cancelled because the application moved out of the interview stage.",
+      "relatedId": "i011",
+      "createdAt": "2026-05-17T17:04:33.9508546",
+      "read": false
+    }
+>>>>>>> Stashed changes
   ]
 }

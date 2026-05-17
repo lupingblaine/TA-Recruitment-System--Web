@@ -8,6 +8,7 @@ import com.tamo.model.Interview;
 import com.tamo.model.Job;
 import com.tamo.model.Module;
 import com.tamo.model.Profile;
+import com.tamo.model.Notification;
 import com.tamo.model.User;
 import com.tamo.util.JsonUtil;
 
@@ -46,12 +47,16 @@ public class OrganiserService {
 
         long activePostings = myJobs.stream().filter(j -> "active".equals(j.getStatus())).count();
         long totalApplicants = relatedApps.size();
+        long currentApplicants = relatedApps.stream()
+                .filter(a -> a.getStatus() == null || !"rejected".equals(a.getStatus()))
+                .count();
         long pendingInterviews = relatedApps.stream()
                 .filter(a -> "interview".equals(a.getStatus()))
                 .count();
 
         JsonObject result = new JsonObject();
         result.addProperty("activePostings", activePostings);
+        result.addProperty("currentApplicants", currentApplicants);
         result.addProperty("totalApplicants", totalApplicants);
         result.addProperty("pendingInterviews", pendingInterviews);
 
@@ -67,6 +72,8 @@ public class OrganiserService {
                     obj.addProperty("name", applicant != null ? applicant.getName() : "Unknown");
                     obj.addProperty("role", job != null ? job.getModuleCode() + " " + job.getTitle().replaceAll(".*-\\s*", "") : "");
                     obj.addProperty("status", a.getStatus());
+
+                    String oldStatus = app.getStatus();
                     obj.addProperty("date", a.getUpdatedAt());
                     recentActivities.add(obj);
                 });
@@ -74,14 +81,83 @@ public class OrganiserService {
 
         JsonArray activeJobsArr = new JsonArray();
         myJobs.stream().filter(j -> "active".equals(j.getStatus())).forEach(j -> {
-            long appCount = relatedApps.stream().filter(a -> a.getJobId().equals(j.getId())).count();
+            long totalAppCount = relatedApps.stream().filter(a -> a.getJobId().equals(j.getId())).count();
+            long currentAppCount = relatedApps.stream()
+                    .filter(a -> a.getJobId().equals(j.getId()))
+                    .filter(a -> a.getStatus() == null || !"rejected".equals(a.getStatus()))
+                    .count();
             JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(j);
-            obj.addProperty("applicants", appCount);
+            obj.addProperty("applicants", currentAppCount);
+            obj.addProperty("applicationCount", currentAppCount);
+            obj.addProperty("totalApplications", totalAppCount);
             activeJobsArr.add(obj);
         });
         result.add("activeJobs", activeJobsArr);
+        result.add("jobs", activeJobsArr);
 
         return result;
+    }
+
+    public List<JsonObject> getNotifications(String organiserId) {
+        DataStore data = dataService.getData();
+        List<Notification> notifications = (data.getNotifications() != null
+                ? data.getNotifications() : Collections.<Notification>emptyList())
+                .stream()
+                .filter(n -> organiserId.equals(n.getUserId()))
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .limit(20)
+                .collect(Collectors.toList());
+
+        List<JsonObject> result = new ArrayList<>();
+        notifications.forEach(n -> {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("id", n.getId());
+            obj.addProperty("type", n.getType());
+            obj.addProperty("title", n.getTitle());
+            obj.addProperty("message", n.getMessage());
+            obj.addProperty("relatedId", n.getRelatedId());
+            obj.addProperty("createdAt", n.getCreatedAt());
+            obj.addProperty("read", n.isRead());
+            result.add(obj);
+        });
+        return result;
+    }
+
+    public void markNotificationRead(String organiserId, String notifId) {
+        DataStore data = dataService.getData();
+        if (data.getNotifications() == null) return;
+        data.getNotifications().stream()
+                .filter(n -> n.getId().equals(notifId) && organiserId.equals(n.getUserId()))
+                .findFirst()
+                .ifPresent(n -> {
+                    n.setRead(true);
+                    dataService.save();
+                });
+    }
+
+    public void markAllNotificationsRead(String organiserId) {
+        DataStore data = dataService.getData();
+        if (data.getNotifications() == null) return;
+        data.getNotifications().stream()
+                .filter(n -> organiserId.equals(n.getUserId()) && !n.isRead())
+                .forEach(n -> n.setRead(true));
+        dataService.save();
+    }
+
+    private void createNotification(DataStore data, String userId, String type, String title, String message, String relatedId) {
+        if (userId == null) return;
+        if (data.getNotifications() == null) data.setNotifications(new ArrayList<>());
+        Notification n = new Notification();
+        n.setId(dataService.generateId("n", data.getNotifications()));
+        n.setUserId(userId);
+        n.setType(type);
+        n.setTitle(title);
+        n.setMessage(message);
+        n.setRelatedId(relatedId);
+        n.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        n.setRead(false);
+        data.getNotifications().add(n);
+        dataService.save();
     }
 
     public List<JsonObject> getJobs(String organiserId) {
@@ -90,13 +166,19 @@ public class OrganiserService {
                 .filter(j -> j.getOrganiserId().equals(organiserId))
                 .map(j -> {
                     JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(j);
-                    long applicants = data.getApplications().stream()
+                    long totalApplications = data.getApplications().stream()
                             .filter(a -> a.getJobId().equals(j.getId())).count();
+                    long currentApplications = data.getApplications().stream()
+                            .filter(a -> a.getJobId().equals(j.getId()))
+                            .filter(a -> a.getStatus() == null || !"rejected".equals(a.getStatus()))
+                            .count();
                     long shortlisted = data.getApplications().stream()
                             .filter(a -> a.getJobId().equals(j.getId()) &&
                                     ("shortlisted".equals(a.getStatus()) || "interview".equals(a.getStatus()) || "offer".equals(a.getStatus())))
                             .count();
-                    obj.addProperty("applicants", applicants);
+                    obj.addProperty("applicants", currentApplications);
+                    obj.addProperty("applicationCount", currentApplications);
+                    obj.addProperty("totalApplications", totalApplications);
                     obj.addProperty("shortlisted", shortlisted);
                     return obj;
                 })
@@ -359,6 +441,7 @@ public class OrganiserService {
             return result;
         }
 
+        String oldStatus = app.getStatus();
         app.setStatus(newStatus);
         app.setUpdatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
@@ -374,6 +457,59 @@ public class OrganiserService {
             }
         }
 
+        // Create notification for the applicant
+        if (!Objects.equals(oldStatus, newStatus)) {
+            String applicantId = app.getApplicantId();
+            String moduleCode = job != null ? job.getModuleCode() : "";
+            String notifType = "status_change";
+            String title = "";
+            String message = "";
+
+            switch (newStatus) {
+                case "review" -> {
+                    title = "Application Under Review";
+                    message = "Your application for " + moduleCode + " is now being reviewed.";
+                }
+                case "shortlisted" -> {
+                    title = "You've Been Shortlisted!";
+                    message = "Congratulations! Your application for " + moduleCode + " has been shortlisted.";
+                }
+                case "interview" -> {
+                    notifType = "interview_scheduled";
+                    title = "Interview Stage";
+                    message = "Your application for " + moduleCode + " has moved to the interview stage. An interview will be scheduled soon.";
+                }
+                case "offer" -> {
+                    notifType = "offer";
+                    title = "Offer Received!";
+                    message = "Congratulations! You have received an offer for " + moduleCode + "!";
+                }
+                case "rejected" -> {
+                    notifType = "rejection";
+                    title = "Application Update";
+                    message = "We regret to inform you that your application for " + moduleCode + " was not successful.";
+                }
+                default -> {
+                    title = "Application Status Updated";
+                    message = "Your application for " + moduleCode + " status changed to: " + newStatus;
+                }
+            }
+            createNotification(data, applicantId, notifType, title, message, app.getId());
+
+            if (!"interview".equals(newStatus) && data.getInterviews() != null) {
+                data.getInterviews().stream()
+                        .filter(i -> appId.equals(i.getApplicationId()))
+                        .filter(i -> i.getStatus() != null && !"cancelled".equalsIgnoreCase(i.getStatus()))
+                        .forEach(iv -> {
+                            iv.setStatus("cancelled");
+                            String cancelTitle = "Interview Cancelled: " + iv.getModuleCode();
+                            String cancelMsg = "Your interview for " + iv.getModuleCode() + " " + iv.getModuleName() +
+                                    " scheduled on " + iv.getDate() + " at " + iv.getStartTime() +
+                                    " has been cancelled because the application moved out of the interview stage.";
+                            createNotification(data, iv.getCandidateId(), "interview_cancelled", cancelTitle, cancelMsg, iv.getId());
+                        });
+            }
+        }
         dataService.save();
         result.put("application", app);
         return result;
@@ -389,7 +525,6 @@ public class OrganiserService {
         Application app = data.getApplications().stream()
                 .filter(a -> a.getId().equals(appId))
                 .findFirst().orElse(null);
-
         if (app == null) {
             result.put("error", "申请不存在");
             result.put("code", 404);

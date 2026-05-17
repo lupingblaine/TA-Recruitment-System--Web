@@ -53,6 +53,9 @@ public class OrganiserServlet extends HttpServlet {
                 JsonUtil.writeJson(resp, result.get("data"));
             }
 
+        } else if ("notifications".equals(path)) {
+            JsonUtil.writeJson(resp, service.getNotifications(userId));
+
         } else if ("interviews".equals(path)) {
             JsonUtil.writeJson(resp, service.getInterviews(userId));
 
@@ -143,6 +146,19 @@ public class OrganiserServlet extends HttpServlet {
             } else {
                 JsonUtil.writeJson(resp, result.get("interview"));
             }
+
+        } else if (path.matches("notifications/[\\w]+/read")) {
+            String notifId = path.split("/")[1];
+            service.markNotificationRead(userId, notifId);
+            JsonObject ok = new JsonObject();
+            ok.addProperty("success", true);
+            JsonUtil.writeJson(resp, ok);
+
+        } else if ("notifications/read-all".equals(path)) {
+            service.markAllNotificationsRead(userId);
+            JsonObject ok = new JsonObject();
+            ok.addProperty("success", true);
+            JsonUtil.writeJson(resp, ok);
 
         } else {
             JsonUtil.writeError(resp, 404, "接口不存在");

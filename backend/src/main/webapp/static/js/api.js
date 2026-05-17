@@ -55,6 +55,9 @@ const organiserApi = {
   applicationAction: (id, action) =>
     request('/organiser/applications/' + id + '/action', { method: 'PUT', body: JSON.stringify({ action }) }),
   getInterviews: () => request('/organiser/interviews'),
+  getNotifications: () => request('/organiser/notifications'),
+  markNotificationRead: (id) => request('/organiser/notifications/' + id + '/read', { method: 'PUT' }),
+  markAllNotificationsRead: () => request('/organiser/notifications/read-all', { method: 'PUT' }),
   createInterview: (data) => request('/organiser/interviews', { method: 'POST', body: JSON.stringify(data) }),
   updateInterview: (id, data) => request('/organiser/interviews/' + id, { method: 'PUT', body: JSON.stringify(data) }),
 };
