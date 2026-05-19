@@ -1,7 +1,6 @@
 <%@ page pageEncoding="UTF-8" %>
 
 <div class="flex h-[calc(100vh-8rem)] max-w-6xl mx-auto gap-0 rounded-2xl overflow-hidden border border-zinc-200 bg-white shadow-sm">
-  <!-- Left Panel: Conversations -->
   <div class="w-80 border-r border-zinc-200 flex flex-col shrink-0">
     <div class="p-4 border-b border-zinc-100">
       <h2 class="text-lg font-bold text-zinc-900 mb-3">Messages</h2>
@@ -19,14 +18,11 @@
     </div>
   </div>
 
-  <!-- Right Panel: Chat Area -->
   <div class="flex-1 flex flex-col min-w-0">
-    <!-- Chat Header -->
     <div class="h-16 border-b border-zinc-100 flex items-center px-6 gap-3 shrink-0" id="chatHeader">
       <div class="text-zinc-400 text-sm">Select a conversation to start chatting</div>
     </div>
 
-    <!-- Messages Area -->
     <div class="flex-1 overflow-y-auto p-6 space-y-4" id="messagesArea">
       <div class="flex flex-col items-center justify-center h-full text-zinc-400">
         <i data-lucide="message-circle" class="h-12 w-12 mb-3 opacity-50"></i>
@@ -35,17 +31,43 @@
       </div>
     </div>
 
-    <!-- Input Area -->
-    <div class="border-t border-zinc-100 p-4 shrink-0 hidden" id="inputArea">
-      <div class="flex gap-3">
-        <input id="messageInput" type="text" placeholder="Type a message..." class="input flex-1" onkeydown="if(event.key==='Enter')sendMsg()">
-        <button onclick="sendMsg()" class="btn btn-primary px-4">
-          <i data-lucide="send" class="h-4 w-4"></i>
-        </button>
+    <div class="border-t border-zinc-100 shrink-0 hidden" id="inputArea">
+      <div id="replyBar" class="hidden px-4 pt-3 pb-1 border-b border-zinc-100 bg-zinc-50">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex-1 min-w-0 border-l-2 border-zinc-400 pl-3">
+            <p class="text-xs font-medium text-zinc-600" id="replyBarTitle">Reply</p>
+            <p class="text-xs text-zinc-500 truncate" id="replyBarPreview"></p>
+          </div>
+          <button type="button" onclick="cancelReply()" class="p-1 text-zinc-400 hover:text-zinc-700"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+      </div>
+      <div id="editBar" class="hidden px-4 pt-3 pb-1 border-b border-amber-100 bg-amber-50">
+        <div class="flex items-center justify-between gap-2">
+          <p class="text-xs font-medium text-amber-800">Editing message</p>
+          <button type="button" onclick="cancelEdit()" class="text-xs text-amber-700 hover:underline">Cancel</button>
+        </div>
+      </div>
+      <div class="p-4">
+        <div class="flex gap-2 items-end">
+          <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" onchange="onFileSelected(event)">
+          <button type="button" onclick="document.getElementById('fileInput').click()" class="btn btn-secondary px-3 shrink-0" title="Attach file or image">
+            <i data-lucide="paperclip" class="h-4 w-4"></i>
+          </button>
+          <textarea id="messageInput" rows="1" placeholder="Type a message... (Shift+Enter for new line)" class="input flex-1 min-h-[42px] max-h-32 resize-y"></textarea>
+          <button type="button" id="sendBtn" onclick="sendMsg()" class="btn btn-primary px-4 shrink-0">
+            <i data-lucide="send" class="h-4 w-4"></i>
+          </button>
+        </div>
+        <p class="text-xs text-zinc-400 mt-2">Enter to send · Shift+Enter for new line · Recall within 2 min · Edit within 15 min</p>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+.msg-bubble { width: fit-content; max-width: 100%; }
+.msg-bubble p { margin: 0; }
+</style>
 
 <script>
 let currentTab = 'conversations';
@@ -54,17 +76,19 @@ let allConversations = [];
 let activeConversationId = null;
 let activeReceiverId = null;
 let pollInterval = null;
+let isSending = false;
+let lastMessageSnapshot = '';
+let isComposing = false;
+let replyTo = null;
+let editingMessageId = null;
+let lastMessages = [];
 
 async function loadContacts() {
-  try {
-    allContacts = await messageApi.getContacts();
-  } catch(e) { allContacts = []; }
+  try { allContacts = await messageApi.getContacts(); } catch(e) { allContacts = []; }
 }
 
 async function loadConversations() {
-  try {
-    allConversations = await messageApi.getConversations();
-  } catch(e) { allConversations = []; }
+  try { allConversations = await messageApi.getConversations(); } catch(e) { allConversations = []; }
 }
 
 function switchTab(tab) {
@@ -78,9 +102,7 @@ function switchTab(tab) {
   renderLeftPanel();
 }
 
-function filterContacts() {
-  renderLeftPanel();
-}
+function filterContacts() { renderLeftPanel(); }
 
 function renderLeftPanel() {
   const panel = document.getElementById('leftPanel');
@@ -101,12 +123,9 @@ function renderLeftPanel() {
       const roleBadge = getRoleBadge(c.otherUserRole);
       return '<div onclick="openConversation(\'' + c.conversationId + '\',\'' + c.otherUserId + '\',\'' + escapeAttr(c.otherUserName) + '\',\'' + c.otherUserRole + '\')" class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ' + (isActive ? 'bg-zinc-100' : 'hover:bg-zinc-50') + '">' +
         '<div class="h-10 w-10 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center font-bold text-zinc-600 shrink-0">' + initial + '</div>' +
-        '<div class="flex-1 min-w-0">' +
-          '<div class="flex items-center gap-2"><span class="font-medium text-sm text-zinc-900 truncate">' + escapeHtml(c.otherUserName) + '</span>' + roleBadge + '</div>' +
-          '<p class="text-xs text-zinc-500 truncate mt-0.5">' + escapeHtml(c.lastMessage || '') + '</p>' +
-        '</div>' +
-        '<div class="flex flex-col items-end gap-1 shrink-0"><span class="text-xs text-zinc-400">' + time + '</span>' + unread + '</div>' +
-      '</div>';
+        '<div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-medium text-sm text-zinc-900 truncate">' + escapeHtml(c.otherUserName) + '</span>' + roleBadge + '</div>' +
+        '<p class="text-xs text-zinc-500 truncate mt-0.5">' + escapeHtml(c.lastMessage || '') + '</p></div>' +
+        '<div class="flex flex-col items-end gap-1 shrink-0"><span class="text-xs text-zinc-400">' + time + '</span>' + unread + '</div></div>';
     }).join('');
   } else {
     let items = allContacts;
@@ -120,11 +139,8 @@ function renderLeftPanel() {
       const roleBadge = getRoleBadge(c.role);
       return '<div onclick="startChat(\'' + c.id + '\',\'' + escapeAttr(c.name) + '\',\'' + c.role + '\')" class="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-zinc-50 transition-colors">' +
         '<div class="h-10 w-10 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center font-bold text-zinc-600 shrink-0">' + initial + '</div>' +
-        '<div class="flex-1 min-w-0">' +
-          '<div class="flex items-center gap-2"><span class="font-medium text-sm text-zinc-900 truncate">' + escapeHtml(c.name) + '</span>' + roleBadge + '</div>' +
-          '<p class="text-xs text-zinc-500 mt-0.5">' + (c.department || '') + '</p>' +
-        '</div>' +
-      '</div>';
+        '<div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-medium text-sm text-zinc-900 truncate">' + escapeHtml(c.name) + '</span>' + roleBadge + '</div>' +
+        '<p class="text-xs text-zinc-500 mt-0.5">' + escapeHtml(c.department || '') + '</p></div></div>';
     }).join('');
   }
 }
@@ -148,6 +164,9 @@ function formatTime(ts) {
 function openConversation(convId, otherUserId, otherUserName, otherUserRole) {
   activeConversationId = convId;
   activeReceiverId = otherUserId;
+  lastMessageSnapshot = '';
+  cancelReply();
+  cancelEdit();
   setChatHeader(otherUserName, otherUserRole);
   document.getElementById('inputArea').classList.remove('hidden');
   loadMessages();
@@ -157,9 +176,11 @@ function openConversation(convId, otherUserId, otherUserName, otherUserRole) {
 
 function startChat(userId, userName, userRole) {
   activeReceiverId = userId;
-  // Build conversation ID deterministically
   const myId = getCurrentUserId();
   activeConversationId = myId < userId ? myId + '_' + userId : userId + '_' + myId;
+  lastMessageSnapshot = '';
+  cancelReply();
+  cancelEdit();
   setChatHeader(userName, userRole);
   document.getElementById('inputArea').classList.remove('hidden');
   loadMessages();
@@ -168,8 +189,15 @@ function startChat(userId, userName, userRole) {
 }
 
 function getCurrentUserId() {
-  // Extract from session - we embed it in a meta tag
   return document.querySelector('meta[name="uid"]')?.content || '';
+}
+
+function findUserName(userId) {
+  const c = allContacts.find(x => x.id === userId);
+  if (c) return c.name;
+  const conv = allConversations.find(x => x.otherUserId === userId);
+  if (conv) return conv.otherUserName;
+  return 'User';
 }
 
 function setChatHeader(name, role) {
@@ -181,11 +209,18 @@ function setChatHeader(name, role) {
   lucide.createIcons();
 }
 
-async function loadMessages() {
+function messageSnapshot(messages) {
+  return (messages || []).map(m => m.id + ':' + (m.edited ? '1' : '0') + ':' + (m.recalled ? '1' : '0')).join('|');
+}
+
+async function loadMessages(opts) {
+  opts = opts || {};
   if (!activeConversationId) return;
   try {
     const messages = await messageApi.getMessages(activeConversationId);
-    renderMessages(messages);
+    lastMessageSnapshot = messageSnapshot(messages);
+    lastMessages = messages;
+    renderMessages(messages, !!opts.scrollToBottom);
     await messageApi.markRead(activeConversationId);
     loadConversations().then(renderLeftPanel);
   } catch(e) {
@@ -193,7 +228,52 @@ async function loadMessages() {
   }
 }
 
-function renderMessages(messages) {
+function renderReplyQuote(m) {
+  if (!m.replyToId || !m.replyToContent) return '';
+  return '<div class="mb-2 px-3 py-2 rounded-lg bg-black/10 border-l-2 border-zinc-400 text-xs">' +
+    '<p class="font-medium opacity-80">' + escapeHtml(m.replyToSenderName || 'User') + '</p>' +
+    '<p class="opacity-70 truncate">' + escapeHtml(m.replyToContent) + '</p></div>';
+}
+
+function messageTextContent(m) {
+  if (!m || !m.content) return '';
+  return String(m.content).trim();
+}
+
+function renderTextParagraph(text, extraClass) {
+  if (!text) return '';
+  return '<p class="text-sm break-words' + (extraClass ? ' ' + extraClass : '') + '">' + escapeHtml(text) + '</p>';
+}
+
+function renderMessageBody(m) {
+  if (m.recalled) {
+    return '<p class="text-sm italic opacity-70">Message recalled</p>';
+  }
+  const text = messageTextContent(m);
+  let html = renderReplyQuote(m);
+  if (m.messageType === 'image' && m.attachmentUrl) {
+    html += '<a href="' + escapeAttr(m.attachmentUrl) + '" target="_blank" rel="noopener"><img src="' + escapeAttr(m.attachmentUrl) + '" alt="image" class="max-w-full rounded-lg max-h-64 object-contain"></a>';
+    if (text) html += renderTextParagraph(text, 'mt-2');
+  } else if (m.attachmentUrl) {
+    html += '<a href="' + escapeAttr(m.attachmentUrl) + '" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm underline">' +
+      '<i data-lucide="file" class="h-4 w-4"></i><span>' + escapeHtml(m.attachmentName || 'Download file') + '</span></a>';
+    if (text) html += renderTextParagraph(text, 'mt-2');
+  } else if (text) {
+    html += renderTextParagraph(text);
+  }
+  return html;
+}
+
+function renderMessageActions(m, isMine) {
+  if (!isMine || m.recalled) return '';
+  let btns = '<div class="flex gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">';
+  btns += '<button type="button" onclick="startReply(\'' + escapeAttr(m.id) + '\')" class="text-xs text-zinc-500 hover:text-zinc-800 px-1">Reply</button>';
+  if (m.canEdit) btns += '<button type="button" onclick="startEdit(\'' + escapeAttr(m.id) + '\')" class="text-xs text-zinc-500 hover:text-zinc-800 px-1">Edit</button>';
+  if (m.canRecall) btns += '<button type="button" onclick="recallMsg(\'' + escapeAttr(m.id) + '\')" class="text-xs text-red-500 hover:text-red-700 px-1">Recall</button>';
+  return btns + '</div>';
+}
+
+function renderMessages(messages, scrollToBottom) {
   const area = document.getElementById('messagesArea');
   const myId = getCurrentUserId();
 
@@ -211,29 +291,153 @@ function renderMessages(messages) {
       html += '<div class="flex items-center gap-3 my-4"><div class="flex-1 h-px bg-zinc-200"></div><span class="text-xs text-zinc-400 shrink-0">' + msgDate + '</span><div class="flex-1 h-px bg-zinc-200"></div></div>';
     }
     const isMine = m.senderId === myId;
-    const time = formatTime(m.timestamp);
+    const time = formatTime(m.timestamp) + (m.edited ? ' · edited' : '');
+    const body = renderMessageBody(m);
+    const actions = renderMessageActions(m, isMine);
     if (isMine) {
-      html += '<div class="flex justify-end"><div class="max-w-[70%]"><div class="bg-zinc-900 text-white px-4 py-2.5 rounded-2xl rounded-br-md text-sm">' + escapeHtml(m.content) + '</div><div class="text-xs text-zinc-400 mt-1 text-right">' + time + '</div></div></div>';
+      html += '<div class="flex justify-end group"><div class="flex flex-col items-end max-w-[75%]"><div class="msg-bubble bg-zinc-900 text-white px-4 py-2.5 rounded-2xl rounded-br-md">' + body + '</div>' +
+        '<div class="text-xs text-zinc-400 mt-1">' + time + '</div>' + actions + '</div></div>';
     } else {
-      html += '<div class="flex justify-start"><div class="max-w-[70%]"><div class="bg-zinc-100 text-zinc-900 px-4 py-2.5 rounded-2xl rounded-bl-md text-sm">' + escapeHtml(m.content) + '</div><div class="text-xs text-zinc-400 mt-1">' + time + '</div></div></div>';
+      html += '<div class="flex justify-start group"><div class="flex flex-col items-start max-w-[75%]"><div class="msg-bubble bg-zinc-100 text-zinc-900 px-4 py-2.5 rounded-2xl rounded-bl-md">' + body + '</div>' +
+        '<div class="text-xs text-zinc-400 mt-1">' + time + '</div>' +
+        '<button type="button" onclick="startReply(\'' + escapeAttr(m.id) + '\')" class="text-xs text-zinc-500 hover:text-zinc-800 mt-1 opacity-0 group-hover:opacity-100">Reply</button></div></div>';
     }
   });
 
+  const scrollTop = area.scrollTop;
   area.innerHTML = html;
-  area.scrollTop = area.scrollHeight;
+  if (scrollToBottom) {
+    area.scrollTop = area.scrollHeight;
+  } else {
+    area.scrollTop = scrollTop;
+  }
+  lucide.createIcons();
+}
+
+function startReply(messageId) {
+  const m = lastMessages.find(x => x.id === messageId);
+  if (!m || m.recalled) return;
+  editingMessageId = null;
+  document.getElementById('editBar').classList.add('hidden');
+  replyTo = m;
+  document.getElementById('replyBar').classList.remove('hidden');
+  document.getElementById('replyBarTitle').textContent = 'Reply to ' + (m.senderId === getCurrentUserId() ? 'yourself' : findUserName(m.senderId));
+  let preview = m.recalled ? '[Recalled]' : (m.messageType === 'image' ? '[Image]' : (m.messageType === 'file' ? ('[File] ' + (m.attachmentName || '')) : (m.content || m.attachmentName || '')));
+  document.getElementById('replyBarPreview').textContent = preview;
+  document.getElementById('messageInput').focus();
+}
+
+function cancelReply() {
+  replyTo = null;
+  document.getElementById('replyBar').classList.add('hidden');
+}
+
+function startEdit(messageId) {
+  const m = lastMessages.find(x => x.id === messageId);
+  if (!m || !m.canEdit) return;
+  cancelReply();
+  editingMessageId = messageId;
+  document.getElementById('editBar').classList.remove('hidden');
+  document.getElementById('messageInput').value = m.content || '';
+  document.getElementById('messageInput').focus();
+}
+
+function cancelEdit() {
+  editingMessageId = null;
+  document.getElementById('editBar').classList.add('hidden');
+  document.getElementById('messageInput').value = '';
+}
+
+async function recallMsg(messageId) {
+  if (!confirm('Recall this message?')) return;
+  try {
+    await messageApi.recallMessage(messageId);
+    loadMessages();
+  } catch(e) {
+    showToast(e.message || 'Recall failed', 'error');
+  }
+}
+
+async function onFileSelected(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file || !activeReceiverId || isSending) return;
+  isSending = true;
+  try {
+    const uploaded = await messageApi.uploadFile(file);
+    const payload = {
+      receiverId: activeReceiverId,
+      content: '',
+      messageType: uploaded.messageType,
+      attachmentUrl: uploaded.url,
+      attachmentName: uploaded.fileName,
+      attachmentSize: uploaded.fileSize,
+    };
+    if (replyTo && replyTo.id) payload.replyToId = replyTo.id;
+    await messageApi.sendMessage(payload);
+    cancelReply();
+    cancelEdit();
+    document.getElementById('messageInput').value = '';
+    loadMessages({ scrollToBottom: true });
+  } catch(e) {
+    showToast(e.message || 'Upload failed', 'error');
+  } finally {
+    isSending = false;
+  }
 }
 
 async function sendMsg() {
+  if (isSending) return;
   const input = document.getElementById('messageInput');
   const content = input.value.trim();
-  if (!content || !activeReceiverId) return;
+  if (!activeReceiverId) return;
+
+  if (editingMessageId) {
+    if (!content) { showToast('Message cannot be empty', 'error'); return; }
+    isSending = true;
+    try {
+      await messageApi.editMessage(editingMessageId, content);
+      cancelEdit();
+      loadMessages();
+    } catch(e) {
+      showToast(e.message || 'Edit failed', 'error');
+    } finally {
+      isSending = false;
+    }
+    return;
+  }
+
+  if (!content) return;
+  isSending = true;
   input.value = '';
   try {
-    await messageApi.sendMessage(activeReceiverId, content);
-    loadMessages();
+    const payload = { receiverId: activeReceiverId, content: content };
+    if (replyTo && replyTo.id) payload.replyToId = replyTo.id;
+    await messageApi.sendMessage(payload);
+    cancelReply();
+    loadMessages({ scrollToBottom: true });
   } catch(e) {
+    input.value = content;
     showToast(e.message || 'Failed to send message', 'error');
+  } finally {
+    isSending = false;
   }
+}
+
+function setupMessageInput() {
+  const input = document.getElementById('messageInput');
+  if (!input) return;
+
+  input.addEventListener('compositionstart', () => { isComposing = true; });
+  input.addEventListener('compositionend', () => { isComposing = false; });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.isComposing || isComposing) return;
+      e.preventDefault();
+      sendMsg();
+    }
+  });
 }
 
 function startPolling() {
@@ -254,8 +458,8 @@ function escapeAttr(str) {
   return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// Initial load
 async function initMessaging() {
+  setupMessageInput();
   await Promise.all([loadContacts(), loadConversations()]);
   renderLeftPanel();
   lucide.createIcons();

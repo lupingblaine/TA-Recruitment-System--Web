@@ -31,6 +31,7 @@
       <button class="tab-btn" data-collection="terms">Terms</button>
       <button class="tab-btn" data-collection="departments">Departments</button>
       <button class="tab-btn" data-collection="logs">Logs</button>
+      <button class="tab-btn" data-collection="messages">Messages</button>
       <button class="tab-btn" data-collection="workloadAssignments">Workload</button>
     </nav>
   </div>
@@ -170,6 +171,7 @@ const COLLECTION_SCHEMAS = {
   terms: { fields: ['id','name','startDate','endDate','status'], key: 'id', display: ['id','name','startDate','endDate','status'] },
   departments: { fields: ['id','name','moduleCount','status'], key: 'id', display: ['id','name','moduleCount','status'] },
   logs: { fields: ['id','timestamp','action','actor','actorId','type','details','ip'], key: 'id', display: ['id','timestamp','action','actor','type','details'] },
+  messages: { fields: ['id','conversationId','senderId','receiverId','content','timestamp','read','replyToId','recalled','edited','editedAt','messageType','attachmentUrl','attachmentName','attachmentSize'], key: 'id', display: ['id','conversationId','senderId','receiverId','content','messageType','timestamp','read','recalled','edited'] },
   workloadAssignments: { fields: ['id','taUserId','moduleCode','hoursPerWeek','term','status'], key: 'id', display: ['id','taUserId','moduleCode','hoursPerWeek','term','status'] }
 };
 
@@ -296,6 +298,10 @@ function showCreateWarnings() {
     msg = 'The userId must reference an existing user with role "applicant".';
   } else if (currentCollection === 'notifications') {
     msg = 'The userId must reference an existing user.';
+  } else if (currentCollection === 'messages') {
+    msg = 'senderId and receiverId must reference existing users; content is required. conversationId is auto-generated if omitted.';
+  } else if (currentCollection === 'logs') {
+    msg = 'actorId (if set) must reference an existing user.';
   }
   if (msg) {
     warningDiv.innerHTML = '<div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 flex items-start gap-2"><i data-lucide="info" class="h-4 w-4 mt-0.5 shrink-0"></i><span>' + msg + '</span></div>';
@@ -423,6 +429,7 @@ function getCascadeImpact(id) {
     const profiles = allCollectionCache.profiles || [];
     const notifications = allCollectionCache.notifications || [];
     const workload = allCollectionCache.workloadAssignments || [];
+    const messages = allCollectionCache.messages || [];
 
     const relatedJobs = jobs.filter(j => j.organiserId === id);
     const relatedApps = apps.filter(a => a.applicantId === id);
@@ -430,6 +437,7 @@ function getCascadeImpact(id) {
     const relatedProfiles = profiles.filter(p => p.userId === id);
     const relatedNotifs = notifications.filter(n => n.userId === id);
     const relatedWorkload = workload.filter(w => w.taUserId === id);
+    const relatedMessages = messages.filter(m => m.senderId === id || m.receiverId === id);
 
     if (relatedJobs.length) impacts.push(relatedJobs.length + ' job(s) created by this user will be deleted');
     if (relatedApps.length) impacts.push(relatedApps.length + ' application(s) by this user will be deleted');
@@ -437,6 +445,7 @@ function getCascadeImpact(id) {
     if (relatedProfiles.length) impacts.push(relatedProfiles.length + ' profile(s) will be deleted');
     if (relatedNotifs.length) impacts.push(relatedNotifs.length + ' notification(s) will be deleted');
     if (relatedWorkload.length) impacts.push(relatedWorkload.length + ' workload assignment(s) will be deleted');
+    if (relatedMessages.length) impacts.push(relatedMessages.length + ' message(s) sent to or from this user will be deleted');
 
   } else if (currentCollection === 'modules') {
     const item = allData.find(x => x.id === id);
@@ -529,7 +538,7 @@ function refreshData() {
 let allCollectionCache = {};
 
 async function preloadRelatedCollections() {
-  const collections = ['users','profiles','modules','jobs','applications','interviews','notifications','terms','departments','workloadAssignments'];
+  const collections = ['users','profiles','modules','jobs','applications','interviews','notifications','terms','departments','logs','messages','workloadAssignments'];
   for (const c of collections) {
     try {
       const data = await request('/admin/data-editor/' + c);

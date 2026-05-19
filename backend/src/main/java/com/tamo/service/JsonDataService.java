@@ -59,7 +59,7 @@ public class JsonDataService {
 
     public static synchronized JsonDataService getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("JsonDataService 尚未初始化，请先调用 getInstance(basePath)");
+            throw new IllegalStateException("JsonDataService is not initialized. Call getInstance(basePath) first.");
         }
         return instance;
     }

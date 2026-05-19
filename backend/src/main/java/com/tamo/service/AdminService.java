@@ -10,6 +10,7 @@ import com.tamo.model.Department;
 import com.tamo.model.Interview;
 import com.tamo.model.Job;
 import com.tamo.model.LogEntry;
+import com.tamo.model.Message;
 import com.tamo.model.Module;
 import com.tamo.model.Notification;
 import com.tamo.model.Profile;
@@ -571,8 +572,14 @@ public class AdminService {
     private static final List<String> COLLECTION_NAMES = Arrays.asList(
             "users", "profiles", "modules", "jobs", "applications",
             "interviews", "notifications", "terms", "departments",
-            "logs", "workloadAssignments"
+            "logs", "workloadAssignments", "messages"
     );
+
+    private static String buildConversationId(String userId1, String userId2) {
+        return userId1.compareTo(userId2) < 0
+                ? userId1 + "_" + userId2
+                : userId2 + "_" + userId1;
+    }
 
     public JsonArray getCollectionNames() {
         JsonArray arr = new JsonArray();
@@ -595,6 +602,7 @@ public class AdminService {
             case "departments" -> gson.toJsonTree(data.getDepartments());
             case "logs" -> gson.toJsonTree(data.getLogs());
             case "workloadAssignments" -> gson.toJsonTree(data.getWorkloadAssignments());
+            case "messages" -> gson.toJsonTree(data.getMessages() != null ? data.getMessages() : List.of());
             default -> new JsonArray();
         };
     }
@@ -699,6 +707,29 @@ public class AdminService {
                     data.getWorkloadAssignments().add(w);
                     yield w;
                 }
+                case "logs" -> {
+                    LogEntry l = gson.fromJson(body, LogEntry.class);
+                    if (l.getId() == null || l.getId().isBlank())
+                        l.setId(dataService.generateId("log", data.getLogs()));
+                    if (l.getTimestamp() == null)
+                        l.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                    data.getLogs().add(l);
+                    yield l;
+                }
+                case "messages" -> {
+                    Message m = gson.fromJson(body, Message.class);
+                    if (data.getMessages() == null) data.setMessages(new ArrayList<>());
+                    if (m.getId() == null || m.getId().isBlank())
+                        m.setId(dataService.generateId("msg", data.getMessages()));
+                    if (m.getConversationId() == null || m.getConversationId().isBlank()) {
+                        if (m.getSenderId() != null && m.getReceiverId() != null)
+                            m.setConversationId(buildConversationId(m.getSenderId(), m.getReceiverId()));
+                    }
+                    if (m.getTimestamp() == null)
+                        m.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                    data.getMessages().add(m);
+                    yield m;
+                }
                 default -> null;
             };
 
@@ -790,6 +821,28 @@ public class AdminService {
                     if (!organiserExists) return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
                 }
             }
+            case "messages" -> {
+                String senderId = body.has("senderId") ? body.get("senderId").getAsString() : null;
+                if (senderId == null || senderId.isBlank()) return "senderId is required";
+                if (data.getUsers().stream().noneMatch(u -> u.getId().equals(senderId)))
+                    return "Referenced sender (senderId=" + senderId + ") does not exist";
+
+                String receiverId = body.has("receiverId") ? body.get("receiverId").getAsString() : null;
+                if (receiverId == null || receiverId.isBlank()) return "receiverId is required";
+                if (data.getUsers().stream().noneMatch(u -> u.getId().equals(receiverId)))
+                    return "Referenced receiver (receiverId=" + receiverId + ") does not exist";
+
+                if (senderId.equals(receiverId)) return "senderId and receiverId must be different";
+
+                String content = body.has("content") ? body.get("content").getAsString() : null;
+                if (content == null || content.isBlank()) return "content is required";
+            }
+            case "logs" -> {
+                String actorId = body.has("actorId") ? body.get("actorId").getAsString() : null;
+                if (actorId != null && !actorId.isBlank()
+                        && data.getUsers().stream().noneMatch(u -> u.getId().equals(actorId)))
+                    return "Referenced actor (actorId=" + actorId + ") does not exist";
+            }
             default -> {}
         }
         return null;
@@ -867,6 +920,25 @@ public class AdminService {
                     if (!organiserId.isBlank() && data.getUsers().stream()
                             .noneMatch(u -> u.getId().equals(organiserId) && "organiser".equals(u.getRole())))
                         return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
+                }
+            }
+            case "messages" -> {
+                if (body.has("senderId")) {
+                    String senderId = body.get("senderId").getAsString();
+                    if (!senderId.isBlank() && data.getUsers().stream().noneMatch(u -> u.getId().equals(senderId)))
+                        return "Referenced sender (senderId=" + senderId + ") does not exist";
+                }
+                if (body.has("receiverId")) {
+                    String receiverId = body.get("receiverId").getAsString();
+                    if (!receiverId.isBlank() && data.getUsers().stream().noneMatch(u -> u.getId().equals(receiverId)))
+                        return "Referenced receiver (receiverId=" + receiverId + ") does not exist";
+                }
+            }
+            case "logs" -> {
+                if (body.has("actorId")) {
+                    String actorId = body.get("actorId").getAsString();
+                    if (!actorId.isBlank() && data.getUsers().stream().noneMatch(u -> u.getId().equals(actorId)))
+                        return "Referenced actor (actorId=" + actorId + ") does not exist";
                 }
             }
             default -> {}
@@ -1025,6 +1097,30 @@ public class AdminService {
                     if (body.has("status")) w.setStatus(body.get("status").getAsString());
                     yield w;
                 }
+                case "messages" -> {
+                    if (data.getMessages() == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    Message m = data.getMessages().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (m == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("conversationId")) m.setConversationId(body.get("conversationId").getAsString());
+                    if (body.has("senderId")) m.setSenderId(body.get("senderId").getAsString());
+                    if (body.has("receiverId")) m.setReceiverId(body.get("receiverId").getAsString());
+                    if (body.has("content")) m.setContent(body.get("content").getAsString());
+                    if (body.has("timestamp")) m.setTimestamp(body.get("timestamp").getAsString());
+                    if (body.has("read")) m.setRead(body.get("read").getAsBoolean());
+                    if (body.has("replyToId")) m.setReplyToId(body.get("replyToId").isJsonNull() ? null : body.get("replyToId").getAsString());
+                    if (body.has("recalled")) m.setRecalled(body.get("recalled").getAsBoolean());
+                    if (body.has("edited")) m.setEdited(body.get("edited").getAsBoolean());
+                    if (body.has("editedAt")) m.setEditedAt(body.get("editedAt").isJsonNull() ? null : body.get("editedAt").getAsString());
+                    if (body.has("messageType")) m.setMessageType(body.get("messageType").getAsString());
+                    if (body.has("attachmentUrl")) m.setAttachmentUrl(body.get("attachmentUrl").isJsonNull() ? null : body.get("attachmentUrl").getAsString());
+                    if (body.has("attachmentName")) m.setAttachmentName(body.get("attachmentName").isJsonNull() ? null : body.get("attachmentName").getAsString());
+                    if (body.has("attachmentSize")) m.setAttachmentSize(body.get("attachmentSize").isJsonNull() ? null : body.get("attachmentSize").getAsString());
+                    if ((m.getConversationId() == null || m.getConversationId().isBlank())
+                            && m.getSenderId() != null && m.getReceiverId() != null) {
+                        m.setConversationId(buildConversationId(m.getSenderId(), m.getReceiverId()));
+                    }
+                    yield m;
+                }
                 default -> null;
             };
 
@@ -1061,6 +1157,9 @@ public class AdminService {
                 data.getInterviews().removeIf(i -> itemId.equals(i.getCandidateId()) || itemId.equals(i.getOrganiserId()));
                 data.getNotifications().removeIf(n -> itemId.equals(n.getUserId()));
                 data.getWorkloadAssignments().removeIf(w -> itemId.equals(w.getTaUserId()));
+                if (data.getMessages() != null) {
+                    data.getMessages().removeIf(m -> itemId.equals(m.getSenderId()) || itemId.equals(m.getReceiverId()));
+                }
                 result.put("success", true);
             }
             case "modules" -> {
@@ -1130,6 +1229,12 @@ public class AdminService {
             }
             case "workloadAssignments" -> {
                 boolean removed = data.getWorkloadAssignments().removeIf(x -> x.getId().equals(itemId));
+                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                result.put("success", true);
+            }
+            case "messages" -> {
+                if (data.getMessages() == null) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                boolean removed = data.getMessages().removeIf(x -> x.getId().equals(itemId));
                 if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
                 result.put("success", true);
             }

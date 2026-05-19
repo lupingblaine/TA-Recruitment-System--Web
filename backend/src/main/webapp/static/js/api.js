@@ -99,9 +99,24 @@ const messageApi = {
   getContacts: () => request('/messages/contacts'),
   getConversations: () => request('/messages/conversations'),
   getMessages: (conversationId) => request('/messages/conversations/' + conversationId),
-  sendMessage: (receiverId, content) => request('/messages/send', { method: 'POST', body: JSON.stringify({ receiverId, content }) }),
+  sendMessage: (payload) => request('/messages/send', { method: 'POST', body: JSON.stringify(payload) }),
+  editMessage: (messageId, content) => request('/messages/edit/' + messageId, { method: 'PUT', body: JSON.stringify({ content }) }),
+  recallMessage: (messageId) => request('/messages/recall/' + messageId, { method: 'PUT' }),
   markRead: (conversationId) => request('/messages/read/' + conversationId, { method: 'PUT' }),
   getUnreadCount: () => request('/messages/unread-count'),
+  uploadFile: (file) => {
+    const form = new FormData();
+    form.append('file', file);
+    return fetch(BASE + '/messages/upload', {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: form,
+    }).then(async (resp) => {
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw { status: resp.status, message: data.error || 'HTTP ' + resp.status };
+      return data;
+    });
+  },
 };
 
 const dataEditorApi = {

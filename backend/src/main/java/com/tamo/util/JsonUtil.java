@@ -22,6 +22,7 @@ public class JsonUtil {
      * 从请求体读取 JSON 并转换为指定类型
      */
     public static <T> T readRequestBody(HttpServletRequest req, Class<T> clazz) throws IOException {
+        req.setCharacterEncoding("UTF-8");
         StringBuilder sb = new StringBuilder();
         try (BufferedReader reader = req.getReader()) {
             String line;
@@ -36,6 +37,7 @@ public class JsonUtil {
      * 从请求体读取原始 JSON 对象
      */
     public static JsonObject readRequestBodyAsJson(HttpServletRequest req) throws IOException {
+        req.setCharacterEncoding("UTF-8");
         StringBuilder sb = new StringBuilder();
         try (BufferedReader reader = req.getReader()) {
             String line;
