@@ -95,6 +95,15 @@ const adminApi = {
     request('/admin/workload/' + taId + '/reassign', { method: 'PUT', body: JSON.stringify(data) }),
 };
 
+const messageApi = {
+  getContacts: () => request('/messages/contacts'),
+  getConversations: () => request('/messages/conversations'),
+  getMessages: (conversationId) => request('/messages/conversations/' + conversationId),
+  sendMessage: (receiverId, content) => request('/messages/send', { method: 'POST', body: JSON.stringify({ receiverId, content }) }),
+  markRead: (conversationId) => request('/messages/read/' + conversationId, { method: 'PUT' }),
+  getUnreadCount: () => request('/messages/unread-count'),
+};
+
 const dataEditorApi = {
   getCollections: () => request('/admin/data-editor/collections'),
   getData: (collection) => request('/admin/data-editor/' + collection),

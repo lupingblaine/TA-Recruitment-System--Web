@@ -14,6 +14,7 @@ public class DataStore {
     private List<Department> departments;
     private List<LogEntry> logs;
     private List<WorkloadAssignment> workloadAssignments;
+    private List<Message> messages;
 
 
     public List<User> getUsers() { return users; }
@@ -38,5 +39,8 @@ public class DataStore {
     public void setLogs(List<LogEntry> logs) { this.logs = logs; }
     public List<WorkloadAssignment> getWorkloadAssignments() { return workloadAssignments; }
     public void setWorkloadAssignments(List<WorkloadAssignment> workloadAssignments) { this.workloadAssignments = workloadAssignments; }
+
+    public List<Message> getMessages() { return messages; }
+    public void setMessages(List<Message> messages) { this.messages = messages; }
 
 }

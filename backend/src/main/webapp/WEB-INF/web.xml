@@ -32,6 +32,10 @@
         <filter-name>AuthFilter</filter-name>
         <url-pattern>/api/admin/*</url-pattern>
     </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/api/messages/*</url-pattern>
+    </filter-mapping>
 
     <!-- Servlets -->
     <servlet>
@@ -68,6 +72,15 @@
     <servlet-mapping>
         <servlet-name>AdminServlet</servlet-name>
         <url-pattern>/api/admin/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>MessageServlet</servlet-name>
+        <servlet-class>com.tamo.servlet.MessageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MessageServlet</servlet-name>
+        <url-pattern>/api/messages/*</url-pattern>
     </servlet-mapping>
 
 </web-app>

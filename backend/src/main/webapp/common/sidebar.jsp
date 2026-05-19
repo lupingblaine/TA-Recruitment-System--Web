@@ -14,6 +14,7 @@
       {"Dashboard", sectionRoot + "/dashboard.jsp", "layout-dashboard"},
       {"My Applications", sectionRoot + "/applications.jsp", "briefcase"},
       {"Find Jobs", sectionRoot + "/jobs.jsp", "users"},
+      {"Messages", sectionRoot + "/messages.jsp", "message-circle"},
       {"Profile", sectionRoot + "/profile.jsp", "user"},
     };
   } else if ("organiser".equals(role)) {
@@ -23,6 +24,7 @@
       {"TA Positions", sectionRoot + "/jobs.jsp", "briefcase"},
       {"Pipeline", sectionRoot + "/pipeline.jsp", "users"},
       {"Interviews", sectionRoot + "/interviews.jsp", "calendar"},
+      {"Messages", sectionRoot + "/messages.jsp", "message-circle"},
     };
   } else {
     sectionRoot = ctx + "/admin";
@@ -33,6 +35,7 @@
       {"Properties", sectionRoot + "/properties.jsp", "sliders"},
       {"Users", sectionRoot + "/users.jsp", "users"},
       {"Data Editor", sectionRoot + "/data-editor.jsp", "database"},
+      {"Messages", sectionRoot + "/messages.jsp", "message-circle"},
       {"System Logs", sectionRoot + "/logs.jsp", "settings"},
     };
   }
