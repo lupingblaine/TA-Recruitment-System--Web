@@ -242,6 +242,34 @@ public class AdminService {
                     } else {
                         obj.addProperty("organiserName", "-");
                     }
+
+                    // Attach jobs published under this module (matched by moduleId or moduleCode)
+                    JsonArray jobsArr = new JsonArray();
+                    int activeJobs = 0;
+                    for (Job j : data.getJobs()) {
+                        boolean belongs = (j.getModuleId() != null && j.getModuleId().equals(m.getId()))
+                                || (j.getModuleCode() != null && j.getModuleCode().equalsIgnoreCase(m.getCode()));
+                        if (!belongs) continue;
+                        long appCount = data.getApplications().stream()
+                                .filter(a -> j.getId().equals(a.getJobId())).count();
+                        JsonObject jObj = new JsonObject();
+                        jObj.addProperty("id", j.getId());
+                        jObj.addProperty("title", j.getTitle());
+                        jObj.addProperty("moduleCode", j.getModuleCode());
+                        jObj.addProperty("status", j.getStatus());
+                        jObj.addProperty("type", j.getType());
+                        jObj.addProperty("hoursPerWeek", j.getHoursPerWeek());
+                        jObj.addProperty("positions", j.getPositions());
+                        jObj.addProperty("deadline", j.getDeadline());
+                        jObj.addProperty("organiserId", j.getOrganiserId());
+                        jObj.addProperty("applicationCount", appCount);
+                        jObj.addProperty("createdAt", j.getCreatedAt());
+                        jobsArr.add(jObj);
+                        if ("active".equalsIgnoreCase(j.getStatus())) activeJobs++;
+                    }
+                    obj.add("jobs", jobsArr);
+                    obj.addProperty("jobCount", jobsArr.size());
+                    obj.addProperty("activeJobCount", activeJobs);
                     return obj;
                 })
                 .collect(Collectors.toList());

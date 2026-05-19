@@ -42,6 +42,9 @@ public class OrganiserServlet extends HttpServlet {
         } else if ("jobs".equals(path)) {
             JsonUtil.writeJson(resp, service.getJobs(userId));
 
+        } else if ("modules".equals(path)) {
+            JsonUtil.writeJson(resp, service.getMyModules(userId));
+
         } else if ("pipeline".equals(path)) {
             String module = req.getParameter("module");
             JsonUtil.writeJson(resp, service.getPipeline(userId, module));

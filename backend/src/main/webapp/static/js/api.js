@@ -45,6 +45,7 @@ const applicantApi = {
 
 const organiserApi = {
   getDashboard: () => request('/organiser/dashboard'),
+  getMyModules: () => request('/organiser/modules'),
   getJobs: () => request('/organiser/jobs'),
   createJob: (data) => request('/organiser/jobs', { method: 'POST', body: JSON.stringify(data) }),
   updateJob: (id, data) => request('/organiser/jobs/' + id, { method: 'PUT', body: JSON.stringify(data) }),
