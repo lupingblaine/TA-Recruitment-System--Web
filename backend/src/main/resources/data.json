@@ -49,7 +49,7 @@
       "department": "Computer Science",
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-05-19T22:29:35.087184",
+      "lastLogin": "2026-05-20T00:29:11.509153",
       "createdAt": "2026-08-01T00:00:00"
     },
     {
@@ -75,7 +75,7 @@
       "department": "System",
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-05-19T23:00:49.091301",
+      "lastLogin": "2026-05-20T00:26:31.916212",
       "createdAt": "2026-07-01T00:00:00"
     },
     {
@@ -114,7 +114,7 @@
       "department": null,
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-05-19T12:17:27.584434",
+      "lastLogin": "2026-05-20T00:27:36.367996",
       "createdAt": "2026-05-18T00:12:27.156406"
     },
     {
@@ -2433,6 +2433,56 @@
       "actorId": "u010",
       "type": "info",
       "details": "User TYF (admin) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9096",
+      "timestamp": "2026-05-20T00:26:31.936369",
+      "action": "User Login",
+      "actor": "Admin Root",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User Admin Root (admin) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9097",
+      "timestamp": "2026-05-20T00:27:24.592744",
+      "action": "User Logout",
+      "actor": "Admin Root",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User Admin Root logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9098",
+      "timestamp": "2026-05-20T00:27:36.376027",
+      "action": "User Login",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "User 1 (organiser) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9099",
+      "timestamp": "2026-05-20T00:28:36.826",
+      "action": "User Logout",
+      "actor": "1",
+      "actorId": "u009",
+      "type": "info",
+      "details": "User 1 logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9100",
+      "timestamp": "2026-05-20T00:29:11.514879",
+      "action": "User Login",
+      "actor": "Dr. Alan Turing",
+      "actorId": "u005",
+      "type": "info",
+      "details": "User Dr. Alan Turing (organiser) logged in",
       "ip": "0:0:0:0:0:0:0:1"
     }
   ],
