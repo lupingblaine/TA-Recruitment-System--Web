@@ -224,6 +224,49 @@ public class OrganiserService {
         dataService.save();
     }
 
+    /**
+     * Return the list of modules owned by the given organiser. Used by the
+     * organiser job-posting UI so MOs may only pick modules they are
+     * responsible for, rather than any module in the system.
+     */
+    public List<JsonObject> getMyModules(String organiserId) {
+        DataStore data = dataService.getData();
+        return data.getModules().stream()
+                .filter(m -> organiserId != null && organiserId.equals(m.getOrganiserId()))
+                .map(m -> {
+                    JsonObject obj = new JsonObject();
+                    obj.addProperty("id", m.getId());
+                    obj.addProperty("code", m.getCode());
+                    obj.addProperty("name", m.getName());
+                    obj.addProperty("department", m.getDepartment());
+                    obj.addProperty("term", m.getTerm());
+                    obj.addProperty("status", m.getStatus());
+                    return obj;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Check whether the given organiser is allowed to publish under the
+     * referenced module. Either moduleId or moduleCode may be supplied; if
+     * both are blank/null the check is skipped (caller will fail elsewhere).
+     */
+    private boolean isModuleOwnedBy(DataStore data, String organiserId, String moduleId, String moduleCode) {
+        if (organiserId == null) return false;
+        Module module = null;
+        if (moduleId != null && !moduleId.isBlank()) {
+            module = data.getModules().stream()
+                    .filter(m -> moduleId.equals(m.getId()))
+                    .findFirst().orElse(null);
+        }
+        if (module == null && moduleCode != null && !moduleCode.isBlank()) {
+            module = data.getModules().stream()
+                    .filter(m -> moduleCode.equalsIgnoreCase(m.getCode()))
+                    .findFirst().orElse(null);
+        }
+        return module != null && organiserId.equals(module.getOrganiserId());
+    }
+
     public List<JsonObject> getJobs(String organiserId) {
         DataStore data = dataService.getData();
         return data.getJobs().stream()
@@ -270,6 +313,14 @@ public class OrganiserService {
         if (title == null || title.isBlank() || moduleId == null || moduleId.isBlank()) {
             result.put("error", "缺少必填字段");
             result.put("code", 400);
+            return result;
+        }
+
+        // Module Organisers may only publish jobs under modules they are responsible for.
+        DataStore ownershipData = dataService.getData();
+        if (!isModuleOwnedBy(ownershipData, organiserId, moduleId, moduleCode)) {
+            result.put("error", "You can only post jobs for modules you are responsible for.");
+            result.put("code", 403);
             return result;
         }
 
@@ -340,6 +391,12 @@ public class OrganiserService {
         if (body.has("title")) job.setTitle(body.get("title").getAsString());
         if (body.has("moduleCode")) {
             String newModuleCode = body.get("moduleCode").getAsString();
+            if (newModuleCode != null && !newModuleCode.isBlank()
+                    && !isModuleOwnedBy(data, organiserId, null, newModuleCode)) {
+                result.put("error", "You can only post jobs for modules you are responsible for.");
+                result.put("code", 403);
+                return result;
+            }
             job.setModuleCode(newModuleCode);
             if (newModuleCode != null && !newModuleCode.isBlank()) {
                 Module module = data.getModules().stream()

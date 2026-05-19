@@ -29,10 +29,17 @@
           <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Title</label><input id="jTitle"
               class="input" placeholder="Teaching Assistant - Data Structures"></div>
           <div class="grid grid-cols-2 gap-4">
-            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Module Code</label><input id="jModule"
-                class="input" placeholder="CS201"></div>
-            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Department</label><input id="jDept"
-                class="input" placeholder="Computer Science"></div>
+            <div>
+              <label class="block text-sm font-medium text-zinc-700 mb-1.5">Module</label>
+              <select id="jModule" class="input" onchange="onModuleChange()">
+                <option value="">Loading your modules...</option>
+              </select>
+              <p id="jModuleHint" class="hidden text-xs text-amber-600 mt-1.5">You are not assigned to any module yet. Please ask an admin to assign you as the organiser of a module before posting jobs.</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-zinc-700 mb-1.5">Department</label>
+              <input id="jDept" class="input bg-zinc-50" placeholder="Auto-filled from module" readonly>
+            </div>
           </div>
           <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Description</label><textarea id="jDesc"
               rows="3" class="input resize-none" placeholder="Describe the position..."></textarea></div>
@@ -63,6 +70,47 @@
     <jsp:include page="/common/layout-bottom.jsp" />
     <script>
       const ctx = document.querySelector('meta[name="ctx"]').content;
+
+      let myModules = [];
+
+      async function loadMyModules() {
+        try {
+          const data = await organiserApi.getMyModules();
+          myModules = data.modules || data || [];
+          renderModuleOptions();
+        } catch (e) {
+          console.error('加载我负责的模块失败', e);
+          myModules = [];
+          renderModuleOptions();
+        }
+      }
+
+      function renderModuleOptions(selectedCode) {
+        const sel = document.getElementById('jModule');
+        const hint = document.getElementById('jModuleHint');
+        if (!sel) return;
+        if (!myModules || myModules.length === 0) {
+          sel.innerHTML = '<option value="">No modules assigned to you</option>';
+          sel.disabled = true;
+          if (hint) hint.classList.remove('hidden');
+          return;
+        }
+        sel.disabled = false;
+        if (hint) hint.classList.add('hidden');
+        const opts = ['<option value="">Select a module...</option>']
+          .concat(myModules.map(m => {
+            const label = (m.code || '') + (m.name ? ' \u2014 ' + m.name : '');
+            const isSel = selectedCode && selectedCode === m.code ? ' selected' : '';
+            return '<option value="' + m.code + '"' + isSel + '>' + label + '</option>';
+          }));
+        sel.innerHTML = opts.join('');
+      }
+
+      function onModuleChange() {
+        const code = document.getElementById('jModule').value;
+        const mod = myModules.find(m => m.code === code);
+        document.getElementById('jDept').value = mod && mod.department ? mod.department : '';
+      }
 
       async function loadJobs() {
         try {
@@ -111,17 +159,22 @@
       let allJobs = [];
 
       function openCreate() {
+        if (!myModules || myModules.length === 0) {
+          showToast('You have no modules assigned. Please ask an admin to assign you as the organiser of a module first.', 'error');
+          return;
+        }
         document.getElementById('editJobId').value = '';
         document.getElementById('modalTitle').textContent = 'Create New Posting';
         document.getElementById('saveBtn').textContent = 'Create';
         document.getElementById('jTitle').value = '';
-        document.getElementById('jModule').value = '';
+        renderModuleOptions('');
         document.getElementById('jDept').value = '';
         document.getElementById('jDesc').value = '';
         document.getElementById('jPositions').value = '1';
         document.getElementById('jHours').value = '10';
         document.getElementById('jDeadline').value = '';
         document.getElementById('jDeadline').min = new Date().toISOString().split('T')[0];
+        document.getElementById('jobError').classList.add('hidden');
         document.getElementById('jobModal').classList.add('show');
       }
 
@@ -134,13 +187,14 @@
           document.getElementById('modalTitle').textContent = 'Edit Posting';
           document.getElementById('saveBtn').textContent = 'Update';
           document.getElementById('jTitle').value = job.title || '';
-          document.getElementById('jModule').value = job.moduleCode || '';
+          renderModuleOptions(job.moduleCode || '');
           document.getElementById('jDept').value = job.department || '';
           document.getElementById('jDesc').value = job.description || '';
           document.getElementById('jPositions').value = job.positions || 1;
           document.getElementById('jHours').value = job.hoursPerWeek || 10;
           document.getElementById('jDeadline').value = job.deadline || '';
           document.getElementById('jDeadline').min = new Date().toISOString().split('T')[0];
+          document.getElementById('jobError').classList.add('hidden');
           document.getElementById('jobModal').classList.add('show');
         } catch (e) { showToast(e.message, 'error'); }
       }
@@ -151,9 +205,17 @@
         const errDiv = document.getElementById('jobError');
         errDiv.classList.add('hidden');
         const id = document.getElementById('editJobId').value;
+        const moduleCode = document.getElementById('jModule').value.trim();
+        const mod = myModules.find(m => m.code === moduleCode);
+        if (!moduleCode || !mod) {
+          errDiv.textContent = 'Please select a module you are responsible for.';
+          errDiv.classList.remove('hidden');
+          return;
+        }
         const payload = {
           title: document.getElementById('jTitle').value.trim(),
-          moduleCode: document.getElementById('jModule').value.trim(),
+          moduleId: mod.id,
+          moduleCode: moduleCode,
           department: document.getElementById('jDept').value.trim(),
           description: document.getElementById('jDesc').value.trim(),
           positions: parseInt(document.getElementById('jPositions').value) || 1,
@@ -182,6 +244,9 @@
         } catch (e) { showToast(e.message, 'error'); }
       }
 
-      loadJobs();
-      if (new URLSearchParams(window.location.search).get('create') === 'true') openCreate();
+      (async function init() {
+        await loadMyModules();
+        await loadJobs();
+        if (new URLSearchParams(window.location.search).get('create') === 'true') openCreate();
+      })();
     </script>
