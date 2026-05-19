@@ -32,11 +32,14 @@
           (app.applicantName || 'Applicant') + '\'s Application' +
           ' <span class="badge badge-neutral capitalize">' + app.status + '</span></h1>' +
           '<p class="text-zinc-500 mt-1">Applying for ' + (app.moduleCode || '') + ' - ' + (app.jobTitle || '') + '</p>' +
-          ((app.status === 'shortlisted' || app.status === 'interview') ? '<p class="text-sm text-amber-600 mt-2">This candidate is shortlisted. Next step: schedule their interview.</p>' : '') +
+          (app.status === 'interview'
+            ? '<p class="text-sm text-amber-600 mt-2">This candidate is now in the interview stage. You can modify the interview schedule or reject the candidate.</p>'
+            : (app.status === 'shortlisted' ? '<p class="text-sm text-amber-600 mt-2">This candidate is shortlisted. Next step: schedule their interview.</p>' : '')) +
+          (app.interview ? '<p class="text-sm text-zinc-500 mt-2">Interview on ' + (app.interview.date || 'TBD') + ' at ' + (app.interview.startTime || 'TBD') + ' (' + (app.interview.type === 'video' ? 'Video Call' : 'In-Person') + ')</p>' : '') +
           '</div>' +
           '<div class="flex items-center gap-3 shrink-0">' +
           ((app.status === 'shortlisted' || app.status === 'interview')
-            ? '<button onclick="navigateToSchedule()" class="btn btn-primary gap-2"><i data-lucide="calendar" class="h-4 w-4"></i> Schedule Interview</button>'
+            ? '<button onclick="navigateToSchedule()" class="btn btn-primary gap-2"><i data-lucide="calendar" class="h-4 w-4"></i> ' + (app.status === 'interview' ? 'Modify Interview Time' : 'Schedule Interview') + '</button>'
             : '<button onclick="doAction(\'shortlist\')" class="btn btn-primary gap-2"><i data-lucide="check-circle-2" class="h-4 w-4"></i> Shortlist</button>') +
           '</div>' +
           '</div>' +

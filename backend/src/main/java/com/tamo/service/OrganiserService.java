@@ -47,7 +47,7 @@ public class OrganiserService {
                 .collect(Collectors.toList());
 
         long activePostings = myJobs.stream().filter(j -> "active".equals(j.getStatus())).count();
-        long totalApplicants = relatedApps.size();
+        long totalApplications = relatedApps.size();
         long currentApplicants = relatedApps.stream()
                 .filter(a -> a.getStatus() == null || !"rejected".equals(a.getStatus()))
                 .count();
@@ -55,30 +55,81 @@ public class OrganiserService {
                 .filter(a -> "interview".equals(a.getStatus()))
                 .count();
 
+        // 统计当前组织者所有非取消状态的面试总数
+        long currentInterviews = 0;
+        if (data.getInterviews() != null) {
+            currentInterviews = data.getInterviews().stream()
+                    .filter(iv -> organiserId.equals(iv.getOrganiserId()))
+                    .filter(iv -> !"cancelled".equals(iv.getStatus()))
+                    .count();
+        }
+
         JsonObject result = new JsonObject();
         result.addProperty("activePostings", activePostings);
         result.addProperty("currentApplicants", currentApplicants);
-        result.addProperty("totalApplicants", totalApplicants);
+        result.addProperty("totalApplications", totalApplications);
+        result.addProperty("totalApplicants", totalApplications);
+        result.addProperty("interviewsToSchedule", currentInterviews);
         result.addProperty("pendingInterviews", pendingInterviews);
 
-        JsonArray recentActivities = new JsonArray();
+        // 构建近期活动：优先显示面试信息，再显示最近申请
+        JsonArray recentApplications = new JsonArray();
+
+        // 先添加当前organiser的面试信息
+        if (data.getInterviews() != null) {
+            data.getInterviews().stream()
+                    .filter(iv -> organiserId.equals(iv.getOrganiserId()))
+                    .filter(iv -> !"cancelled".equals(iv.getStatus()))
+                    .sorted((a, b) -> {
+                        String da = (a.getDate() != null ? a.getDate() : "");
+                        String db = (b.getDate() != null ? b.getDate() : "");
+                        return db.compareTo(da);
+                    })
+                    .limit(5)
+                    .forEach(iv -> {
+                        JsonObject obj = new JsonObject();
+                        obj.addProperty("id", iv.getId());
+                        obj.addProperty("applicantName", iv.getCandidateName() != null ? iv.getCandidateName() : "Unknown");
+                        obj.addProperty("jobTitle", iv.getModuleName() != null ? iv.getModuleName() : "");
+                        obj.addProperty("moduleCode", iv.getModuleCode() != null ? iv.getModuleCode() : "");
+                        obj.addProperty("status", "interview");
+                        obj.addProperty("interviewStatus", iv.getStatus());
+                        obj.addProperty("date", iv.getDate());
+                        obj.addProperty("type", "interview");
+                        recentApplications.add(obj);
+                    });
+        }
+
+        // 再添加最近申请（排除已通过面试展示的）
+        Set<String> shownCandidateIds = new HashSet<>();
+        for (int i = 0; i < recentApplications.size(); i++) {
+            JsonObject obj = recentApplications.get(i).getAsJsonObject();
+            if (obj.has("applicantName")) {
+                shownCandidateIds.add(obj.get("applicantName").getAsString());
+            }
+        }
+
         relatedApps.stream()
                 .sorted((a, b) -> b.getUpdatedAt().compareTo(a.getUpdatedAt()))
+                .filter(a -> {
+                    User applicant = findUserById(data, a.getApplicantId());
+                    return applicant == null || !shownCandidateIds.contains(applicant.getName());
+                })
                 .limit(5)
                 .forEach(a -> {
                     User applicant = findUserById(data, a.getApplicantId());
                     Job job = findJobById(data, a.getJobId());
                     JsonObject obj = new JsonObject();
                     obj.addProperty("id", a.getId());
-                    obj.addProperty("name", applicant != null ? applicant.getName() : "Unknown");
-                    obj.addProperty("role", job != null ? job.getModuleCode() + " " + job.getTitle().replaceAll(".*-\\s*", "") : "");
+                    obj.addProperty("applicantName", applicant != null ? applicant.getName() : "Unknown");
+                    obj.addProperty("jobTitle", job != null ? job.getTitle() : "");
+                    obj.addProperty("moduleCode", job != null ? job.getModuleCode() : "");
                     obj.addProperty("status", a.getStatus());
-
-                    String oldStatus = a.getStatus();
                     obj.addProperty("date", a.getUpdatedAt());
-                    recentActivities.add(obj);
+                    obj.addProperty("type", "application");
+                    recentApplications.add(obj);
                 });
-        result.add("recentActivities", recentActivities);
+        result.add("recentApplications", recentApplications);
 
         JsonArray activeJobsArr = new JsonArray();
         myJobs.stream().filter(j -> "active".equals(j.getStatus())).forEach(j -> {
@@ -95,6 +146,18 @@ public class OrganiserService {
         });
         result.add("activeJobs", activeJobsArr);
         result.add("jobs", activeJobsArr);
+
+        // 添加当前组织者的面试列表
+        JsonArray interviewsArr = new JsonArray();
+        if (data.getInterviews() != null) {
+            data.getInterviews().stream()
+                    .filter(iv -> organiserId.equals(iv.getOrganiserId()))
+                    .forEach(iv -> {
+                        JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(iv);
+                        interviewsArr.add(obj);
+                    });
+        }
+        result.add("interviews", interviewsArr);
 
         return result;
     }
@@ -458,7 +521,7 @@ public class OrganiserService {
             }
         }
 
-        // Create notification for the applicant + send email
+        // Create notification for the applicant
         if (!Objects.equals(oldStatus, newStatus)) {
             String applicantId = app.getApplicantId();
             String moduleCode = job != null ? job.getModuleCode() : "";
@@ -496,14 +559,6 @@ public class OrganiserService {
                 }
             }
             createNotification(data, applicantId, notifType, title, message, app.getId());
-
-            // Send email notification to the applicant
-            User applicant = findUserById(data, applicantId);
-            if (applicant != null && applicant.getEmail() != null && !applicant.getEmail().isBlank()) {
-                EmailService.getInstance().notifyStatusChange(
-                        applicant.getEmail(), applicant.getName(), moduleCode, oldStatus, newStatus
-                );
-            }
             if (!"interview".equals(newStatus) && data.getInterviews() != null) {
                 data.getInterviews().stream()
                         .filter(i -> appId.equals(i.getApplicationId()))
@@ -563,6 +618,14 @@ public class OrganiserService {
         }
         if (profile != null) {
             detail.add("documents", JsonUtil.getGson().toJsonTree(profile.getDocuments()));
+        }
+
+        Interview interview = data.getInterviews().stream()
+                .filter(i -> i.getApplicationId().equals(appId))
+                .filter(i -> i.getStatus() == null || !"cancelled".equalsIgnoreCase(i.getStatus()))
+                .findFirst().orElse(null);
+        if (interview != null) {
+            detail.add("interview", JsonUtil.getGson().toJsonTree(interview));
         }
 
         result.put("data", detail);
@@ -659,11 +722,25 @@ public class OrganiserService {
             return result;
         }
 
-        Interview iv = new Interview();
-        iv.setId(dataService.generateId("i", data.getInterviews()));
-        iv.setApplicationId(applicationId);
+        Interview existingInterview = data.getInterviews().stream()
+                .filter(i -> i.getApplicationId().equals(applicationId))
+                .filter(i -> i.getStatus() == null || !"cancelled".equalsIgnoreCase(i.getStatus()))
+                .findFirst().orElse(null);
+
+        Interview iv;
+        boolean isReschedule = false;
+        if (existingInterview != null) {
+            iv = existingInterview;
+            isReschedule = true;
+        } else {
+            iv = new Interview();
+            iv.setId(dataService.generateId("i", data.getInterviews()));
+            iv.setApplicationId(applicationId);
+            iv.setOrganiserId(organiserId);
+        }
+
         iv.setCandidateId(candidateId);
-        iv.setCandidateName(body.has("candidateName") ? body.get("candidateName").getAsString() : "");
+        iv.setCandidateName(body.has("candidateName") ? body.get("candidateName").getAsString() : iv.getCandidateName());
         if ((iv.getCandidateName() == null || iv.getCandidateName().isBlank())) {
             User applicant = findUserById(data, candidateId);
             if (applicant != null) {
@@ -684,12 +761,11 @@ public class OrganiserService {
         }
         iv.setDate(date);
         iv.setStartTime(startTime);
-        iv.setEndTime(body.has("endTime") ? body.get("endTime").getAsString() : "");
+        iv.setEndTime(body.has("endTime") ? body.get("endTime").getAsString() : iv.getEndTime());
         iv.setType(type);
         iv.setLocation(body.has("location") ? body.get("location").getAsString() : null);
         iv.setStatus("scheduled");
         iv.setOutcome(null);
-        iv.setOrganiserId(organiserId);
 
         if (!"interview".equals(app.getStatus())) {
             app.setStatus("interview");
@@ -707,12 +783,14 @@ public class OrganiserService {
             }
         }
 
-        data.getInterviews().add(iv);
+        if (!isReschedule) {
+            data.getInterviews().add(iv);
+        }
 
         // Create notification for the applicant about the scheduled interview
-        String notifTitle = "Interview Scheduled: " + iv.getModuleCode();
+        String notifTitle = (isReschedule ? "Interview Rescheduled: " : "Interview Scheduled: ") + iv.getModuleCode();
         String notifMsg = "Your interview for " + iv.getModuleCode() + " " + iv.getModuleName() +
-                " is scheduled on " + iv.getDate() + " at " + iv.getStartTime() +
+                " is " + (isReschedule ? "rescheduled" : "scheduled") + " on " + iv.getDate() + " at " + iv.getStartTime() +
                 ". Type: " + (iv.getType().equals("video") ? "Video Call" : "In-Person") +
                 (iv.getLocation() != null && !iv.getLocation().isBlank() ? " at " + iv.getLocation() : "") + ".";
         createNotification(data, candidateId, "interview_scheduled", notifTitle, notifMsg, iv.getId());
@@ -755,6 +833,32 @@ public class OrganiserService {
 
         dataService.save();
         result.put("interview", iv);
+        return result;
+    }
+
+    public Map<String, Object> deleteInterview(String organiserId, String interviewId) {
+        DataStore data = dataService.getData();
+        Map<String, Object> result = new HashMap<>();
+
+        Interview iv = data.getInterviews().stream()
+                .filter(i -> i.getId().equals(interviewId))
+                .findFirst().orElse(null);
+        if (iv == null) {
+            result.put("error", "面试不存在");
+            result.put("code", 404);
+            return result;
+        }
+        if (!iv.getOrganiserId().equals(organiserId)) {
+            result.put("error", "无权限删除该面试");
+            result.put("code", 403);
+            return result;
+        }
+
+        data.getInterviews().remove(iv);
+
+        // 删除面试时不应更改申请人的 pipeline 状态，状态仍应保持为当前阶段。
+        dataService.save();
+        result.put("success", true);
         return result;
     }
 

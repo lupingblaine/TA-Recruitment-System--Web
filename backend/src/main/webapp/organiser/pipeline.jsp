@@ -34,7 +34,8 @@
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
           <div class="p-6 border-b border-zinc-200">
             <h2 class="text-lg font-bold text-zinc-900">Schedule Interview</h2>
-            <p class="text-sm text-zinc-500 mt-1">Set up an interview for <span id="modalCandidateName" class="font-medium text-zinc-700"></span></p>
+            <p class="text-sm text-zinc-500 mt-1">Set up an interview for <span id="modalCandidateName"
+                class="font-medium text-zinc-700"></span></p>
           </div>
           <form id="interviewForm" class="p-6 space-y-4" onsubmit="submitInterview(event)">
             <input type="hidden" id="modalAppId">
@@ -62,9 +63,10 @@
                 <option value="in-person">In-Person</option>
               </select>
             </div>
-            <div id="locationField" class="hidden">
+            <div id="locationField">
               <label class="block text-sm font-medium text-zinc-700 mb-1">Location</label>
-              <input type="text" id="interviewLocation" placeholder="e.g., Room 301, Building A" class="input w-full">
+              <input type="text" id="interviewLocation" placeholder="Location not needed for video call"
+                class="input w-full" disabled>
             </div>
             <div class="flex gap-3 pt-4">
               <button type="button" onclick="closeInterviewModal()" class="btn btn-outline flex-1">Cancel</button>
@@ -99,14 +101,21 @@
         </div>
         <div class="p-6 space-y-4">
           <div class="grid grid-cols-2 gap-4">
-            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Date</label><input id="iDate" type="date" class="input"></div>
-            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Start Time</label><input id="iTime" type="time" class="input"></div>
+            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Date</label><input id="iDate" type="date"
+                class="input"></div>
+            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Start Time</label><input id="iTime"
+                type="time" class="input"></div>
           </div>
-          <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Location</label><input id="iLocation" class="input" placeholder="Room 402 / Zoom link"></div>
+          <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Location</label><input id="iLocation"
+              class="input" placeholder="Location not needed for video call" disabled></div>
           <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Type</label>
-            <select id="iType" class="input"><option value="video">Video Call</option><option value="in_person">In Person</option></select>
+            <select id="iType" class="input" onchange="toggleScheduleLocation()">
+              <option value="video">Video Call</option>
+              <option value="in_person">In Person</option>
+            </select>
           </div>
-          <div id="schedError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3"></div>
+          <div id="schedError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+          </div>
         </div>
         <div class="p-6 border-t border-zinc-200 flex justify-end gap-3">
           <button onclick="closeSchedule()" class="btn btn-secondary">Cancel</button>
@@ -125,6 +134,7 @@
         { id: 'interview', title: 'Interview', color: 'bg-amber-100 text-amber-800' },
         { id: 'offer', title: 'Offer', color: 'bg-emerald-100 text-emerald-800' },
       ];
+      const STATUS_ORDER = { applied: 0, review: 1, shortlisted: 2, interview: 3, offer: 4, rejected: 5 };
       let allApps = [];
       let pipelineData = {};
 
@@ -185,7 +195,7 @@
           '</div>' +
           extraInfo +
           '<div class="flex items-center justify-between text-xs text-zinc-500 mt-4 pt-4 border-t border-zinc-100">' +
-          '<span class="text-zinc-900 font-bold">Applied ' + (a.date || '') + '</span>' +
+          '<span class="text-zinc-900 font-bold">Applied ' + (a.date || 'TBD') + '</span>' +
           '</div></div>';
       }
 
@@ -198,11 +208,21 @@
         e.preventDefault();
         e.currentTarget.classList.remove('drag-over');
         if (dragId) {
+          const app = allApps.find(a => a.id === dragId);
+          if (app && STATUS_ORDER[status] < STATUS_ORDER[app.status] && status !== 'rejected') {
+            showToast('Cannot move candidate backwards once they are in a later stage.', 'error');
+            dragId = null;
+            return;
+          }
           if (status === 'interview') {
-            openSchedule(dragId);
+            // store only appId to avoid stale object references
+            pendingInterviewApp = { appId: dragId };
+            const freshApp = allApps.find(a => a.id === dragId);
+            openInterviewModal(freshApp);
           } else {
             updateStatus(dragId, status);
           }
+          dragId = null;
         }
       }
 
@@ -228,6 +248,8 @@
       }
 
       function openInterviewModal(app) {
+        // store only the id; resolve the app object fresh when needed
+        pendingInterviewApp = { appId: app.id };
         document.getElementById('modalAppId').value = app.id;
         document.getElementById('modalCandidateName').textContent = app.name || 'Applicant';
         document.getElementById('modalModuleCode').value = app.role || '';
@@ -240,28 +262,39 @@
         document.getElementById('interviewEnd').value = '10:30';
         document.getElementById('interviewType').value = 'video';
         document.getElementById('interviewLocation').value = '';
-        document.getElementById('locationField').classList.add('hidden');
+        document.getElementById('interviewLocation').disabled = true;
+        document.getElementById('interviewLocation').placeholder = 'Location not needed for video call';
         document.getElementById('interviewModal').classList.remove('hidden');
       }
 
       function closeInterviewModal() {
         document.getElementById('interviewModal').classList.add('hidden');
+        // only clear the pending booking info locally; do NOT alter any interviews or application statuses
         pendingInterviewApp = null;
       }
 
       function toggleLocation() {
         const type = document.getElementById('interviewType').value;
-        document.getElementById('locationField').classList.toggle('hidden', type === 'video');
+        const locationInput = document.getElementById('interviewLocation');
+        if (type === 'video') {
+          locationInput.disabled = true;
+          locationInput.placeholder = 'Location not needed for video call';
+          locationInput.value = '';
+        } else {
+          locationInput.disabled = false;
+          locationInput.placeholder = 'e.g., Room 301, Building A';
+        }
       }
 
       async function submitInterview(e) {
         e.preventDefault();
         if (!pendingInterviewApp) return;
 
-        const { appId, app } = pendingInterviewApp;
+        const { appId } = pendingInterviewApp;
+        const app = allApps.find(a => a.id === appId);
         const data = {
           applicationId: appId,
-          candidateName: app.name,
+          candidateName: app ? app.name : undefined,
           moduleCode: document.getElementById('modalModuleCode').value,
           date: document.getElementById('interviewDate').value,
           startTime: document.getElementById('interviewStart').value,
@@ -271,11 +304,20 @@
         };
 
         try {
-          await organiserApi.createInterview(data);
-          app.status = 'interview';
+          const previousStatus = app ? app.status : null;
+          const interview = await organiserApi.createInterview(data);
+          if (app) {
+            app.status = 'interview';
+            app.interview = interview;
+          }
+          if (app && previousStatus !== 'interview') {
+            await organiserApi.updateCandidateStatus(appId, 'interview');
+          }
           closeInterviewModal();
           renderKanban();
           showToast('Interview scheduled & candidate notified!');
+          // clear pending after success
+          pendingInterviewApp = null;
         } catch (err) {
           showToast(err.message || 'Failed to schedule interview', 'error');
         }
@@ -312,13 +354,38 @@
       function closePanel() { document.getElementById('candidatePanel').classList.add('hidden'); }
 
       let currentAppId = null;
+      let currentInterviewId = null;
       function openSchedule(appId) {
         currentAppId = appId;
+        const app = allApps.find(a => a.id === appId);
+        currentInterviewId = app && app.interview ? app.interview.id : null;
+        document.getElementById('iAppId').value = appId || '';
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('iDate').value = app && app.interview ? app.interview.date || tomorrow.toISOString().split('T')[0] : tomorrow.toISOString().split('T')[0];
+        document.getElementById('iTime').value = app && app.interview ? app.interview.startTime || '10:00' : '10:00';
+        document.getElementById('iLocation').value = app && app.interview ? app.interview.location || '' : '';
+        document.getElementById('iType').value = app && app.interview ? app.interview.type || 'video' : 'video';
+        toggleScheduleLocation();
         document.getElementById('scheduleModal').classList.remove('hidden');
       }
       function closeSchedule() {
         document.getElementById('scheduleModal').classList.add('hidden');
         currentAppId = null;
+        currentInterviewId = null;
+      }
+
+      function toggleScheduleLocation() {
+        const type = document.getElementById('iType').value;
+        const locationInput = document.getElementById('iLocation');
+        if (type === 'video') {
+          locationInput.disabled = true;
+          locationInput.placeholder = 'Location not needed for video call';
+          locationInput.value = '';
+        } else {
+          locationInput.disabled = false;
+          locationInput.placeholder = 'Room 301, Building A';
+        }
       }
 
       async function saveInterview() {
@@ -332,14 +399,25 @@
           type: document.getElementById('iType').value,
         };
         try {
-          await organiserApi.createInterview(payload);
+          let interview;
+          if (currentInterviewId) {
+            interview = await organiserApi.updateInterview(currentInterviewId, payload);
+            showToast('Interview updated!');
+          } else {
+            interview = await organiserApi.createInterview(payload);
+            if (currentAppId) {
+              await organiserApi.updateCandidateStatus(currentAppId, 'interview');
+              const app = allApps.find(a => a.id === currentAppId);
+              if (app) {
+                app.status = 'interview';
+                app.interview = interview;
+              }
+            }
+            showToast('Interview scheduled!');
+          }
+          currentInterviewId = interview.id || currentInterviewId;
           closeSchedule();
-          // 更新状态到 interview
-          await organiserApi.updateCandidateStatus(currentAppId, 'interview');
-          const app = allApps.find(a => a.id === currentAppId);
-          if (app) app.status = 'interview';
           loadPipeline(); // 重新加载以获取面试信息
-          showToast('Interview scheduled!');
         } catch (e) {
           errDiv.textContent = e.message || 'Schedule failed';
           errDiv.classList.remove('hidden');

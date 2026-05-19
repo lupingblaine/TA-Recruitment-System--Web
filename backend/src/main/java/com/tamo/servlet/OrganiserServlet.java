@@ -201,6 +201,19 @@ public class OrganiserServlet extends HttpServlet {
                 dataService.addLog("Job Deleted", "warning", getUserName(req), userId,
                         "Deleted job " + jobId, req.getRemoteAddr());
             }
+        } else if (path.matches("interviews/[\\w]+")) {
+            String interviewId = path.split("/")[1];
+            Map<String, Object> result = service.deleteInterview(userId, interviewId);
+            if (result.containsKey("error")) {
+                int code = (int) result.get("code");
+                JsonUtil.writeError(resp, code, (String) result.get("error"));
+            } else {
+                JsonObject ok = new JsonObject();
+                ok.addProperty("message", "面试删除成功");
+                JsonUtil.writeJson(resp, ok);
+                dataService.addLog("Interview Deleted", "warning", getUserName(req), userId,
+                        "Deleted interview " + interviewId, req.getRemoteAddr());
+            }
         } else {
             JsonUtil.writeError(resp, 404, "接口不存在");
         }

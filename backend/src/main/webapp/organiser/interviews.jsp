@@ -54,9 +54,9 @@
                 type="time" class="input"></div>
           </div>
           <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Location</label><input id="iLocation"
-              class="input" placeholder="Room 402 / Zoom link"></div>
+              class="input" placeholder="Location not needed for video call" disabled></div>
           <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Type</label>
-            <select id="iType" class="input">
+            <select id="iType" class="input" onchange="toggleLocation()">
               <option value="video">Video Call</option>
               <option value="in_person">In Person</option>
             </select>
@@ -66,7 +66,7 @@
         </div>
         <div class="p-6 border-t border-zinc-200 flex justify-end gap-3">
           <button onclick="closeSchedule()" class="btn btn-secondary">Cancel</button>
-          <button onclick="saveInterview()" class="btn btn-primary">Schedule</button>
+          <button id="saveInterviewButton" onclick="saveInterview()" class="btn btn-primary">Schedule</button>
         </div>
       </div>
     </div>
@@ -89,6 +89,7 @@
           }
           const data = await organiserApi.getInterviews();
           const interviews = data.interviews || data || [];
+          interviewsCache = interviews;
           const container = document.getElementById('interviewsList');
 
           if (interviews.length === 0) {
@@ -111,9 +112,10 @@
               '<span class="flex items-center gap-1.5"><i data-lucide="clock" class="h-4 w-4 text-zinc-400"></i> ' + (iv.startTime || '') + '</span>' +
               '<span class="flex items-center gap-1.5"><i data-lucide="' + (iv.type === 'video' ? 'video' : 'user') + '" class="h-4 w-4 text-zinc-400"></i> ' + (iv.location || iv.type || '') + '</span>' +
               '</div>' +
-              '</div>' +
               '<div class="flex flex-row sm:flex-col justify-end gap-2 shrink-0">' +
               '<span class="badge ' + (iv.status === 'scheduled' ? 'badge-success' : iv.status === 'completed' ? 'badge-neutral' : 'badge-warning') + ' capitalize">' + (iv.status || 'scheduled') + '</span>' +
+              '<button onclick="editInterview(\'' + iv.id + '\')" class="btn btn-secondary btn-sm mt-2">Edit</button>' +
+              '<button onclick="deleteInterview(\'' + iv.id + '\')" class="btn btn-outline btn-sm mt-2">Delete</button>' +
               '</div>' +
               '</div></div></div>';
           }).join('');
@@ -124,8 +126,74 @@
         }
       }
 
-      function openSchedule() { document.getElementById('scheduleModal').classList.add('show'); }
-      function closeSchedule() { document.getElementById('scheduleModal').classList.remove('show'); }
+      let interviewsCache = [];
+      let currentInterviewId = null;
+
+      function openSchedule(interviewId) {
+        currentInterviewId = interviewId || null;
+        const saveButton = document.getElementById('saveInterviewButton');
+        const applicationIdInput = document.getElementById('iAppId');
+        const dateInput = document.getElementById('iDate');
+        const timeInput = document.getElementById('iTime');
+        const locationInput = document.getElementById('iLocation');
+        const typeInput = document.getElementById('iType');
+
+        if (interviewId) {
+          const interview = interviewsCache.find(iv => iv.id === interviewId);
+          if (interview) {
+            applicationIdInput.value = interview.applicationId || '';
+            dateInput.value = interview.date || '';
+            timeInput.value = interview.startTime || '';
+            locationInput.value = interview.location || '';
+            typeInput.value = interview.type || 'video';
+            saveButton.textContent = 'Update Interview';
+          }
+        } else {
+          currentInterviewId = null;
+          applicationIdInput.value = '';
+          dateInput.value = new Date().toISOString().split('T')[0];
+          timeInput.value = '10:00';
+          locationInput.value = '';
+          typeInput.value = 'video';
+          saveButton.textContent = 'Schedule Interview';
+        }
+
+        toggleLocation();
+        document.getElementById('scheduleModal').classList.add('show');
+      }
+      function closeSchedule() {
+        document.getElementById('scheduleModal').classList.remove('show');
+        currentInterviewId = null;
+        document.getElementById('saveInterviewButton').textContent = 'Schedule Interview';
+      }
+
+      function editInterview(interviewId) {
+        openSchedule(interviewId);
+      }
+
+      function toggleLocation() {
+        const type = document.getElementById('iType').value;
+        const locationInput = document.getElementById('iLocation');
+        if (type === 'video') {
+          locationInput.disabled = true;
+          locationInput.placeholder = 'Location not needed for video call';
+          locationInput.value = '';
+        } else {
+          locationInput.disabled = false;
+          locationInput.placeholder = 'Room 402 / Zoom link';
+        }
+      }
+
+      async function deleteInterview(interviewId) {
+        if (!confirm('Delete this interview?')) return;
+        try {
+          await organiserApi.deleteInterview(interviewId);
+          showToast('Interview deleted');
+          loadInterviews();
+        } catch (e) {
+          showToast(e.message || 'Delete failed', 'error');
+        }
+      }
 
       async function saveInterview() {
         const errDiv = document.getElementById('schedError');
@@ -137,10 +205,36 @@
           location: document.getElementById('iLocation').value.trim(),
           type: document.getElementById('iType').value,
         };
+
+        if (!payload.applicationId) {
+          errDiv.textContent = 'Please enter Application ID.';
+          errDiv.classList.remove('hidden');
+          return;
+        }
+        if (!payload.date) {
+          errDiv.textContent = 'Please select a date.';
+          errDiv.classList.remove('hidden');
+          return;
+        }
+        if (!payload.startTime) {
+          errDiv.textContent = 'Please select a start time.';
+          errDiv.classList.remove('hidden');
+          return;
+        }
+
         try {
-          await organiserApi.createInterview(payload);
+          if (currentInterviewId) {
+            await organiserApi.updateInterview(currentInterviewId, payload);
+            showToast('Interview updated!');
+          } else {
+            await organiserApi.createInterview(payload);
+            // ensure application status is updated to interview when scheduling from interviews page
+            if (payload.applicationId) {
+              try { await organiserApi.updateCandidateStatus(payload.applicationId, 'interview'); } catch (e) { }
+            }
+            showToast('Interview scheduled!');
+          }
           closeSchedule();
-          showToast('Interview scheduled!');
           loadInterviews();
         } catch (e) {
           errDiv.textContent = e.message || 'Schedule failed';

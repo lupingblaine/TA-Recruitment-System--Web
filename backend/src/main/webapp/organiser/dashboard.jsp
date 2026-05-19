@@ -36,7 +36,7 @@
           <div class="p-6 flex items-center gap-4">
             <div class="stat-icon"><i data-lucide="calendar" class="h-6 w-6"></i></div>
             <div>
-              <p class="text-sm font-medium text-zinc-500">Interviews to Schedule</p>
+              <p class="text-sm font-medium text-zinc-500">Current Interviews</p>
               <p class="text-2xl font-bold text-zinc-900" id="statInterviews">-</p>
             </div>
           </div>
@@ -144,25 +144,36 @@
         try {
           const data = await organiserApi.getDashboard();
           const jobs = data.jobs || [];
-          const apps = data.recentApplications || [];
+          const recentApps = data.recentApplications || [];
+          const interviewsList = data.interviews || [];
 
           document.getElementById('statPostings').textContent = jobs.filter(j => j.status === 'active').length;
-          document.getElementById('statApplicants').textContent = data.totalApplications || apps.length;
-          document.getElementById('statInterviews').textContent = data.interviewsToSchedule || 0;
+          document.getElementById('statApplicants').textContent = data.totalApplications || data.totalApplicants || 0;
+          document.getElementById('statInterviews').textContent = data.interviewsToSchedule || data.currentInterviews || 0;
 
           const actDiv = document.getElementById('recentActivity');
-          if (apps.length === 0) {
+          if (interviewsList.length === 0) {
             actDiv.innerHTML = '<div class="p-6 text-center text-zinc-400">No recent activity</div>';
           } else {
-            actDiv.innerHTML = apps.slice(0, 5).map(app => {
-              const badgeClass = app.status === 'shortlisted' ? 'badge-success' : app.status === 'interview' ? 'badge-warning' : 'badge-neutral';
+            // 只显示面试信息，按日期排序，显示状态和时间
+            const sortedInterviews = interviewsList
+              .filter(iv => iv.date)
+              .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+              .slice(0, 5);
+
+            actDiv.innerHTML = sortedInterviews.map(iv => {
+              const isCancelled = iv.status === 'cancelled';
+              const statusLabel = isCancelled ? 'Cancelled' : iv.status === 'completed' ? 'Completed' : 'Upcoming';
+              const statusClass = isCancelled ? 'badge-neutral' : iv.status === 'completed' ? 'badge-success' : 'badge-warning';
+              const timeStr = iv.startTime ? iv.startTime.substring(0, 5) : '';
+              const rightInfo = (iv.date || '') + (timeStr ? ' ' + timeStr : '');
               return '<div class="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors cursor-pointer group">' +
                 '<div class="flex items-center gap-4">' +
-                '<div class="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center font-medium text-zinc-600">' + ((app.applicantName || 'A').charAt(0)) + '</div>' +
-                '<div class="space-y-1"><h3 class="font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">' + (app.applicantName || 'Applicant') + '</h3>' +
-                '<p class="text-sm text-zinc-500">Applied for ' + (app.jobTitle || app.moduleCode || '') + '</p></div>' +
+                '<div class="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center font-medium text-zinc-600">' + ((iv.candidateName || '?').charAt(0)) + '</div>' +
+                '<div class="space-y-1"><h3 class="font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">' + (iv.candidateName || 'Unknown') + '</h3>' +
+                '<p class="text-sm text-zinc-500">' + (iv.moduleName || iv.moduleCode || '') + ' · <span class="' + statusClass + '">' + statusLabel + '</span></p></div>' +
                 '</div>' +
-                '<div class="flex items-center gap-4"><span class="badge ' + badgeClass + '">' + app.status + '</span></div></div>';
+                '<div class="text-sm text-zinc-500">' + rightInfo + '</div></div>';
             }).join('');
           }
 
