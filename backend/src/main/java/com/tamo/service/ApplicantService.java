@@ -287,6 +287,21 @@ public class ApplicantService {
         data.getApplications().add(app);
         dataService.save();
 
+        // Send email notification to the organiser
+        User organiser = data.getUsers().stream()
+                .filter(u -> u.getId().equals(job.getOrganiserId()))
+                .findFirst().orElse(null);
+        User applicantUser = data.getUsers().stream()
+                .filter(u -> u.getId().equals(userId))
+                .findFirst().orElse(null);
+        if (organiser != null && organiser.getEmail() != null && !organiser.getEmail().isBlank()) {
+            String applicantName = applicantUser != null ? applicantUser.getName() : "Unknown";
+            String moduleCode = job.getModuleCode() != null ? job.getModuleCode() : "";
+            EmailService.getInstance().notifyNewApplication(
+                    organiser.getEmail(), organiser.getName(), applicantName, moduleCode, job.getTitle()
+            );
+        }
+
         result.put("application", app);
         return result;
     }

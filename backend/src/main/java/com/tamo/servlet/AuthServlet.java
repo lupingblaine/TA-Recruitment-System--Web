@@ -3,6 +3,7 @@ package com.tamo.servlet;
 import com.google.gson.JsonObject;
 import com.tamo.model.User;
 import com.tamo.service.AuthService;
+import com.tamo.service.EmailService;
 import com.tamo.service.JsonDataService;
 import com.tamo.util.JsonUtil;
 import jakarta.servlet.ServletException;
@@ -23,6 +24,9 @@ public class AuthServlet extends HttpServlet {
         String basePath = getServletContext().getRealPath("/WEB-INF/classes");
         this.dataService = JsonDataService.getInstance(basePath);
         this.authService = new AuthService(dataService);
+
+        String imagesPath = getServletContext().getRealPath("/static/images");
+        EmailService.getInstance().setImagesBasePath(imagesPath);
     }
 
     @Override

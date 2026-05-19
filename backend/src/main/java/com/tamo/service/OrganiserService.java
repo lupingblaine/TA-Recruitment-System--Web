@@ -458,7 +458,7 @@ public class OrganiserService {
             }
         }
 
-        // Create notification for the applicant
+        // Create notification for the applicant + send email
         if (!Objects.equals(oldStatus, newStatus)) {
             String applicantId = app.getApplicantId();
             String moduleCode = job != null ? job.getModuleCode() : "";
@@ -496,6 +496,14 @@ public class OrganiserService {
                 }
             }
             createNotification(data, applicantId, notifType, title, message, app.getId());
+
+            // Send email notification to the applicant
+            User applicant = findUserById(data, applicantId);
+            if (applicant != null && applicant.getEmail() != null && !applicant.getEmail().isBlank()) {
+                EmailService.getInstance().notifyStatusChange(
+                        applicant.getEmail(), applicant.getName(), moduleCode, oldStatus, newStatus
+                );
+            }
             if (!"interview".equals(newStatus) && data.getInterviews() != null) {
                 data.getInterviews().stream()
                         .filter(i -> appId.equals(i.getApplicationId()))
