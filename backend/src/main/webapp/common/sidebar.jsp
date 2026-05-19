@@ -32,6 +32,7 @@
       {"Global Modules", sectionRoot + "/modules.jsp", "book-open"},
       {"Properties", sectionRoot + "/properties.jsp", "sliders"},
       {"Users", sectionRoot + "/users.jsp", "users"},
+      {"Data Editor", sectionRoot + "/data-editor.jsp", "database"},
       {"System Logs", sectionRoot + "/logs.jsp", "settings"},
     };
   }

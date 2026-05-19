@@ -1,5 +1,7 @@
 package com.tamo.servlet;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.tamo.model.Module;
 import com.tamo.service.AdminService;
@@ -67,7 +69,16 @@ public class AdminServlet extends HttpServlet {
                 JsonUtil.writeJson(resp, service.getWorkload(keyword, status));
             }
 
-            default -> JsonUtil.writeError(resp, 404, "接口不存在");
+            case "data-editor/collections" -> JsonUtil.writeJson(resp, service.getCollectionNames());
+
+            default -> {
+                if (path.startsWith("data-editor/")) {
+                    String collection = path.substring("data-editor/".length());
+                    JsonUtil.writeJson(resp, service.getCollectionData(collection));
+                } else {
+                    JsonUtil.writeError(resp, 404, "Endpoint not found");
+                }
+            }
         }
     }
 
@@ -137,7 +148,22 @@ public class AdminServlet extends HttpServlet {
                 }
             }
 
-            default -> JsonUtil.writeError(resp, 404, "接口不存在");
+            default -> {
+                if (path.startsWith("data-editor/")) {
+                    String collection = path.substring("data-editor/".length());
+                    Map<String, Object> result = service.addToCollection(collection, body);
+                    if (result.containsKey("error")) {
+                        JsonUtil.writeError(resp, (int) result.get("code"), (String) result.get("error"));
+                    } else {
+                        resp.setStatus(201);
+                        JsonUtil.writeJson(resp, result.get("item"));
+                        dataService.addLog("Data Created", "info", actor, actorId,
+                                "Added item to " + collection, ip);
+                    }
+                } else {
+                    JsonUtil.writeError(resp, 404, "Endpoint not found");
+                }
+            }
         }
     }
 
@@ -165,7 +191,7 @@ public class AdminServlet extends HttpServlet {
             String moduleId = path.split("/")[1];
             Module module = service.updateModule(moduleId, body);
             if (module == null) {
-                JsonUtil.writeError(resp, 404, "模块不存在");
+                JsonUtil.writeError(resp, 404, "Module not found");
             } else {
                 JsonUtil.writeJson(resp, module);
                 dataService.addLog("Module Updated", "info", actor, adminId,
@@ -180,14 +206,28 @@ public class AdminServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonObject ok = new JsonObject();
-                ok.addProperty("message", "重新分配成功");
+                ok.addProperty("message", "Workload reassigned successfully");
                 JsonUtil.writeJson(resp, ok);
                 dataService.addLog("Workload Reassigned", "info", actor, adminId,
                         "Reassigned workload for TA " + taId, ip);
             }
 
+        } else if (path.matches("data-editor/[\\w]+/[\\w-]+")) {
+            String[] segments = path.split("/");
+            String collection = segments[1];
+            String itemId = segments[2];
+            Map<String, Object> result = service.updateCollectionItem(collection, itemId, body);
+            if (result.containsKey("error")) {
+                int code = (int) result.get("code");
+                JsonUtil.writeError(resp, code, (String) result.get("error"));
+            } else {
+                JsonUtil.writeJson(resp, result.get("item"));
+                dataService.addLog("Data Updated", "info", actor, adminId,
+                        "Updated " + collection + " item " + itemId, ip);
+            }
+
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 
@@ -206,7 +246,7 @@ public class AdminServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonObject ok = new JsonObject();
-                ok.addProperty("message", "用户删除成功");
+                ok.addProperty("message", "User deleted successfully");
                 JsonUtil.writeJson(resp, ok);
                 dataService.addLog("User Deleted", "warning", actor, adminId,
                         "Deleted user " + userId, ip);
@@ -220,14 +260,30 @@ public class AdminServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonObject ok = new JsonObject();
-                ok.addProperty("message", "模块删除成功");
+                ok.addProperty("message", "Module deleted successfully");
                 JsonUtil.writeJson(resp, ok);
                 dataService.addLog("Module Deleted", "warning", actor, adminId,
                         "Deleted module " + moduleId, ip);
             }
 
+        } else if (path.matches("data-editor/[\\w]+/[\\w-]+")) {
+            String[] segments = path.split("/");
+            String collection = segments[1];
+            String itemId = segments[2];
+            Map<String, Object> result = service.deleteFromCollection(collection, itemId);
+            if (result.containsKey("error")) {
+                int code = (int) result.get("code");
+                JsonUtil.writeError(resp, code, (String) result.get("error"));
+            } else {
+                JsonObject ok = new JsonObject();
+                ok.addProperty("message", "Record deleted successfully");
+                JsonUtil.writeJson(resp, ok);
+                dataService.addLog("Data Deleted", "warning", actor, adminId,
+                        "Deleted " + collection + " item " + itemId, ip);
+            }
+
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 }

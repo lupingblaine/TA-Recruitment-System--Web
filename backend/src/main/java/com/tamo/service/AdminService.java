@@ -1,16 +1,22 @@
 package com.tamo.service;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.tamo.model.Application;
 import com.tamo.model.DataStore;
 import com.tamo.model.Department;
+import com.tamo.model.Interview;
 import com.tamo.model.Job;
 import com.tamo.model.LogEntry;
 import com.tamo.model.Module;
+import com.tamo.model.Notification;
 import com.tamo.model.Profile;
 import com.tamo.model.Term;
 import com.tamo.model.User;
 import com.tamo.model.WorkloadAssignment;
+import com.tamo.util.JsonUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -80,7 +86,7 @@ public class AdminService {
     // ==================== Users ====================
 
     /**
-     * 获取用户列表（不含密码）
+     * Get user list (without password)
      */
     public List<JsonObject> getUsers(String keyword, String role, String status) {
         DataStore data = dataService.getData();
@@ -103,20 +109,20 @@ public class AdminService {
         String role = body.has("role") ? body.get("role").getAsString() : null;
 
         if (name == null || name.isBlank() || email == null || email.isBlank()) {
-            result.put("error", "缺少必填字段");
+            result.put("error", "Missing required fields");
             result.put("code", 400);
             return result;
         }
 
         if (role != null && !VALID_ROLES.contains(role)) {
-            result.put("error", "角色值不合法");
+            result.put("error", "Invalid role value");
             result.put("code", 400);
             return result;
         }
 
         boolean exists = data.getUsers().stream().anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
         if (exists) {
-            result.put("error", "邮箱已被注册");
+            result.put("error", "Email already registered");
             result.put("code", 409);
             return result;
         }
@@ -164,13 +170,13 @@ public class AdminService {
 
         User user = data.getUsers().stream().filter(u -> u.getId().equals(userId)).findFirst().orElse(null);
         if (user == null) {
-            result.put("error", "用户不存在");
+            result.put("error", "User not found");
             result.put("code", 404);
             return result;
         }
 
         if (userId.equals(adminId) && body.has("role")) {
-            result.put("error", "不能修改自己的角色");
+            result.put("error", "Cannot modify your own role");
             result.put("code", 400);
             return result;
         }
@@ -190,14 +196,14 @@ public class AdminService {
         Map<String, Object> result = new HashMap<>();
 
         if (userId.equals(adminId)) {
-            result.put("error", "不能删除自己的账户");
+            result.put("error", "Cannot delete your own account");
             result.put("code", 400);
             return result;
         }
 
         User user = data.getUsers().stream().filter(u -> u.getId().equals(userId)).findFirst().orElse(null);
         if (user == null) {
-            result.put("error", "用户不存在");
+            result.put("error", "User not found");
             result.put("code", 404);
             return result;
         }
@@ -248,14 +254,14 @@ public class AdminService {
         String name = body.has("name") ? body.get("name").getAsString() : null;
 
         if (code == null || code.isBlank() || name == null || name.isBlank()) {
-            result.put("error", "缺少必填字段");
+            result.put("error", "Missing required fields");
             result.put("code_http", 400);
             return result;
         }
 
         boolean codeExists = data.getModules().stream().anyMatch(m -> m.getCode().equalsIgnoreCase(code));
         if (codeExists) {
-            result.put("error", "模块代码已存在");
+            result.put("error", "Module code already exists");
             result.put("code_http", 409);
             return result;
         }
@@ -300,14 +306,14 @@ public class AdminService {
 
         Module module = data.getModules().stream().filter(m -> m.getId().equals(moduleId)).findFirst().orElse(null);
         if (module == null) {
-            result.put("error", "模块不存在");
+            result.put("error", "Module not found");
             result.put("code", 404);
             return result;
         }
 
         boolean hasJobs = data.getJobs().stream().anyMatch(j -> moduleId.equals(j.getModuleId()));
         if (hasJobs) {
-            result.put("error", "该模块下存在关联岗位，无法直接删除");
+            result.put("error", "Cannot delete module with associated jobs");
             result.put("code", 400);
             return result;
         }
@@ -331,14 +337,14 @@ public class AdminService {
         String name = body.has("name") ? body.get("name").getAsString() : null;
 
         if (name == null || name.isBlank()) {
-            result.put("error", "缺少必填字段");
+            result.put("error", "Missing required fields");
             result.put("code", 400);
             return result;
         }
 
         boolean nameExists = data.getTerms().stream().anyMatch(t -> t.getName().equalsIgnoreCase(name));
         if (nameExists) {
-            result.put("error", "学期名称已存在");
+            result.put("error", "Term name already exists");
             result.put("code", 409);
             return result;
         }
@@ -351,7 +357,7 @@ public class AdminService {
                 LocalDate start = LocalDate.parse(startDate);
                 LocalDate end = LocalDate.parse(endDate);
                 if (start.isAfter(end)) {
-                    result.put("error", "开始日期不能晚于结束日期");
+                    result.put("error", "Start date cannot be after end date");
                     result.put("code", 400);
                     return result;
                 }
@@ -385,14 +391,14 @@ public class AdminService {
         String name = body.has("name") ? body.get("name").getAsString() : null;
 
         if (name == null || name.isBlank()) {
-            result.put("error", "缺少必填字段");
+            result.put("error", "Missing required fields");
             result.put("code", 400);
             return result;
         }
 
         boolean nameExists = data.getDepartments().stream().anyMatch(d -> d.getName().equalsIgnoreCase(name));
         if (nameExists) {
-            result.put("error", "院系名称已存在");
+            result.put("error", "Department name already exists");
             result.put("code", 409);
             return result;
         }
@@ -496,7 +502,7 @@ public class AdminService {
                 .filter(u -> u.getId().equals(taUserId))
                 .findFirst().orElse(null);
         if (taUser == null) {
-            result.put("error", "TA 用户不存在");
+            result.put("error", "TA user not found");
             result.put("code", 404);
             return result;
         }
@@ -534,7 +540,7 @@ public class AdminService {
             int addTotal = newAssignments.stream().mapToInt(WorkloadAssignment::getHoursPerWeek).sum();
 
             if (currentTotal + addTotal > maxHours) {
-                result.put("error", "分配后总工时超过最大工时限制");
+                result.put("error", "Total hours would exceed maximum weekly limit");
                 result.put("code", 400);
                 return result;
             }
@@ -558,6 +564,582 @@ public class AdminService {
         obj.addProperty("lastLogin", user.getLastLogin());
         obj.addProperty("createdAt", user.getCreatedAt());
         return obj;
+    }
+
+    // ==================== Data Editor (Generic CRUD) ====================
+
+    private static final List<String> COLLECTION_NAMES = Arrays.asList(
+            "users", "profiles", "modules", "jobs", "applications",
+            "interviews", "notifications", "terms", "departments",
+            "logs", "workloadAssignments"
+    );
+
+    public JsonArray getCollectionNames() {
+        JsonArray arr = new JsonArray();
+        COLLECTION_NAMES.forEach(arr::add);
+        return arr;
+    }
+
+    public JsonElement getCollectionData(String collection) {
+        DataStore data = dataService.getData();
+        Gson gson = JsonUtil.getGson();
+        return switch (collection) {
+            case "users" -> gson.toJsonTree(data.getUsers());
+            case "profiles" -> gson.toJsonTree(data.getProfiles());
+            case "modules" -> gson.toJsonTree(data.getModules());
+            case "jobs" -> gson.toJsonTree(data.getJobs());
+            case "applications" -> gson.toJsonTree(data.getApplications());
+            case "interviews" -> gson.toJsonTree(data.getInterviews());
+            case "notifications" -> gson.toJsonTree(data.getNotifications());
+            case "terms" -> gson.toJsonTree(data.getTerms());
+            case "departments" -> gson.toJsonTree(data.getDepartments());
+            case "logs" -> gson.toJsonTree(data.getLogs());
+            case "workloadAssignments" -> gson.toJsonTree(data.getWorkloadAssignments());
+            default -> new JsonArray();
+        };
+    }
+
+    public Map<String, Object> addToCollection(String collection, JsonObject body) {
+        DataStore data = dataService.getData();
+        Gson gson = JsonUtil.getGson();
+        Map<String, Object> result = new HashMap<>();
+
+        // Referential integrity checks before insert
+        String validationError = validateCreate(collection, body, data);
+        if (validationError != null) {
+            result.put("error", validationError);
+            result.put("code", 400);
+            return result;
+        }
+
+        try {
+            Object item = switch (collection) {
+                case "users" -> {
+                    User u = gson.fromJson(body, User.class);
+                    if (u.getId() == null || u.getId().isBlank())
+                        u.setId(dataService.generateId("u", data.getUsers()));
+                    if (u.getCreatedAt() == null) u.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                    if (u.getStatus() == null) u.setStatus("active");
+                    boolean emailExists = data.getUsers().stream().anyMatch(x -> x.getEmail().equalsIgnoreCase(u.getEmail()));
+                    if (emailExists) { result.put("error", "Email already exists"); result.put("code", 409); yield null; }
+                    data.getUsers().add(u);
+                    yield u;
+                }
+                case "profiles" -> {
+                    Profile p = gson.fromJson(body, Profile.class);
+                    if (p.getId() == null || p.getId().isBlank())
+                        p.setId(dataService.generateId("p", data.getProfiles()));
+                    boolean profileExists = data.getProfiles().stream().anyMatch(x -> x.getUserId().equals(p.getUserId()));
+                    if (profileExists) { result.put("error", "Profile already exists for this user"); result.put("code", 409); yield null; }
+                    data.getProfiles().add(p);
+                    yield p;
+                }
+                case "modules" -> {
+                    Module m = gson.fromJson(body, Module.class);
+                    if (m.getId() == null || m.getId().isBlank())
+                        m.setId(dataService.generateId("m", data.getModules()));
+                    boolean codeExists = data.getModules().stream().anyMatch(x -> x.getCode().equalsIgnoreCase(m.getCode()));
+                    if (codeExists) { result.put("error", "Module code already exists"); result.put("code", 409); yield null; }
+                    data.getModules().add(m);
+                    yield m;
+                }
+                case "jobs" -> {
+                    Job j = gson.fromJson(body, Job.class);
+                    if (j.getId() == null || j.getId().isBlank())
+                        j.setId(dataService.generateId("j", data.getJobs()));
+                    if (j.getCreatedAt() == null) j.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                    data.getJobs().add(j);
+                    yield j;
+                }
+                case "applications" -> {
+                    Application a = gson.fromJson(body, Application.class);
+                    if (a.getId() == null || a.getId().isBlank())
+                        a.setId(dataService.generateId("a", data.getApplications()));
+                    if (a.getAppliedAt() == null) a.setAppliedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                    data.getApplications().add(a);
+                    yield a;
+                }
+                case "interviews" -> {
+                    Interview i = gson.fromJson(body, Interview.class);
+                    if (i.getId() == null || i.getId().isBlank())
+                        i.setId(dataService.generateId("i", data.getInterviews()));
+                    data.getInterviews().add(i);
+                    yield i;
+                }
+                case "notifications" -> {
+                    Notification n = gson.fromJson(body, Notification.class);
+                    if (n.getId() == null || n.getId().isBlank())
+                        n.setId(dataService.generateId("n", data.getNotifications()));
+                    if (n.getCreatedAt() == null) n.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                    data.getNotifications().add(n);
+                    yield n;
+                }
+                case "terms" -> {
+                    Term t = gson.fromJson(body, Term.class);
+                    if (t.getId() == null || t.getId().isBlank())
+                        t.setId(dataService.generateId("t", data.getTerms()));
+                    boolean nameExists = data.getTerms().stream().anyMatch(x -> x.getName().equalsIgnoreCase(t.getName()));
+                    if (nameExists) { result.put("error", "Term name already exists"); result.put("code", 409); yield null; }
+                    data.getTerms().add(t);
+                    yield t;
+                }
+                case "departments" -> {
+                    Department d = gson.fromJson(body, Department.class);
+                    if (d.getId() == null || d.getId().isBlank())
+                        d.setId(dataService.generateId("d", data.getDepartments()));
+                    boolean deptExists = data.getDepartments().stream().anyMatch(x -> x.getName().equalsIgnoreCase(d.getName()));
+                    if (deptExists) { result.put("error", "Department name already exists"); result.put("code", 409); yield null; }
+                    data.getDepartments().add(d);
+                    yield d;
+                }
+                case "workloadAssignments" -> {
+                    WorkloadAssignment w = gson.fromJson(body, WorkloadAssignment.class);
+                    if (w.getId() == null || w.getId().isBlank())
+                        w.setId(dataService.generateId("w", data.getWorkloadAssignments()));
+                    data.getWorkloadAssignments().add(w);
+                    yield w;
+                }
+                default -> null;
+            };
+
+            if (item == null) {
+                if (!result.containsKey("error")) {
+                    result.put("error", "Unsupported collection: " + collection);
+                    result.put("code", 400);
+                }
+                return result;
+            }
+            dataService.save();
+            result.put("item", item);
+        } catch (Exception e) {
+            result.put("error", "Invalid data format: " + e.getMessage());
+            result.put("code", 400);
+        }
+        return result;
+    }
+
+    private String validateCreate(String collection, JsonObject body, DataStore data) {
+        switch (collection) {
+            case "jobs" -> {
+                String moduleId = body.has("moduleId") ? body.get("moduleId").getAsString() : null;
+                if (moduleId != null && !moduleId.isBlank()) {
+                    boolean moduleExists = data.getModules().stream().anyMatch(m -> m.getId().equals(moduleId));
+                    if (!moduleExists) return "Referenced module (moduleId=" + moduleId + ") does not exist";
+                }
+                String organiserId = body.has("organiserId") ? body.get("organiserId").getAsString() : null;
+                if (organiserId != null && !organiserId.isBlank()) {
+                    boolean organiserExists = data.getUsers().stream()
+                            .anyMatch(u -> u.getId().equals(organiserId) && "organiser".equals(u.getRole()));
+                    if (!organiserExists) return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
+                }
+            }
+            case "applications" -> {
+                String jobId = body.has("jobId") ? body.get("jobId").getAsString() : null;
+                if (jobId == null || jobId.isBlank()) return "jobId is required";
+                boolean jobExists = data.getJobs().stream().anyMatch(j -> j.getId().equals(jobId));
+                if (!jobExists) return "Referenced job (jobId=" + jobId + ") does not exist";
+
+                String applicantId = body.has("applicantId") ? body.get("applicantId").getAsString() : null;
+                if (applicantId == null || applicantId.isBlank()) return "applicantId is required";
+                boolean applicantExists = data.getUsers().stream()
+                        .anyMatch(u -> u.getId().equals(applicantId) && "applicant".equals(u.getRole()));
+                if (!applicantExists) return "Referenced applicant (applicantId=" + applicantId + ") does not exist or is not an applicant";
+            }
+            case "interviews" -> {
+                String applicationId = body.has("applicationId") ? body.get("applicationId").getAsString() : null;
+                if (applicationId != null && !applicationId.isBlank()) {
+                    boolean appExists = data.getApplications().stream().anyMatch(a -> a.getId().equals(applicationId));
+                    if (!appExists) return "Referenced application (applicationId=" + applicationId + ") does not exist";
+                }
+                String candidateId = body.has("candidateId") ? body.get("candidateId").getAsString() : null;
+                if (candidateId != null && !candidateId.isBlank()) {
+                    boolean userExists = data.getUsers().stream().anyMatch(u -> u.getId().equals(candidateId));
+                    if (!userExists) return "Referenced candidate (candidateId=" + candidateId + ") does not exist";
+                }
+            }
+            case "profiles" -> {
+                String userId = body.has("userId") ? body.get("userId").getAsString() : null;
+                if (userId == null || userId.isBlank()) return "userId is required";
+                boolean userExists = data.getUsers().stream().anyMatch(u -> u.getId().equals(userId));
+                if (!userExists) return "Referenced user (userId=" + userId + ") does not exist";
+            }
+            case "notifications" -> {
+                String userId = body.has("userId") ? body.get("userId").getAsString() : null;
+                if (userId != null && !userId.isBlank()) {
+                    boolean userExists = data.getUsers().stream().anyMatch(u -> u.getId().equals(userId));
+                    if (!userExists) return "Referenced user (userId=" + userId + ") does not exist";
+                }
+            }
+            case "workloadAssignments" -> {
+                String taUserId = body.has("taUserId") ? body.get("taUserId").getAsString() : null;
+                if (taUserId != null && !taUserId.isBlank()) {
+                    boolean userExists = data.getUsers().stream().anyMatch(u -> u.getId().equals(taUserId));
+                    if (!userExists) return "Referenced TA user (taUserId=" + taUserId + ") does not exist";
+                }
+                String moduleCode = body.has("moduleCode") ? body.get("moduleCode").getAsString() : null;
+                if (moduleCode != null && !moduleCode.isBlank()) {
+                    boolean modExists = data.getModules().stream().anyMatch(m -> m.getCode().equals(moduleCode));
+                    if (!modExists) return "Referenced module (moduleCode=" + moduleCode + ") does not exist";
+                }
+            }
+            case "modules" -> {
+                String organiserId = body.has("organiserId") ? body.get("organiserId").getAsString() : null;
+                if (organiserId != null && !organiserId.isBlank()) {
+                    boolean organiserExists = data.getUsers().stream()
+                            .anyMatch(u -> u.getId().equals(organiserId) && "organiser".equals(u.getRole()));
+                    if (!organiserExists) return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
+                }
+            }
+            default -> {}
+        }
+        return null;
+    }
+
+    private String validateUpdate(String collection, JsonObject body, DataStore data, String itemId) {
+        switch (collection) {
+            case "jobs" -> {
+                if (body.has("moduleId")) {
+                    String moduleId = body.get("moduleId").getAsString();
+                    if (!moduleId.isBlank() && data.getModules().stream().noneMatch(m -> m.getId().equals(moduleId)))
+                        return "Referenced module (moduleId=" + moduleId + ") does not exist";
+                }
+                if (body.has("organiserId")) {
+                    String organiserId = body.get("organiserId").getAsString();
+                    if (!organiserId.isBlank() && data.getUsers().stream()
+                            .noneMatch(u -> u.getId().equals(organiserId) && "organiser".equals(u.getRole())))
+                        return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
+                }
+            }
+            case "applications" -> {
+                if (body.has("jobId")) {
+                    String jobId = body.get("jobId").getAsString();
+                    if (!jobId.isBlank() && data.getJobs().stream().noneMatch(j -> j.getId().equals(jobId)))
+                        return "Referenced job (jobId=" + jobId + ") does not exist";
+                }
+                if (body.has("applicantId")) {
+                    String applicantId = body.get("applicantId").getAsString();
+                    if (!applicantId.isBlank() && data.getUsers().stream()
+                            .noneMatch(u -> u.getId().equals(applicantId) && "applicant".equals(u.getRole())))
+                        return "Referenced applicant (applicantId=" + applicantId + ") does not exist or is not an applicant";
+                }
+            }
+            case "interviews" -> {
+                if (body.has("applicationId")) {
+                    String appId = body.get("applicationId").getAsString();
+                    if (!appId.isBlank() && data.getApplications().stream().noneMatch(a -> a.getId().equals(appId)))
+                        return "Referenced application (applicationId=" + appId + ") does not exist";
+                }
+                if (body.has("candidateId")) {
+                    String candidateId = body.get("candidateId").getAsString();
+                    if (!candidateId.isBlank() && data.getUsers().stream().noneMatch(u -> u.getId().equals(candidateId)))
+                        return "Referenced candidate (candidateId=" + candidateId + ") does not exist";
+                }
+            }
+            case "profiles" -> {
+                if (body.has("userId")) {
+                    String userId = body.get("userId").getAsString();
+                    if (!userId.isBlank() && data.getUsers().stream().noneMatch(u -> u.getId().equals(userId)))
+                        return "Referenced user (userId=" + userId + ") does not exist";
+                }
+            }
+            case "notifications" -> {
+                if (body.has("userId")) {
+                    String userId = body.get("userId").getAsString();
+                    if (!userId.isBlank() && data.getUsers().stream().noneMatch(u -> u.getId().equals(userId)))
+                        return "Referenced user (userId=" + userId + ") does not exist";
+                }
+            }
+            case "workloadAssignments" -> {
+                if (body.has("taUserId")) {
+                    String taUserId = body.get("taUserId").getAsString();
+                    if (!taUserId.isBlank() && data.getUsers().stream().noneMatch(u -> u.getId().equals(taUserId)))
+                        return "Referenced TA user (taUserId=" + taUserId + ") does not exist";
+                }
+                if (body.has("moduleCode")) {
+                    String moduleCode = body.get("moduleCode").getAsString();
+                    if (!moduleCode.isBlank() && data.getModules().stream().noneMatch(m -> m.getCode().equals(moduleCode)))
+                        return "Referenced module (moduleCode=" + moduleCode + ") does not exist";
+                }
+            }
+            case "modules" -> {
+                if (body.has("organiserId")) {
+                    String organiserId = body.get("organiserId").getAsString();
+                    if (!organiserId.isBlank() && data.getUsers().stream()
+                            .noneMatch(u -> u.getId().equals(organiserId) && "organiser".equals(u.getRole())))
+                        return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
+                }
+            }
+            default -> {}
+        }
+        return null;
+    }
+
+    public Map<String, Object> updateCollectionItem(String collection, String itemId, JsonObject body) {
+        DataStore data = dataService.getData();
+        Gson gson = JsonUtil.getGson();
+        Map<String, Object> result = new HashMap<>();
+
+        // Validate foreign key references on update
+        String validationError = validateUpdate(collection, body, data, itemId);
+        if (validationError != null) {
+            result.put("error", validationError);
+            result.put("code", 400);
+            return result;
+        }
+
+        try {
+            Object updated = switch (collection) {
+                case "users" -> {
+                    User u = data.getUsers().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (u == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("name")) u.setName(body.get("name").getAsString());
+                    if (body.has("email")) u.setEmail(body.get("email").getAsString());
+                    if (body.has("password")) u.setPassword(body.get("password").getAsString());
+                    if (body.has("phone")) u.setPhone(body.get("phone").getAsString());
+                    if (body.has("role")) u.setRole(body.get("role").getAsString());
+                    if (body.has("department")) u.setDepartment(body.get("department").getAsString());
+                    if (body.has("status")) u.setStatus(body.get("status").getAsString());
+                    yield u;
+                }
+                case "profiles" -> {
+                    Profile p = data.getProfiles().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (p == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("userId")) p.setUserId(body.get("userId").getAsString());
+                    if (body.has("studentId")) p.setStudentId(body.get("studentId").getAsString());
+                    if (body.has("degree")) p.setDegree(body.get("degree").getAsString());
+                    if (body.has("year")) p.setYear(body.get("year").getAsInt());
+                    if (body.has("gpa")) p.setGpa(body.get("gpa").getAsDouble());
+                    if (body.has("maxGpa")) p.setMaxGpa(body.get("maxGpa").getAsDouble());
+                    if (body.has("maxWeeklyHours")) p.setMaxWeeklyHours(body.get("maxWeeklyHours").getAsInt());
+                    if (body.has("currentWeeklyHours")) p.setCurrentWeeklyHours(body.get("currentWeeklyHours").getAsInt());
+                    if (body.has("skills")) p.setSkills(gson.fromJson(body.get("skills"), List.class));
+                    yield p;
+                }
+                case "modules" -> {
+                    Module m = data.getModules().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (m == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("code")) m.setCode(body.get("code").getAsString());
+                    if (body.has("name")) m.setName(body.get("name").getAsString());
+                    if (body.has("department")) m.setDepartment(body.get("department").getAsString());
+                    if (body.has("organiserId")) m.setOrganiserId(body.get("organiserId").getAsString());
+                    if (body.has("organiserName")) m.setOrganiserName(body.get("organiserName").getAsString());
+                    if (body.has("term")) m.setTerm(body.get("term").getAsString());
+                    if (body.has("status")) m.setStatus(body.get("status").getAsString());
+                    yield m;
+                }
+                case "jobs" -> {
+                    Job j = data.getJobs().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (j == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("moduleId")) j.setModuleId(body.get("moduleId").getAsString());
+                    if (body.has("moduleCode")) j.setModuleCode(body.get("moduleCode").getAsString());
+                    if (body.has("title")) j.setTitle(body.get("title").getAsString());
+                    if (body.has("description")) j.setDescription(body.get("description").getAsString());
+                    if (body.has("professor")) j.setProfessor(body.get("professor").getAsString());
+                    if (body.has("department")) j.setDepartment(body.get("department").getAsString());
+                    if (body.has("type")) j.setType(body.get("type").getAsString());
+                    if (body.has("hoursPerWeek")) j.setHoursPerWeek(body.get("hoursPerWeek").getAsInt());
+                    if (body.has("positions")) j.setPositions(body.get("positions").getAsInt());
+                    if (body.has("deadline")) j.setDeadline(body.get("deadline").getAsString());
+                    if (body.has("status")) j.setStatus(body.get("status").getAsString());
+                    if (body.has("organiserId")) j.setOrganiserId(body.get("organiserId").getAsString());
+                    if (body.has("tags")) j.setTags(gson.fromJson(body.get("tags"), List.class));
+                    if (body.has("requirements")) j.setRequirements(gson.fromJson(body.get("requirements"), List.class));
+                    if (body.has("responsibilities")) j.setResponsibilities(gson.fromJson(body.get("responsibilities"), List.class));
+                    yield j;
+                }
+                case "applications" -> {
+                    Application a = data.getApplications().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (a == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("jobId")) a.setJobId(body.get("jobId").getAsString());
+                    if (body.has("applicantId")) a.setApplicantId(body.get("applicantId").getAsString());
+                    if (body.has("status")) a.setStatus(body.get("status").getAsString());
+                    if (body.has("coverLetter")) a.setCoverLetter(body.get("coverLetter").getAsString());
+                    if (body.has("matchScore")) a.setMatchScore(body.get("matchScore").getAsInt());
+                    if (body.has("riskFlag")) a.setRiskFlag(body.get("riskFlag").isJsonNull() ? null : body.get("riskFlag").getAsString());
+                    if (body.has("aiSummary")) a.setAiSummary(body.get("aiSummary").getAsString());
+                    a.setUpdatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                    yield a;
+                }
+                case "interviews" -> {
+                    Interview i = data.getInterviews().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (i == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("applicationId")) i.setApplicationId(body.get("applicationId").getAsString());
+                    if (body.has("candidateId")) i.setCandidateId(body.get("candidateId").getAsString());
+                    if (body.has("candidateName")) i.setCandidateName(body.get("candidateName").getAsString());
+                    if (body.has("moduleCode")) i.setModuleCode(body.get("moduleCode").getAsString());
+                    if (body.has("moduleName")) i.setModuleName(body.get("moduleName").getAsString());
+                    if (body.has("date")) i.setDate(body.get("date").getAsString());
+                    if (body.has("startTime")) i.setStartTime(body.get("startTime").getAsString());
+                    if (body.has("endTime")) i.setEndTime(body.get("endTime").getAsString());
+                    if (body.has("type")) i.setType(body.get("type").getAsString());
+                    if (body.has("location")) i.setLocation(body.get("location").getAsString());
+                    if (body.has("status")) i.setStatus(body.get("status").getAsString());
+                    if (body.has("outcome")) i.setOutcome(body.get("outcome").isJsonNull() ? null : body.get("outcome").getAsString());
+                    if (body.has("organiserId")) i.setOrganiserId(body.get("organiserId").getAsString());
+                    yield i;
+                }
+                case "notifications" -> {
+                    Notification n = data.getNotifications().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (n == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("userId")) n.setUserId(body.get("userId").getAsString());
+                    if (body.has("type")) n.setType(body.get("type").getAsString());
+                    if (body.has("title")) n.setTitle(body.get("title").getAsString());
+                    if (body.has("message")) n.setMessage(body.get("message").getAsString());
+                    if (body.has("relatedId")) n.setRelatedId(body.get("relatedId").getAsString());
+                    if (body.has("read")) n.setRead(body.get("read").getAsBoolean());
+                    yield n;
+                }
+                case "terms" -> {
+                    Term t = data.getTerms().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (t == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("name")) t.setName(body.get("name").getAsString());
+                    if (body.has("startDate")) t.setStartDate(body.get("startDate").getAsString());
+                    if (body.has("endDate")) t.setEndDate(body.get("endDate").getAsString());
+                    if (body.has("status")) t.setStatus(body.get("status").getAsString());
+                    yield t;
+                }
+                case "departments" -> {
+                    Department d = data.getDepartments().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (d == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("name")) d.setName(body.get("name").getAsString());
+                    if (body.has("moduleCount")) d.setModuleCount(body.get("moduleCount").getAsInt());
+                    if (body.has("status")) d.setStatus(body.get("status").getAsString());
+                    yield d;
+                }
+                case "logs" -> {
+                    LogEntry l = data.getLogs().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (l == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("action")) l.setAction(body.get("action").getAsString());
+                    if (body.has("type")) l.setType(body.get("type").getAsString());
+                    if (body.has("actor")) l.setActor(body.get("actor").getAsString());
+                    if (body.has("details")) l.setDetails(body.get("details").getAsString());
+                    yield l;
+                }
+                case "workloadAssignments" -> {
+                    WorkloadAssignment w = data.getWorkloadAssignments().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                    if (w == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
+                    if (body.has("taUserId")) w.setTaUserId(body.get("taUserId").getAsString());
+                    if (body.has("moduleCode")) w.setModuleCode(body.get("moduleCode").getAsString());
+                    if (body.has("hoursPerWeek")) w.setHoursPerWeek(body.get("hoursPerWeek").getAsInt());
+                    if (body.has("term")) w.setTerm(body.get("term").getAsString());
+                    if (body.has("status")) w.setStatus(body.get("status").getAsString());
+                    yield w;
+                }
+                default -> null;
+            };
+
+            if (updated == null && !result.containsKey("error")) {
+                result.put("error", "Unsupported collection: " + collection);
+                result.put("code", 400);
+                return result;
+            }
+            if (result.containsKey("error")) return result;
+            dataService.save();
+            result.put("item", updated);
+        } catch (Exception e) {
+            result.put("error", "Update failed: " + e.getMessage());
+            result.put("code", 400);
+        }
+        return result;
+    }
+
+    public Map<String, Object> deleteFromCollection(String collection, String itemId) {
+        DataStore data = dataService.getData();
+        Map<String, Object> result = new HashMap<>();
+
+        switch (collection) {
+            case "users" -> {
+                User user = data.getUsers().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                if (user == null) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                data.getUsers().remove(user);
+                // Cascade: remove profile, jobs (as organiser), applications, interviews, notifications, workload
+                data.getProfiles().removeIf(p -> itemId.equals(p.getUserId()));
+                List<String> userJobIds = data.getJobs().stream()
+                        .filter(j -> itemId.equals(j.getOrganiserId())).map(Job::getId).collect(Collectors.toList());
+                data.getJobs().removeIf(j -> itemId.equals(j.getOrganiserId()));
+                data.getApplications().removeIf(a -> itemId.equals(a.getApplicantId()) || userJobIds.contains(a.getJobId()));
+                data.getInterviews().removeIf(i -> itemId.equals(i.getCandidateId()) || itemId.equals(i.getOrganiserId()));
+                data.getNotifications().removeIf(n -> itemId.equals(n.getUserId()));
+                data.getWorkloadAssignments().removeIf(w -> itemId.equals(w.getTaUserId()));
+                result.put("success", true);
+            }
+            case "modules" -> {
+                Module module = data.getModules().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                if (module == null) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                String moduleCode = module.getCode();
+                data.getModules().remove(module);
+                // Cascade: remove jobs under this module, their applications, and interviews
+                List<String> jobIds = data.getJobs().stream()
+                        .filter(j -> itemId.equals(j.getModuleId()) || moduleCode.equals(j.getModuleCode()))
+                        .map(Job::getId).collect(Collectors.toList());
+                data.getJobs().removeIf(j -> itemId.equals(j.getModuleId()) || moduleCode.equals(j.getModuleCode()));
+                List<String> appIds = data.getApplications().stream()
+                        .filter(a -> jobIds.contains(a.getJobId())).map(Application::getId).collect(Collectors.toList());
+                data.getApplications().removeIf(a -> jobIds.contains(a.getJobId()));
+                data.getInterviews().removeIf(i -> appIds.contains(i.getApplicationId()));
+                data.getWorkloadAssignments().removeIf(w -> moduleCode.equals(w.getModuleCode()));
+                result.put("success", true);
+            }
+            case "jobs" -> {
+                Job job = data.getJobs().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
+                if (job == null) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                data.getJobs().remove(job);
+                // Cascade: remove applications for this job and their interviews
+                List<String> appIds = data.getApplications().stream()
+                        .filter(a -> itemId.equals(a.getJobId())).map(Application::getId).collect(Collectors.toList());
+                data.getApplications().removeIf(a -> itemId.equals(a.getJobId()));
+                data.getInterviews().removeIf(i -> appIds.contains(i.getApplicationId()));
+                result.put("success", true);
+            }
+            case "applications" -> {
+                boolean removed = data.getApplications().removeIf(x -> x.getId().equals(itemId));
+                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                // Cascade: remove interviews for this application
+                data.getInterviews().removeIf(i -> itemId.equals(i.getApplicationId()));
+                result.put("success", true);
+            }
+            case "profiles" -> {
+                boolean removed = data.getProfiles().removeIf(x -> x.getId().equals(itemId));
+                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                result.put("success", true);
+            }
+            case "interviews" -> {
+                boolean removed = data.getInterviews().removeIf(x -> x.getId().equals(itemId));
+                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                result.put("success", true);
+            }
+            case "notifications" -> {
+                boolean removed = data.getNotifications().removeIf(x -> x.getId().equals(itemId));
+                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                result.put("success", true);
+            }
+            case "terms" -> {
+                boolean removed = data.getTerms().removeIf(x -> x.getId().equals(itemId));
+                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                result.put("success", true);
+            }
+            case "departments" -> {
+                boolean removed = data.getDepartments().removeIf(x -> x.getId().equals(itemId));
+                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                result.put("success", true);
+            }
+            case "logs" -> {
+                boolean removed = data.getLogs().removeIf(x -> x.getId().equals(itemId));
+                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                result.put("success", true);
+            }
+            case "workloadAssignments" -> {
+                boolean removed = data.getWorkloadAssignments().removeIf(x -> x.getId().equals(itemId));
+                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
+                result.put("success", true);
+            }
+            default -> { result.put("error", "Unsupported collection"); result.put("code", 400); }
+        }
+
+        if (result.containsKey("success")) {
+            dataService.save();
+        }
+        return result;
     }
 
     /**

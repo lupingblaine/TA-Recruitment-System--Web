@@ -95,6 +95,14 @@ const adminApi = {
     request('/admin/workload/' + taId + '/reassign', { method: 'PUT', body: JSON.stringify(data) }),
 };
 
+const dataEditorApi = {
+  getCollections: () => request('/admin/data-editor/collections'),
+  getData: (collection) => request('/admin/data-editor/' + collection),
+  createItem: (collection, data) => request('/admin/data-editor/' + collection, { method: 'POST', body: JSON.stringify(data) }),
+  updateItem: (collection, id, data) => request('/admin/data-editor/' + collection + '/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteItem: (collection, id) => request('/admin/data-editor/' + collection + '/' + id, { method: 'DELETE' }),
+};
+
 function showToast(msg, type) {
   const t = document.createElement('div');
   t.className = 'fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium fade-in ' +
