@@ -46,10 +46,8 @@ public class MessageServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        String basePath = getServletContext().getRealPath("/WEB-INF/classes");
-        JsonDataService dataService = basePath != null
-                ? JsonDataService.getInstance(basePath)
-                : JsonDataService.getInstance();
+        JsonDataService dataService = JsonDataService.getInstance(
+                JsonDataService.resolveClassesPath(getServletContext()));
         this.service = new MessageService(dataService);
     }
 

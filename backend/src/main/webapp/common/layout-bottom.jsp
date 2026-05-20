@@ -4,7 +4,7 @@
   </main>
 </div>
 
-<script src="${pageContext.request.contextPath}/static/js/api.js?v=20260411"></script>
+<script src="${pageContext.request.contextPath}/static/js/api.js?v=20260519"></script>
 <script>
   lucide.createIcons();
 

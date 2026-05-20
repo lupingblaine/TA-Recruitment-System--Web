@@ -11,14 +11,16 @@ public class AppContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        String basePath = sce.getServletContext().getRealPath("/WEB-INF/classes");
-        if (basePath != null) {
-            JsonDataService.getInstance(basePath);
+        try {
+            JsonDataService.ensureInitialized(JsonDataService.resolveClassesPath(sce.getServletContext()));
+        } catch (IllegalStateException e) {
+            System.err.println("[AppContextListener] " + e.getMessage());
         }
 
         String imagesPath = sce.getServletContext().getRealPath("/static/images");
-        if (imagesPath != null) {
-            EmailService.getInstance().setImagesBasePath(imagesPath);
+        if (imagesPath == null) {
+            imagesPath = new java.io.File("src/main/webapp/static/images").getAbsolutePath();
         }
+        EmailService.getInstance().setImagesBasePath(imagesPath);
     }
 }

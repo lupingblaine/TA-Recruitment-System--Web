@@ -21,8 +21,8 @@ public class AuthServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        String basePath = getServletContext().getRealPath("/WEB-INF/classes");
-        this.dataService = JsonDataService.getInstance(basePath);
+        this.dataService = JsonDataService.getInstance(
+                JsonDataService.resolveClassesPath(getServletContext()));
         this.authService = new AuthService(dataService);
 
         String imagesPath = getServletContext().getRealPath("/static/images");

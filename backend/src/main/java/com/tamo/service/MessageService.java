@@ -62,12 +62,18 @@ public class MessageService {
     }
 
     public List<JsonObject> getContacts(String userId) {
+        if (userId == null || userId.isBlank()) return Collections.emptyList();
+
         DataStore data = dataService.getData();
+        if (data.getUsers() == null || data.getUsers().isEmpty()) return Collections.emptyList();
+
         User currentUser = data.getUsers().stream().filter(u -> u.getId().equals(userId)).findFirst().orElse(null);
         if (currentUser == null) return Collections.emptyList();
 
         String role = currentUser.getRole();
         List<User> contactUsers = new ArrayList<>();
+        List<Application> applications = data.getApplications() != null ? data.getApplications() : List.of();
+        List<Job> jobs = data.getJobs() != null ? data.getJobs() : List.of();
 
         if ("admin".equals(role)) {
             // Admin can contact everyone except themselves
@@ -77,11 +83,11 @@ public class MessageService {
 
         } else if ("applicant".equals(role)) {
             // Can contact: MOs of jobs applied to + all admins
-            List<String> appliedJobIds = data.getApplications().stream()
+            List<String> appliedJobIds = applications.stream()
                     .filter(a -> userId.equals(a.getApplicantId()))
                     .map(Application::getJobId)
                     .collect(Collectors.toList());
-            Set<String> organiserIds = data.getJobs().stream()
+            Set<String> organiserIds = jobs.stream()
                     .filter(j -> appliedJobIds.contains(j.getId()) && j.getOrganiserId() != null)
                     .map(Job::getOrganiserId)
                     .collect(Collectors.toSet());
@@ -92,11 +98,11 @@ public class MessageService {
 
         } else if ("organiser".equals(role)) {
             // Can contact: applicants who applied to their jobs + all admins
-            List<String> myJobIds = data.getJobs().stream()
+            List<String> myJobIds = jobs.stream()
                     .filter(j -> userId.equals(j.getOrganiserId()))
                     .map(Job::getId)
                     .collect(Collectors.toList());
-            Set<String> applicantIds = data.getApplications().stream()
+            Set<String> applicantIds = applications.stream()
                     .filter(a -> myJobIds.contains(a.getJobId()) && a.getApplicantId() != null)
                     .map(Application::getApplicantId)
                     .collect(Collectors.toSet());

@@ -4,6 +4,8 @@ import com.tamo.model.DataStore;
 import com.tamo.util.JsonUtil;
 
 import com.tamo.model.LogEntry;
+import jakarta.servlet.ServletContext;
+
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -49,12 +51,45 @@ public class JsonDataService {
         }
     }
 
+    /**
+     * 解析 data.json 所在目录。嵌入式 Tomcat 下 getRealPath 常为 null，需回退到 target/classes。
+     */
+    public static String resolveClassesPath(ServletContext ctx) {
+        if (ctx != null) {
+            String realPath = ctx.getRealPath("/WEB-INF/classes");
+            if (realPath != null) {
+                return realPath;
+            }
+        }
+        File targetClasses = new File("target/classes");
+        if (targetClasses.isDirectory()) {
+            return targetClasses.getAbsolutePath();
+        }
+        try {
+            URL resource = JsonDataService.class.getClassLoader().getResource("data.json");
+            if (resource != null && "file".equals(resource.getProtocol())) {
+                return Paths.get(resource.toURI()).getParent().toString();
+            }
+        } catch (Exception ignored) {
+        }
+        throw new IllegalStateException("Cannot resolve WEB-INF/classes directory for data.json");
+    }
+
     public static synchronized JsonDataService getInstance(String basePath) {
         if (instance == null) {
+            if (basePath == null || basePath.isBlank()) {
+                throw new IllegalArgumentException("basePath must not be null or blank");
+            }
             String path = basePath + File.separator + "data.json";
             instance = new JsonDataService(path);
+            System.out.println("[JsonDataService] data file: " + path);
         }
         return instance;
+    }
+
+    /** 确保单例已初始化（Main 或 Listener 启动时调用） */
+    public static synchronized JsonDataService ensureInitialized(String basePath) {
+        return getInstance(basePath);
     }
 
     public static synchronized JsonDataService getInstance() {

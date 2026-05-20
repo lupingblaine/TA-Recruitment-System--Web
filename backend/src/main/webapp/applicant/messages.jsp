@@ -4,3 +4,4 @@
 <meta name="uid" content="<%= session.getAttribute("userId") %>">
 <jsp:include page="/common/messages-content.jsp"/>
 <jsp:include page="/common/layout-bottom.jsp"/>
+<jsp:include page="/common/messages-init.jsp"/>

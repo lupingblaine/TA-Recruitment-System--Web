@@ -1,5 +1,7 @@
 package com.tamo;
 
+import com.tamo.service.EmailService;
+import com.tamo.service.JsonDataService;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
@@ -9,6 +11,13 @@ import java.io.File;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        // 嵌入式 Tomcat 下 Listener 的 getRealPath 可能为 null，必须在启动前初始化数据层
+        String classesDir = new File("target/classes").getAbsolutePath();
+        JsonDataService.ensureInitialized(classesDir);
+
+        String imagesDir = new File("src/main/webapp/static/images").getAbsolutePath();
+        EmailService.getInstance().setImagesBasePath(imagesDir);
+
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8080);
         tomcat.getConnector();
@@ -17,7 +26,6 @@ public class Main {
         Context ctx = tomcat.addWebapp("/tamo", webappDir);
         ctx.setParentClassLoader(Main.class.getClassLoader());
 
-        String classesDir = new File("target/classes").getAbsolutePath();
         var resources = new StandardRoot(ctx);
         resources.addPreResources(new DirResourceSet(resources, "/WEB-INF/classes", classesDir, "/"));
         ctx.setResources(resources);
