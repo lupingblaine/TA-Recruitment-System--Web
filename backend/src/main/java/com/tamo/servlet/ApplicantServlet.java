@@ -6,18 +6,31 @@ import com.tamo.service.ApplicantService;
 import com.tamo.service.JsonDataService;
 import com.tamo.util.JsonUtil;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024,      // 1 MB in memory
+    maxFileSize = 10 * 1024 * 1024,       // 10 MB max per file
+    maxRequestSize = 15 * 1024 * 1024     // 15 MB max total request
+)
 public class ApplicantServlet extends HttpServlet {
 
     private ApplicantService service;
     private JsonDataService dataService;
+    private static final Path UPLOAD_DIR = Paths.get("src", "main", "webapp", "static", "uploads", "organiser");
 
     @Override
     public void init() throws ServletException {
@@ -112,20 +125,67 @@ public class ApplicantServlet extends HttpServlet {
             }
 
         } else if ("profile/documents".equals(path)) {
-            JsonObject body = JsonUtil.readRequestBodyAsJson(req);
-            String fileName = body.has("fileName") ? body.get("fileName").getAsString() : null;
-            String fileType = body.has("fileType") ? body.get("fileType").getAsString() : "cv";
-            String fileSize = body.has("fileSize") ? body.get("fileSize").getAsString() : "0 MB";
+            // Real file upload via multipart/form-data
+            String fileName = null;
+            String fileType = "cv";
+            long fileSize = 0;
 
-            Map<String, Object> result = service.uploadDocument(userId, fileName, fileType, fileSize);
-            if (result.containsKey("error")) {
-                int code = (int) result.get("code");
-                JsonUtil.writeError(resp, code, (String) result.get("error"));
-            } else {
-                resp.setStatus(201);
-                JsonUtil.writeJson(resp, result.get("document"));
-                dataService.addLog("Document Uploaded", "info", getUserName(req), userId,
-                        "Uploaded document: " + fileName, req.getRemoteAddr());
+            try {
+                Part filePart = req.getPart("file");
+                if (filePart != null) {
+                    fileName = filePart.getSubmittedFileName();
+                    if (fileName == null || fileName.isBlank()) {
+                        // Fallback: JSON body for backward compatibility
+                        JsonObject body = JsonUtil.readRequestBodyAsJson(req);
+                        fileName = body.has("fileName") ? body.get("fileName").getAsString() : null;
+                        fileType = body.has("fileType") ? body.get("fileType").getAsString() : "cv";
+                        String sizeStr = body.has("fileSize") ? body.get("fileSize").getAsString() : "0 MB";
+                        Map<String, Object> result = service.uploadDocument(userId, fileName, fileType, sizeStr);
+                        if (result.containsKey("error")) {
+                            JsonUtil.writeError(resp, (int) result.get("code"), (String) result.get("error"));
+                        } else {
+                            resp.setStatus(201);
+                            JsonUtil.writeJson(resp, result.get("document"));
+                        }
+                        return;
+                    }
+
+                    fileSize = filePart.getSize();
+                    // Ensure upload directory exists
+                    Files.createDirectories(UPLOAD_DIR);
+                    Path targetPath = UPLOAD_DIR.resolve(fileName);
+                    try (InputStream is = filePart.getInputStream()) {
+                        Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+
+                    // Determine file type from extension
+                    String ext = "";
+                    int dotIdx = fileName.lastIndexOf('.');
+                    if (dotIdx >= 0) ext = fileName.substring(dotIdx + 1).toLowerCase();
+                    fileType = ext.isEmpty() ? "file" : ext;
+
+                    // Format file size for display
+                    String sizeStr;
+                    if (fileSize < 1024) sizeStr = fileSize + " B";
+                    else if (fileSize < 1024 * 1024) sizeStr = String.format("%.1f KB", fileSize / 1024.0);
+                    else sizeStr = String.format("%.1f MB", fileSize / (1024.0 * 1024.0));
+
+                    Map<String, Object> result = service.uploadDocument(userId, fileName, fileType, sizeStr);
+                    if (result.containsKey("error")) {
+                        // Clean up file if metadata save fails
+                        Files.deleteIfExists(targetPath);
+                        JsonUtil.writeError(resp, (int) result.get("code"), (String) result.get("error"));
+                    } else {
+                        resp.setStatus(201);
+                        JsonUtil.writeJson(resp, result.get("document"));
+                        dataService.addLog("Document Uploaded", "info", getUserName(req), userId,
+                                "Uploaded document: " + fileName + " (" + sizeStr + ")", req.getRemoteAddr());
+                    }
+                } else {
+                    JsonUtil.writeError(resp, 400, "没有上传文件");
+                }
+            } catch (Exception e) {
+                JsonUtil.writeError(resp, 500, "上传失败: " + e.getMessage());
             }
 
         } else {

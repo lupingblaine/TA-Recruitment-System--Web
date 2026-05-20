@@ -135,17 +135,19 @@
               '<span class="flex items-center gap-1.5"><i data-lucide="clock" class="h-4 w-4"></i> Deadline: ' + (job.deadline || 'TBD') + '</span>' +
               '</div>' +
               '</div>' +
-              '<div class="flex flex-row md:flex-col justify-between items-end gap-4 md:gap-0">' +
+              '<div class="flex flex-col items-end gap-3">' +
+              '<div class="flex items-center gap-4">' +
               '<div class="flex items-center gap-6 text-center">' +
               '<div class="flex flex-col items-center"><span class="text-2xl font-bold text-zinc-900">' + (job.applicationCount || 0) + '</span><span class="text-xs text-zinc-500">Current</span></div>' +
-              '<div class="h-8 w-px bg-zinc-200 hidden md:block"></div>' +
+              '<div class="h-8 w-px bg-zinc-200"></div>' +
               '<div class="flex flex-col items-center"><span class="text-2xl font-bold text-zinc-900">' + (job.totalApplications || 0) + '</span><span class="text-xs text-zinc-500">Total</span></div>' +
-              '<div class="h-8 w-px bg-zinc-200 hidden md:block"></div>' +
+              '<div class="h-8 w-px bg-zinc-200"></div>' +
               '<div class="flex flex-col items-center"><span class="text-2xl font-bold text-zinc-900">' + (job.positions || 0) + '</span><span class="text-xs text-zinc-500">Positions</span></div>' +
               '</div>' +
-              '<div class="flex items-center gap-2 mt-4">' +
+              '<div class="flex flex-col gap-1">' +
               '<button onclick="editJob(\'' + job.id + '\')" class="btn btn-outline text-sm gap-2"><i data-lucide="edit-2" class="h-3.5 w-3.5"></i> Edit</button>' +
               '<button onclick="deleteJob(\'' + job.id + '\')" class="btn btn-ghost text-red-500 hover:text-red-600 hover:bg-red-50 p-2"><i data-lucide="trash-2" class="h-4 w-4"></i></button>' +
+              '</div>' +
               '</div>' +
               '</div>' +
               '</div></div></div>';

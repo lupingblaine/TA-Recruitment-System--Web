@@ -163,15 +163,19 @@
 
             actDiv.innerHTML = sortedInterviews.map(iv => {
               const isCancelled = iv.status === 'cancelled';
-              const statusLabel = isCancelled ? 'Cancelled' : iv.status === 'completed' ? 'Completed' : 'Upcoming';
-              const statusClass = isCancelled ? 'badge-neutral' : iv.status === 'completed' ? 'badge-success' : 'badge-warning';
+              const isCompleted = iv.status === 'completed';
+              const statusLabel = isCancelled ? 'Cancelled' : isCompleted ? 'Completed' : 'Upcoming';
+              const statusClass = isCancelled ? 'badge-neutral' : isCompleted ? 'badge-success' : 'badge-warning';
               const timeStr = iv.startTime ? iv.startTime.substring(0, 5) : '';
-              const rightInfo = (iv.date || '') + (timeStr ? ' ' + timeStr : '');
+              const endTimeStr = iv.endTime ? iv.endTime.substring(0, 5) : '';
+              const rightInfo = isCancelled
+                ? (iv.date || '') + ' ' + timeStr + (endTimeStr ? ' - ' + endTimeStr : '')
+                : (iv.date || '') + (timeStr ? ' ' + timeStr : '');
               return '<div class="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors cursor-pointer group">' +
                 '<div class="flex items-center gap-4">' +
                 '<div class="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center font-medium text-zinc-600">' + ((iv.candidateName || '?').charAt(0)) + '</div>' +
                 '<div class="space-y-1"><h3 class="font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">' + (iv.candidateName || 'Unknown') + '</h3>' +
-                '<p class="text-sm text-zinc-500">' + (iv.moduleName || iv.moduleCode || '') + ' · <span class="' + statusClass + '">' + statusLabel + '</span></p></div>' +
+                '<p class="text-sm text-zinc-500">' + (iv.moduleName || iv.moduleCode || '') + ' <span class="text-xs ' + statusClass + '">' + statusLabel + '</span></p></div>' +
                 '</div>' +
                 '<div class="text-sm text-zinc-500">' + rightInfo + '</div></div>';
             }).join('');

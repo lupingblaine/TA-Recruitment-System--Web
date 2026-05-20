@@ -49,7 +49,7 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-zinc-700 mb-1">Start Time *</label>
-                <input type="time" id="interviewStart" required class="input w-full">
+                <input type="time" id="interviewStart" required class="input w-full" onchange="syncInterviewEndTime()">
               </div>
               <div>
                 <label class="block text-sm font-medium text-zinc-700 mb-1">End Time</label>
@@ -127,6 +127,20 @@
     <jsp:include page="/common/layout-bottom.jsp" />
     <script>
       const ctx = document.querySelector('meta[name="ctx"]').content;
+      // Format ISO date like "2026-05-20T12:42:00" → "2026.5.20 12:42"
+      function formatDate(isoStr) {
+        if (!isoStr) return 'TBD';
+        try {
+          const d = new Date(isoStr);
+          if (isNaN(d.getTime())) return isoStr;
+          const y = d.getFullYear();
+          const m = d.getMonth() + 1;
+          const day = d.getDate();
+          const hh = String(d.getHours()).padStart(2, '0');
+          const mm = String(d.getMinutes()).padStart(2, '0');
+          return y + '.' + m + '.' + day + ' ' + hh + ':' + mm;
+        } catch (e) { return isoStr; }
+      }
       const COLUMNS = [
         { id: 'applied', title: 'Applied', color: 'bg-zinc-100' },
         { id: 'review', title: 'Review', color: 'bg-blue-100 text-blue-800' },
@@ -195,7 +209,7 @@
           '</div>' +
           extraInfo +
           '<div class="flex items-center justify-between text-xs text-zinc-500 mt-4 pt-4 border-t border-zinc-100">' +
-          '<span class="text-zinc-900 font-bold">Applied ' + (a.date || 'TBD') + '</span>' +
+          '<span class="text-zinc-900 font-bold">Applied ' + formatDate(a.date) + '</span>' +
           '</div></div>';
       }
 
@@ -286,19 +300,46 @@
         }
       }
 
+      // Auto-set end time = start time + 30 min
+      function syncInterviewEndTime() {
+        const startVal = document.getElementById('interviewStart').value;
+        const endInput = document.getElementById('interviewEnd');
+        if (!startVal) return;
+        const [h, m] = startVal.split(':').map(Number);
+        let total = h * 60 + m + 30;
+        if (total >= 24 * 60) total = 23 * 60 + 59;
+        const nh = Math.floor(total / 60);
+        const nm = total % 60;
+        endInput.value = String(nh).padStart(2, '0') + ':' + String(nm).padStart(2, '0');
+      }
+
       async function submitInterview(e) {
         e.preventDefault();
         if (!pendingInterviewApp) return;
 
         const { appId } = pendingInterviewApp;
         const app = allApps.find(a => a.id === appId);
+        const startTime = document.getElementById('interviewStart').value;
+        const endTime = document.getElementById('interviewEnd').value;
+
+        const errDiv = document.getElementById('schedError');
+        if (errDiv) {
+          errDiv.classList.add('hidden');
+        }
+
+        // Validate end time is after start time
+        if (startTime && endTime && startTime >= endTime) {
+          showToast('End time must be after start time', 'error');
+          return;
+        }
+
         const data = {
           applicationId: appId,
           candidateName: app ? app.name : undefined,
           moduleCode: document.getElementById('modalModuleCode').value,
           date: document.getElementById('interviewDate').value,
-          startTime: document.getElementById('interviewStart').value,
-          endTime: document.getElementById('interviewEnd').value,
+          startTime: startTime,
+          endTime: endTime,
           type: document.getElementById('interviewType').value,
           location: document.getElementById('interviewLocation').value
         };
@@ -340,7 +381,7 @@
           '<p class="text-sm text-zinc-500">Applied for ' + (app.role || '') + '</p>' +
           '<span class="badge badge-neutral mt-2 capitalize">' + app.status + '</span></div></div>' +
           '<div class="grid grid-cols-2 gap-4">' +
-          '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Applied On</p><p class="text-lg font-bold text-zinc-900">' + (app.date || '-') + '</p></div>' +
+          '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Applied On</p><p class="text-lg font-bold text-zinc-900">' + formatDate(app.date) + '</p></div>' +
           '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Status</p><p class="text-lg font-bold text-zinc-900 capitalize">' + app.status + '</p></div>' +
           '</div>' +
           interviewInfo +
