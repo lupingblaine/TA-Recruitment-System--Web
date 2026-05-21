@@ -177,7 +177,31 @@ public class JsonDataService {
      */
     public String generateId(String prefix, java.util.List<?> list) {
         synchronized (lock) {
-            return prefix + String.format("%03d", list.size() + 1);
+            int max = 0;
+            if (list != null) {
+                for (Object item : list) {
+                    String id = extractEntityId(item);
+                    if (id != null && id.startsWith(prefix)) {
+                        String suffix = id.substring(prefix.length());
+                        try {
+                            max = Math.max(max, Integer.parseInt(suffix));
+                        } catch (NumberFormatException ignored) {
+                            // non-numeric suffix — skip
+                        }
+                    }
+                }
+            }
+            return prefix + String.format("%03d", max + 1);
+        }
+    }
+
+    private static String extractEntityId(Object item) {
+        if (item == null) return null;
+        try {
+            Object id = item.getClass().getMethod("getId").invoke(item);
+            return id != null ? id.toString() : null;
+        } catch (ReflectiveOperationException e) {
+            return null;
         }
     }
 

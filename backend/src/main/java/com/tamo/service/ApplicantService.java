@@ -11,7 +11,6 @@ import com.tamo.util.JsonUtil;
 
 import com.tamo.model.Interview;
 import com.tamo.model.Notification;
-import com.tamo.model.WorkloadAssignment;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -65,15 +64,27 @@ public class ApplicantService {
                 });
         result.add("recentApplications", recentApps);
 
-        // ── Workload: computed from real WorkloadAssignment data ──
+        // ── Workload: derived from confirmed offers (one TA per offer application) ──
         {
-            List<WorkloadAssignment> assignments = (data.getWorkloadAssignments() != null
-                    ? data.getWorkloadAssignments() : Collections.<WorkloadAssignment>emptyList())
-                    .stream()
-                    .filter(w -> w.getTaUserId().equals(userId) && "active".equals(w.getStatus()))
+            List<Application> offerApps = myApps.stream()
+                    .filter(a -> "offer".equals(a.getStatus()))
                     .collect(Collectors.toList());
 
-            int totalHours = assignments.stream().mapToInt(WorkloadAssignment::getHoursPerWeek).sum();
+            JsonArray assignmentList = new JsonArray();
+            int totalHours = 0;
+            for (Application a : offerApps) {
+                Job job = findJobById(data, a.getJobId());
+                if (job == null) continue;
+                totalHours += job.getHoursPerWeek();
+                JsonObject wo = new JsonObject();
+                wo.addProperty("applicationId", a.getId());
+                wo.addProperty("jobId", job.getId());
+                wo.addProperty("moduleCode", job.getModuleCode() != null ? job.getModuleCode() : "");
+                wo.addProperty("jobTitle", job.getTitle());
+                wo.addProperty("hoursPerWeek", job.getHoursPerWeek());
+                assignmentList.add(wo);
+            }
+
             int maxHours = profile != null ? profile.getMaxWeeklyHours() : 20;
             int remaining = maxHours - totalHours;
 
@@ -87,15 +98,6 @@ public class ApplicantService {
             workload.addProperty("max", maxHours);
             workload.addProperty("remaining", Math.max(remaining, 0));
             workload.addProperty("status", loadStatus);
-
-            JsonArray assignmentList = new JsonArray();
-            assignments.forEach(w -> {
-                JsonObject wo = new JsonObject();
-                wo.addProperty("moduleCode", w.getModuleCode());
-                wo.addProperty("hoursPerWeek", w.getHoursPerWeek());
-                wo.addProperty("term", w.getTerm());
-                assignmentList.add(wo);
-            });
             workload.add("assignments", assignmentList);
             result.add("workload", workload);
         }
@@ -149,20 +151,18 @@ public class ApplicantService {
                 schedule.add(entry);
             });
 
-            // Also add TA duty slots from workload assignments as recurring schedule items
-            List<WorkloadAssignment> activeAssignments = (data.getWorkloadAssignments() != null
-                    ? data.getWorkloadAssignments() : Collections.<WorkloadAssignment>emptyList())
-                    .stream()
-                    .filter(w -> w.getTaUserId().equals(userId) && "active".equals(w.getStatus()))
-                    .collect(Collectors.toList());
-            activeAssignments.forEach(w -> {
-                JsonObject entry = new JsonObject();
-                entry.addProperty("type", "duty");
-                entry.addProperty("moduleCode", w.getModuleCode());
-                entry.addProperty("hoursPerWeek", w.getHoursPerWeek());
-                entry.addProperty("term", w.getTerm());
-                schedule.add(entry);
-            });
+            // Also add TA duty slots derived from confirmed offers as recurring schedule items
+            myApps.stream()
+                    .filter(a -> "offer".equals(a.getStatus()))
+                    .forEach(a -> {
+                        Job job = findJobById(data, a.getJobId());
+                        if (job == null) return;
+                        JsonObject entry = new JsonObject();
+                        entry.addProperty("type", "duty");
+                        entry.addProperty("moduleCode", job.getModuleCode() != null ? job.getModuleCode() : "");
+                        entry.addProperty("hoursPerWeek", job.getHoursPerWeek());
+                        schedule.add(entry);
+                    });
 
             result.add("schedule", schedule);
         }
@@ -343,16 +343,16 @@ public class ApplicantService {
         Map<String, Object> result = new HashMap<>();
 
         Application app = data.getApplications().stream()
-                .filter(a -> a.getId().equals(appId))
+                .filter(a -> appId.equals(a.getId()) && userId.equals(a.getApplicantId()))
                 .findFirst().orElse(null);
 
         if (app == null) {
-            result.put("notFound", true);
-            return result;
-        }
-
-        if (!app.getApplicantId().equals(userId)) {
-            result.put("forbidden", true);
+            boolean idExists = data.getApplications().stream().anyMatch(a -> appId.equals(a.getId()));
+            if (idExists) {
+                result.put("forbidden", true);
+            } else {
+                result.put("notFound", true);
+            }
             return result;
         }
 
@@ -368,18 +368,18 @@ public class ApplicantService {
         Map<String, Object> result = new HashMap<>();
 
         Application app = data.getApplications().stream()
-                .filter(a -> a.getId().equals(appId))
+                .filter(a -> appId.equals(a.getId()) && userId.equals(a.getApplicantId()))
                 .findFirst().orElse(null);
 
         if (app == null) {
-            result.put("error", "Application not found");
-            result.put("code", 404);
-            return result;
-        }
-
-        if (!app.getApplicantId().equals(userId)) {
-            result.put("error", "You are not authorized to withdraw this application");
-            result.put("code", 403);
+            boolean idExists = data.getApplications().stream().anyMatch(a -> appId.equals(a.getId()));
+            if (idExists) {
+                result.put("error", "You are not authorized to withdraw this application");
+                result.put("code", 403);
+            } else {
+                result.put("error", "Application not found");
+                result.put("code", 404);
+            }
             return result;
         }
 

@@ -114,7 +114,7 @@
       "department": "System",
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-05-20T09:00:00",
+      "lastLogin": "2026-05-22T01:24:13.839469",
       "createdAt": "2026-06-01T08:00:00"
     },
     {
@@ -206,7 +206,7 @@
         }
       ],
       "maxWeeklyHours": 20,
-      "currentWeeklyHours": 14
+      "currentWeeklyHours": 22
     },
     {
       "id": "p002",
@@ -728,18 +728,51 @@
       "applicantId": "u001",
       "status": "applied",
       "coverLetter": "Dear Dr. Turing, I am writing to express my strong interest in the Teaching Assistant role for CS201. As a third-year Computer Science student who earned an A in CS201 last spring, I am confident I can help students master data structures and algorithm design. I have prior tutoring experience and have built a small open-source data structures library in Java. Yours sincerely, Alex Johnson.",
-      "documentIds": ["doc001", "doc002"],
+      "documentIds": [
+        "doc001",
+        "doc002"
+      ],
       "matchScore": 95,
       "riskFlag": null,
       "aiSummary": "Excellent fit: A in CS201, prior peer tutoring, strong Java background.",
       "appliedAt": "2026-09-18T10:15:00",
       "updatedAt": "2026-09-18T10:15:00",
       "timeline": [
-        {"status": "applied", "date": "2026-09-18", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": null, "completed": false, "pending": true, "error": null},
-        {"status": "shortlisted", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "interview", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "offer", "date": null, "completed": false, "pending": null, "error": null}
+        {
+          "status": "applied",
+          "date": "2026-09-18",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": null,
+          "completed": false,
+          "pending": true,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
       ]
     },
     {
@@ -997,8 +1030,8 @@
         "doc001"
       ],
       "matchScore": 89,
-      "riskFlag": null,
-      "aiSummary": "Strong CS301 result; production database experience from internship.",
+      "riskFlag": "overload",
+      "aiSummary": "Strong CS301 result; first of three confirmed offers contributing to weekly overload.",
       "appliedAt": "2026-09-25T09:30:00",
       "updatedAt": "2026-10-15T11:00:00",
       "timeline": [
@@ -1194,6 +1227,46 @@
           "error": null
         }
       ]
+    },
+    {
+      "id": "a011",
+      "jobId": "j003",
+      "applicantId": "u001",
+      "status": "offer",
+      "coverLetter": "Dear Dr. Turing, I would be happy to support CS101 as a TA. I tutored introductory programming last year and enjoy helping first-year students build confidence. Best regards, Alex Johnson.",
+      "documentIds": ["doc001"],
+      "matchScore": 91,
+      "riskFlag": "overload",
+      "aiSummary": "Strong CS101 fit, but combined with existing offers this pushes weekly hours above the 20-hour cap.",
+      "appliedAt": "2026-10-01T09:00:00",
+      "updatedAt": "2026-10-18T14:00:00",
+      "timeline": [
+        {"status": "applied", "date": "2026-10-01", "completed": true, "pending": null, "error": null},
+        {"status": "review", "date": "2026-10-05", "completed": true, "pending": null, "error": null},
+        {"status": "shortlisted", "date": "2026-10-10", "completed": true, "pending": null, "error": null},
+        {"status": "interview", "date": "2026-10-14", "completed": true, "pending": null, "error": null},
+        {"status": "offer", "date": "2026-10-18", "completed": true, "pending": null, "error": null}
+      ]
+    },
+    {
+      "id": "a012",
+      "jobId": "j004",
+      "applicantId": "u001",
+      "status": "offer",
+      "coverLetter": "Dear Dr. Hopper, I am pleased to accept the EBU6304 TA offer. My group project experience aligns well with mentoring agile teams. Thank you, Alex Johnson.",
+      "documentIds": ["doc001", "doc002"],
+      "matchScore": 93,
+      "riskFlag": "overload",
+      "aiSummary": "Excellent SE background; third confirmed offer increases overload risk.",
+      "appliedAt": "2026-10-06T11:30:00",
+      "updatedAt": "2026-10-20T09:00:00",
+      "timeline": [
+        {"status": "applied", "date": "2026-10-06", "completed": true, "pending": null, "error": null},
+        {"status": "review", "date": "2026-10-09", "completed": true, "pending": null, "error": null},
+        {"status": "shortlisted", "date": "2026-10-12", "completed": true, "pending": null, "error": null},
+        {"status": "interview", "date": "2026-10-16", "completed": true, "pending": null, "error": null},
+        {"status": "offer", "date": "2026-10-20", "completed": true, "pending": null, "error": null}
+      ]
     }
   ],
   "interviews": [
@@ -1342,6 +1415,26 @@
       "relatedId": "a006",
       "createdAt": "2026-10-01T09:00:00",
       "read": true
+    },
+    {
+      "id": "n009",
+      "userId": "u001",
+      "type": "offer",
+      "title": "Offer Received!",
+      "message": "Congratulations! You have received an offer for CS101 Introduction to Programming TA.",
+      "relatedId": "a011",
+      "createdAt": "2026-10-18T14:00:00",
+      "read": false
+    },
+    {
+      "id": "n010",
+      "userId": "u001",
+      "type": "offer",
+      "title": "Offer Received!",
+      "message": "Congratulations! You have received an offer for EBU6304 Software Engineering TA.",
+      "relatedId": "a012",
+      "createdAt": "2026-10-20T09:00:00",
+      "read": false
     }
   ],
   "terms": [
@@ -1525,6 +1618,26 @@
       "ip": "192.168.1.11"
     },
     {
+      "id": "EVT-1025",
+      "timestamp": "2026-10-18T14:00:00",
+      "action": "Candidate Status Changed",
+      "actor": "Dr. Alan Turing",
+      "actorId": "u006",
+      "type": "warning",
+      "details": "Application a011 offer extended to Alex Johnson (CS101). Weekly hours now exceed cap.",
+      "ip": "192.168.1.10"
+    },
+    {
+      "id": "EVT-1026",
+      "timestamp": "2026-10-20T09:00:00",
+      "action": "Candidate Status Changed",
+      "actor": "Dr. Grace Hopper",
+      "actorId": "u007",
+      "type": "warning",
+      "details": "Application a012 offer extended to Alex Johnson (EBU6304). Total workload: 22/20 hrs.",
+      "ip": "192.168.1.11"
+    },
+    {
       "id": "EVT-1014",
       "timestamp": "2025-10-12T10:30:00",
       "action": "Candidate Status Changed",
@@ -1683,22 +1796,40 @@
       "type": "warning",
       "details": "Withdrew application a011",
       "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9030",
+      "timestamp": "2026-05-22T01:24:13.865434",
+      "action": "User Login",
+      "actor": "Admin Root",
+      "actorId": "u009",
+      "type": "info",
+      "details": "User Admin Root (admin) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
     }
   ],
   "workloadAssignments": [
     {
       "id": "w001",
       "taUserId": "u001",
-      "moduleCode": "CS201",
-      "hoursPerWeek": 10,
+      "moduleCode": "CS301",
+      "hoursPerWeek": 8,
       "term": "Fall 2026",
       "status": "active"
     },
     {
       "id": "w002",
       "taUserId": "u001",
+      "moduleCode": "CS101",
+      "hoursPerWeek": 6,
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "w007",
+      "taUserId": "u001",
       "moduleCode": "EBU6304",
-      "hoursPerWeek": 4,
+      "hoursPerWeek": 8,
       "term": "Fall 2026",
       "status": "active"
     },

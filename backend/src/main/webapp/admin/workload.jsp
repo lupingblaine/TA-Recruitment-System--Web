@@ -47,6 +47,58 @@
   </div>
 </div>
 
+<div id="reassignModal" class="hidden fixed inset-0 z-50 bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+    <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-zinc-900">Reassign confirmed offer</h2>
+        <p class="text-sm text-zinc-500" id="reassignTaName"></p>
+      </div>
+      <button onclick="closeReassignModal()" class="text-zinc-400 hover:text-zinc-700">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+    <div class="px-6 py-5 space-y-5">
+      <p class="text-sm text-zinc-500" id="reassignSummary"></p>
+
+      <div>
+        <label class="block text-sm font-medium text-zinc-700 mb-1">Job to reassign</label>
+        <select id="reassignJobSelect" class="input w-full"></select>
+      </div>
+
+      <div>
+        <span class="block text-sm font-medium text-zinc-700 mb-2">Action</span>
+        <div class="space-y-2">
+          <label class="flex items-start gap-3 cursor-pointer p-3 border border-zinc-200 rounded-lg hover:bg-zinc-50">
+            <input type="radio" name="reassignAction" value="reopen" class="mt-1" onchange="onReassignActionChange(event)">
+            <span class="text-sm">
+              <span class="font-medium text-zinc-900">Reopen job for recruitment</span>
+              <span class="block text-zinc-500">Revokes the current offer and sets the job back to "active" so new TAs can apply.</span>
+            </span>
+          </label>
+          <label class="flex items-start gap-3 cursor-pointer p-3 border border-zinc-200 rounded-lg hover:bg-zinc-50">
+            <input type="radio" name="reassignAction" value="transfer" class="mt-1" onchange="onReassignActionChange(event)">
+            <span class="text-sm">
+              <span class="font-medium text-zinc-900">Transfer offer to another TA</span>
+              <span class="block text-zinc-500">Moves the offer to a different applicant without re-opening recruitment.</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div id="reassignTargetWrap" class="hidden">
+        <label class="block text-sm font-medium text-zinc-700 mb-1">Target TA user ID</label>
+        <input id="reassignTargetInput" type="text" class="input w-full" placeholder="e.g. u002">
+        <p class="text-xs text-zinc-500 mt-1">Must be an existing applicant whose remaining capacity covers this job's hours.</p>
+      </div>
+    </div>
+    <div class="px-6 py-4 bg-zinc-50 border-t border-zinc-200 flex justify-end gap-2">
+      <button onclick="closeReassignModal()" class="btn btn-secondary">Cancel</button>
+      <button onclick="submitReassign()" class="btn btn-primary">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <jsp:include page="/common/layout-bottom.jsp"/>
 <script>
 let allWorkload = [];
@@ -56,8 +108,9 @@ function normalizeWorkloadRow(w) {
   const assignments = Array.isArray(w.assignments) ? w.assignments : [];
   const assignedModules = assignments.map(function (a) {
     const code = a.moduleCode != null ? String(a.moduleCode) : '';
+    const title = a.jobTitle ? ' · ' + a.jobTitle : '';
     const h = a.hoursPerWeek != null ? Number(a.hoursPerWeek) : 0;
-    return code + (h ? ' (' + h + 'h/wk)' : '');
+    return code + title + (h ? ' (' + h + 'h/wk)' : '');
   });
   return {
     id: w.taUserId,
@@ -164,34 +217,82 @@ function renderTAs(tas) {
 }
 
 async function reassignTA(sourceTaId) {
-  const targetId = prompt('Enter target TA user ID to move one module assignment to:');
-  if (!targetId || !targetId.trim()) return;
-  const moduleCode = prompt('Module code to move (must match an assignment on the overloaded TA):');
-  if (!moduleCode || !moduleCode.trim()) return;
-  const code = moduleCode.trim();
   const source = allWorkload.find(function (t) { return t.id === sourceTaId; });
-  if (!source || !source._assignments) {
-    showToast('Source TA not found in list.', 'error');
+  if (!source || !source._assignments || source._assignments.length === 0) {
+    showToast('No confirmed offers to reassign for this TA.', 'error');
     return;
   }
-  const match = source._assignments.find(function (a) {
-    return (a.moduleCode || '').toLowerCase() === code.toLowerCase();
-  });
-  if (!match) {
-    showToast('That module is not assigned to this TA.', 'error');
-    return;
-  }
-  const hours = match.hoursPerWeek != null ? Number(match.hoursPerWeek) : 0;
+  openReassignModal(source);
+}
+
+function openReassignModal(source) {
+  const modal = document.getElementById('reassignModal');
+  document.getElementById('reassignTaName').textContent = source.name + ' (' + (source.department || '') + ')';
+  document.getElementById('reassignSummary').textContent =
+    'Currently ' + source.currentHours + ' / ' + source.maxHours + ' hrs per week.';
+
+  const select = document.getElementById('reassignJobSelect');
+  select.innerHTML = source._assignments.map(function (a, i) {
+    const code = a.moduleCode || '';
+    const title = a.jobTitle || '';
+    const h = a.hoursPerWeek != null ? Number(a.hoursPerWeek) : 0;
+    return '<option value="' + i + '">' + code + (title ? ' — ' + title : '') + ' (' + h + 'h/wk)</option>';
+  }).join('');
+
+  document.getElementById('reassignTargetWrap').classList.add('hidden');
+  document.getElementById('reassignTargetInput').value = '';
+  document.querySelectorAll('input[name="reassignAction"]').forEach(function (r) { r.checked = false; });
+
+  modal.dataset.sourceId = source.id;
+  modal.classList.remove('hidden');
+  lucide.createIcons();
+}
+
+function closeReassignModal() {
+  document.getElementById('reassignModal').classList.add('hidden');
+}
+
+function onReassignActionChange(e) {
+  const wrap = document.getElementById('reassignTargetWrap');
+  if (e.target.value === 'transfer') wrap.classList.remove('hidden');
+  else wrap.classList.add('hidden');
+}
+
+async function submitReassign() {
+  const modal = document.getElementById('reassignModal');
+  const sourceTaId = modal.dataset.sourceId;
+  const source = allWorkload.find(function (t) { return t.id === sourceTaId; });
+  if (!source) { showToast('Source TA not found.', 'error'); return; }
+
+  const idx = Number(document.getElementById('reassignJobSelect').value);
+  const assignment = source._assignments[idx];
+  if (!assignment) { showToast('Please select a job to reassign.', 'error'); return; }
+
+  const action = (document.querySelector('input[name="reassignAction"]:checked') || {}).value;
+  if (!action) { showToast('Please choose an action.', 'error'); return; }
+
   try {
-    await adminApi.reassignWorkload(sourceTaId, { removeModules: [match.moduleCode] });
-    await adminApi.reassignWorkload(targetId.trim(), {
-      addModules: [{ moduleCode: match.moduleCode, hoursPerWeek: hours }]
-    });
-    showToast('Workload reassigned!');
+    if (action === 'reopen') {
+      if (!confirm('Revoke the offer for "' + (assignment.jobTitle || assignment.moduleCode) + '" and reopen this job for recruitment?')) return;
+      await adminApi.reassignWorkload(sourceTaId, {
+        action: 'reopen',
+        applicationId: assignment.applicationId
+      });
+      showToast('Offer revoked and job reopened for recruitment.');
+    } else if (action === 'transfer') {
+      const targetId = (document.getElementById('reassignTargetInput').value || '').trim();
+      if (!targetId) { showToast('Please enter a target TA user ID.', 'error'); return; }
+      await adminApi.reassignWorkload(sourceTaId, {
+        action: 'transfer',
+        applicationId: assignment.applicationId,
+        targetUserId: targetId
+      });
+      showToast('Offer transferred to ' + targetId + '.');
+    }
+    closeReassignModal();
     loadWorkload();
   } catch (e) {
     showToast(e.message || 'Reassign failed', 'error');
-    loadWorkload();
   }
 }
 

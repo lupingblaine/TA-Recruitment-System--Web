@@ -465,16 +465,20 @@ public class AdminService {
 
     // ==================== Workload ====================
 
+    /**
+     * Workload is derived from confirmed offers: each application with status="offer" is
+     * counted as an active job for its applicant, contributing the job's hoursPerWeek.
+     */
     public List<JsonObject> getWorkload(String keyword, String statusFilter) {
         DataStore data = dataService.getData();
 
-        Map<String, List<WorkloadAssignment>> byUser = data.getWorkloadAssignments().stream()
-                .filter(w -> "active".equals(w.getStatus()))
-                .collect(Collectors.groupingBy(WorkloadAssignment::getTaUserId));
+        Map<String, List<Application>> byUser = data.getApplications().stream()
+                .filter(a -> "offer".equals(a.getStatus()))
+                .collect(Collectors.groupingBy(Application::getApplicantId));
 
         List<JsonObject> results = new ArrayList<>();
 
-        for (Map.Entry<String, List<WorkloadAssignment>> entry : byUser.entrySet()) {
+        for (Map.Entry<String, List<Application>> entry : byUser.entrySet()) {
             User user = data.getUsers().stream()
                     .filter(u -> u.getId().equals(entry.getKey()))
                     .findFirst().orElse(null);
@@ -484,7 +488,23 @@ public class AdminService {
                     .filter(p -> p.getUserId().equals(entry.getKey()))
                     .findFirst().orElse(null);
 
-            int totalHours = entry.getValue().stream().mapToInt(WorkloadAssignment::getHoursPerWeek).sum();
+            JsonArray assignments = new JsonArray();
+            int totalHours = 0;
+            for (Application app : entry.getValue()) {
+                Job job = data.getJobs().stream()
+                        .filter(j -> j.getId().equals(app.getJobId()))
+                        .findFirst().orElse(null);
+                if (job == null) continue;
+                totalHours += job.getHoursPerWeek();
+                JsonObject aObj = new JsonObject();
+                aObj.addProperty("applicationId", app.getId());
+                aObj.addProperty("jobId", job.getId());
+                aObj.addProperty("jobTitle", job.getTitle());
+                aObj.addProperty("moduleCode", job.getModuleCode() != null ? job.getModuleCode() : "");
+                aObj.addProperty("hoursPerWeek", job.getHoursPerWeek());
+                assignments.add(aObj);
+            }
+
             int maxHours = profile != null ? profile.getMaxWeeklyHours() : 20;
 
             String status;
@@ -502,17 +522,10 @@ public class AdminService {
                 continue;
             }
 
-            JsonArray assignments = new JsonArray();
-            for (WorkloadAssignment wa : entry.getValue()) {
-                JsonObject aObj = new JsonObject();
-                aObj.addProperty("moduleCode", wa.getModuleCode());
-                aObj.addProperty("hoursPerWeek", wa.getHoursPerWeek());
-                assignments.add(aObj);
-            }
-
             JsonObject obj = new JsonObject();
             obj.addProperty("taUserId", user.getId());
             obj.addProperty("taName", user.getName());
+            obj.addProperty("department", user.getDepartment() != null ? user.getDepartment() : "");
             obj.add("assignments", assignments);
             obj.addProperty("totalHours", totalHours);
             obj.addProperty("maxHours", maxHours);
@@ -523,63 +536,147 @@ public class AdminService {
         return results;
     }
 
+    /**
+     * Reassign a confirmed offer.
+     *
+     * Body schema:
+     *   { "action": "reopen",   "applicationId": "..." }
+     *   { "action": "transfer", "applicationId": "...", "targetUserId": "..." }
+     *
+     * - reopen   : revoke the current offer (set application status to "rejected") and
+     *              reopen the job (set job status to "active") so it can be applied to again.
+     * - transfer : reassign the existing offer to another applicant (only changes applicantId).
+     */
     public Map<String, Object> reassignWorkload(String taUserId, JsonObject body) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
 
-        User taUser = data.getUsers().stream()
-                .filter(u -> u.getId().equals(taUserId))
+        String action = body.has("action") ? body.get("action").getAsString() : "";
+        String applicationId = body.has("applicationId") ? body.get("applicationId").getAsString() : null;
+
+        if (applicationId == null || applicationId.isBlank()) {
+            result.put("error", "Missing applicationId");
+            result.put("code", 400);
+            return result;
+        }
+
+        Application app = data.getApplications().stream()
+                .filter(a -> applicationId.equals(a.getId()) && taUserId.equals(a.getApplicantId()))
                 .findFirst().orElse(null);
-        if (taUser == null) {
-            result.put("error", "TA user not found");
+        if (app == null) {
+            result.put("error", "Offer record not found for this TA");
+            result.put("code", 404);
+            return result;
+        }
+        if (!"offer".equals(app.getStatus())) {
+            result.put("error", "Selected record is not an active offer");
+            result.put("code", 400);
+            return result;
+        }
+
+        Job job = data.getJobs().stream()
+                .filter(j -> j.getId().equals(app.getJobId()))
+                .findFirst().orElse(null);
+        if (job == null) {
+            result.put("error", "Associated job not found");
             result.put("code", 404);
             return result;
         }
 
-        Profile profile = data.getProfiles().stream()
-                .filter(p -> p.getUserId().equals(taUserId))
-                .findFirst().orElse(null);
-        int maxHours = profile != null ? profile.getMaxWeeklyHours() : 20;
+        String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-        if (body.has("removeModules")) {
-            body.getAsJsonArray("removeModules").forEach(e -> {
-                String moduleCode = e.getAsString();
-                data.getWorkloadAssignments().removeIf(
-                        w -> w.getTaUserId().equals(taUserId) && w.getModuleCode().equals(moduleCode));
-            });
-        }
+        switch (action) {
+            case "reopen" -> {
+                app.setStatus("rejected");
+                app.setUpdatedAt(now);
+                markTimelineRejected(app, today);
+                job.setStatus("active");
+                dataService.save();
+                result.put("success", true);
+                result.put("message", "Offer revoked and job reopened for recruitment");
+                return result;
+            }
+            case "transfer" -> {
+                String targetUserId = body.has("targetUserId") ? body.get("targetUserId").getAsString() : null;
+                if (targetUserId == null || targetUserId.isBlank()) {
+                    result.put("error", "Missing targetUserId");
+                    result.put("code", 400);
+                    return result;
+                }
+                if (targetUserId.equals(taUserId)) {
+                    result.put("error", "Target TA is the same as the current TA");
+                    result.put("code", 400);
+                    return result;
+                }
 
-        if (body.has("addModules")) {
-            List<WorkloadAssignment> newAssignments = new ArrayList<>();
-            body.getAsJsonArray("addModules").forEach(e -> {
-                JsonObject addObj = e.getAsJsonObject();
-                WorkloadAssignment wa = new WorkloadAssignment();
-                wa.setId(dataService.generateId("w", data.getWorkloadAssignments()));
-                wa.setTaUserId(taUserId);
-                wa.setModuleCode(addObj.get("moduleCode").getAsString());
-                wa.setHoursPerWeek(addObj.has("hoursPerWeek") ? addObj.get("hoursPerWeek").getAsInt() : 0);
-                wa.setTerm("Fall 2026");
-                wa.setStatus("active");
-                newAssignments.add(wa);
-            });
+                User target = data.getUsers().stream()
+                        .filter(u -> u.getId().equals(targetUserId))
+                        .findFirst().orElse(null);
+                if (target == null || !"applicant".equals(target.getRole())) {
+                    result.put("error", "Target user is not a valid applicant");
+                    result.put("code", 400);
+                    return result;
+                }
+                if ("suspended".equals(target.getStatus())) {
+                    result.put("error", "Target user account is suspended");
+                    result.put("code", 400);
+                    return result;
+                }
 
-            int currentTotal = data.getWorkloadAssignments().stream()
-                    .filter(w -> w.getTaUserId().equals(taUserId) && "active".equals(w.getStatus()))
-                    .mapToInt(WorkloadAssignment::getHoursPerWeek).sum();
-            int addTotal = newAssignments.stream().mapToInt(WorkloadAssignment::getHoursPerWeek).sum();
+                boolean duplicate = data.getApplications().stream()
+                        .anyMatch(a -> !a.getId().equals(app.getId())
+                                && job.getId().equals(a.getJobId())
+                                && targetUserId.equals(a.getApplicantId()));
+                if (duplicate) {
+                    result.put("error", "Target TA already has an application for this job");
+                    result.put("code", 409);
+                    return result;
+                }
 
-            if (currentTotal + addTotal > maxHours) {
-                result.put("error", "Total hours would exceed maximum weekly limit");
+                Profile targetProfile = data.getProfiles().stream()
+                        .filter(p -> p.getUserId().equals(targetUserId))
+                        .findFirst().orElse(null);
+                int targetMax = targetProfile != null ? targetProfile.getMaxWeeklyHours() : 20;
+                int targetCurrent = data.getApplications().stream()
+                        .filter(a -> "offer".equals(a.getStatus()) && targetUserId.equals(a.getApplicantId()))
+                        .mapToInt(a -> {
+                            Job j = data.getJobs().stream()
+                                    .filter(x -> x.getId().equals(a.getJobId()))
+                                    .findFirst().orElse(null);
+                            return j != null ? j.getHoursPerWeek() : 0;
+                        }).sum();
+                if (targetCurrent + job.getHoursPerWeek() > targetMax) {
+                    result.put("error", "Transfer would exceed target TA's maximum weekly hours");
+                    result.put("code", 400);
+                    return result;
+                }
+
+                app.setApplicantId(targetUserId);
+                app.setUpdatedAt(now);
+                dataService.save();
+                result.put("success", true);
+                result.put("message", "Offer transferred to " + target.getName());
+                return result;
+            }
+            default -> {
+                result.put("error", "Invalid action; expected 'reopen' or 'transfer'");
                 result.put("code", 400);
                 return result;
             }
-
-            data.getWorkloadAssignments().addAll(newAssignments);
         }
+    }
 
-        dataService.save();
-        result.put("success", true);
-        return result;
+    private static void markTimelineRejected(Application app, String today) {
+        if (app.getTimeline() == null) return;
+        for (Application.TimelineEntry t : app.getTimeline()) {
+            if ("offer".equals(t.getStatus())) {
+                t.setCompleted(false);
+                t.setPending(null);
+                t.setError(Boolean.TRUE);
+                t.setDate(today);
+            }
+        }
     }
 
     private JsonObject buildSafeUser(User user) {

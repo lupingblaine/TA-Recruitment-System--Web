@@ -201,8 +201,8 @@
 ### 5.5 Workload Management (8:10 – 8:40)
 
 **画面操作**：
-1. 菜单 **Workload** → 表格显示每个 TA 的 current/max weekly hours 与 utilisation bar。**Sarah Lee 18/20 (90%)** 应该显示红色高利用率，Diana Chen 0/20 (0%) 显示空闲。
-2. 点 Sarah Lee 行的 **Reassign** → 把她在 EBU6304 的 6 小时减到 3 小时（或者把 EBU6304 那条工作转给 Diana）→ 保存。利用率条立刻刷新。
+1. 菜单 **Workload** → 表格显示每个 TA 的 current/max weekly hours 与 utilisation bar。**Alex Johnson 22/20 (Overloaded)** 应显示红色，名下有 3 个 confirmed offers：CS301 (8h)、CS101 (6h)、EBU6304 (8h)。Diana Chen 若无 offer 则可能不在列表中。
+2. 点 Alex 行的 **Reassign** → 用 `transfer` 或 `reopen` 把其中一个 offer（如 CS101 6h）转给 Diana 或撤销 → 保存后总工时降到 20 以下，状态从 Overloaded 变回 Optimal。
 
 **Narration:**
 > "*Workload Management* solves a classic university pain point: overworking some TAs while others sit idle. Each row shows how many hours a TA is currently committed to versus their cap, with a utilisation bar that goes red when they're overloaded. The admin can rebalance assignments with the *Reassign* action, and the affected TAs see the change in their dashboards instantly."
