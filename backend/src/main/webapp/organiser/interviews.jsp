@@ -99,25 +99,39 @@
 
           container.innerHTML = interviews.map(iv => {
             const isToday = iv.date && new Date(iv.date).toDateString() === new Date().toDateString();
-            return '<div class="card fade-in border-l-4 ' + (isToday ? 'border-l-blue-500' : 'border-l-zinc-300') + '">' +
-              '<div class="p-6"><div class="flex flex-col sm:flex-row justify-between gap-4">' +
-              '<div class="space-y-3">' +
-              '<div class="flex items-center gap-3">' +
-              '<div class="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-700">' + ((iv.candidateName || iv.applicationId || 'I').charAt(0)) + '</div>' +
-              '<div><h3 class="font-bold text-zinc-900">' + (iv.candidateName || iv.applicationId || 'Candidate') + '</h3>' +
-              '<p class="text-sm text-zinc-500">' + (iv.moduleCode || iv.applicationId || '') + '</p></div>' +
+            const statusColors = {
+              'scheduled': 'bg-blue-50 text-blue-700 border-blue-200',
+              'completed': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+              'cancelled': 'bg-zinc-100 text-zinc-600 border-zinc-200'
+            };
+            const sColor = statusColors[iv.status] || 'bg-amber-50 text-amber-700 border-amber-200';
+            
+            return '<div class="card fade-in hover:shadow-lg transition-all duration-300 border border-zinc-200/60 overflow-hidden relative">' +
+              (isToday ? '<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500"></div>' : '<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-zinc-200"></div>') +
+              '<div class="p-5 sm:p-6 pl-6 sm:pl-8">' +
+                '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">' +
+                  '<div class="flex items-start gap-4">' +
+                    '<div class="h-12 w-12 rounded-full bg-gradient-to-br from-zinc-100 to-zinc-200 border border-zinc-300/50 flex items-center justify-center text-lg font-bold text-zinc-700 shadow-sm shrink-0">' + ((iv.candidateName || iv.applicationId || 'I').charAt(0).toUpperCase()) + '</div>' +
+                    '<div class="space-y-1.5">' +
+                      '<div class="flex items-center gap-3">' +
+                        '<h3 class="text-lg font-bold text-zinc-900 tracking-tight">' + (iv.candidateName || iv.applicationId || 'Candidate') + '</h3>' +
+                        '<span class="badge border ' + sColor + ' px-2.5 py-0.5 rounded-full text-xs font-medium capitalize">' + (iv.status || 'scheduled') + '</span>' +
+                      '</div>' +
+                      '<p class="text-sm font-medium text-zinc-500 mb-2">' + (iv.moduleCode || iv.applicationId || 'Unknown Module') + '</p>' +
+                      '<div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-zinc-600 mt-2">' +
+                        '<span class="flex items-center gap-1.5 bg-zinc-50 px-2.5 py-1 rounded-md border border-zinc-100"><i data-lucide="calendar" class="h-4 w-4 text-blue-500"></i> <span class="font-medium text-zinc-800">' + (iv.date || 'TBD') + '</span></span>' +
+                        '<span class="flex items-center gap-1.5 bg-zinc-50 px-2.5 py-1 rounded-md border border-zinc-100"><i data-lucide="clock" class="h-4 w-4 text-amber-500"></i> <span class="font-medium text-zinc-800">' + (iv.startTime || 'TBD') + '</span></span>' +
+                        '<span class="flex items-center gap-1.5 bg-zinc-50 px-2.5 py-1 rounded-md border border-zinc-100"><i data-lucide="' + (iv.type === 'video' ? 'video' : 'map-pin') + '" class="h-4 w-4 text-emerald-500"></i> <span class="font-medium text-zinc-800 max-w-[150px] truncate">' + (iv.location || iv.type || 'N/A') + '</span></span>' +
+                      '</div>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="flex flex-row sm:flex-col items-center sm:items-end justify-start sm:justify-center gap-2 shrink-0 border-t sm:border-t-0 border-zinc-100 pt-4 sm:pt-0">' +
+                    '<button onclick="editInterview(\'' + iv.id + '\')" class="btn btn-outline bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200 w-full sm:w-24 justify-center shadow-sm text-sm font-medium py-1.5">Edit</button>' +
+                    '<button onclick="deleteInterview(\'' + iv.id + '\')" class="btn hover:bg-red-50 text-zinc-600 hover:text-red-600 hover:border-red-200 border border-transparent w-full sm:w-24 justify-center transition-colors text-sm font-medium py-1.5">Delete</button>' +
+                  '</div>' +
+                '</div>' +
               '</div>' +
-              '<div class="flex flex-wrap items-center gap-4 text-sm text-zinc-600">' +
-              '<span class="flex items-center gap-1.5 font-medium text-zinc-900"><i data-lucide="calendar" class="h-4 w-4 text-zinc-400"></i> ' + (iv.date || 'TBD') + '</span>' +
-              '<span class="flex items-center gap-1.5"><i data-lucide="clock" class="h-4 w-4 text-zinc-400"></i> ' + (iv.startTime || '') + '</span>' +
-              '<span class="flex items-center gap-1.5"><i data-lucide="' + (iv.type === 'video' ? 'video' : 'user') + '" class="h-4 w-4 text-zinc-400"></i> ' + (iv.location || iv.type || '') + '</span>' +
-              '</div>' +
-              '<div class="flex flex-row sm:flex-col justify-end gap-2 shrink-0">' +
-              '<span class="badge ' + (iv.status === 'scheduled' ? 'badge-success' : iv.status === 'completed' ? 'badge-neutral' : 'badge-warning') + ' capitalize">' + (iv.status || 'scheduled') + '</span>' +
-              '<button onclick="editInterview(\'' + iv.id + '\')" class="btn btn-secondary btn-sm mt-2">Edit</button>' +
-              '<button onclick="deleteInterview(\'' + iv.id + '\')" class="btn btn-outline btn-sm mt-2">Delete</button>' +
-              '</div>' +
-              '</div></div></div>';
+            '</div>';
           }).join('');
           lucide.createIcons();
         } catch (e) {

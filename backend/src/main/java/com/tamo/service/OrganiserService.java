@@ -358,6 +358,11 @@ public class OrganiserService {
         if (body.has("tags")) body.getAsJsonArray("tags").forEach(e -> job.getTags().add(e.getAsString()));
         if (body.has("requirements")) body.getAsJsonArray("requirements").forEach(e -> job.getRequirements().add(e.getAsString()));
         if (body.has("responsibilities")) body.getAsJsonArray("responsibilities").forEach(e -> job.getResponsibilities().add(e.getAsString()));
+        if (body.has("workDates")) {
+            List<String> dates = new ArrayList<>();
+            body.getAsJsonArray("workDates").forEach(e -> dates.add(e.getAsString()));
+            job.setWorkDates(dates);
+        }
 
         data.getJobs().add(job);
         dataService.save();
@@ -426,6 +431,11 @@ public class OrganiserService {
             job.setDeadline(deadlineStr);
         }
         if (body.has("status")) job.setStatus(body.get("status").getAsString());
+        if (body.has("workDates")) {
+            List<String> dates = new ArrayList<>();
+            body.getAsJsonArray("workDates").forEach(e -> dates.add(e.getAsString()));
+            job.setWorkDates(dates);
+        }
 
         dataService.save();
         result.put("job", job);
@@ -665,9 +675,16 @@ public class OrganiserService {
         if (applicant != null) {
             JsonObject applicantProfile = new JsonObject();
             applicantProfile.addProperty("name", applicant.getName());
+            applicantProfile.addProperty("email", applicant.getEmail());
+            applicantProfile.addProperty("phone", applicant.getPhone() != null ? applicant.getPhone() : "");
+            applicantProfile.addProperty("department", applicant.getDepartment() != null ? applicant.getDepartment() : "");
             if (profile != null) {
+                applicantProfile.addProperty("studentId", profile.getStudentId() != null ? profile.getStudentId() : "");
                 applicantProfile.addProperty("degree", profile.getDegree());
+                applicantProfile.addProperty("year", profile.getYear());
                 applicantProfile.addProperty("gpa", profile.getGpa());
+                applicantProfile.addProperty("maxGpa", profile.getMaxGpa());
+                applicantProfile.add("skills", JsonUtil.getGson().toJsonTree(profile.getSkills()));
                 applicantProfile.add("coursework", JsonUtil.getGson().toJsonTree(profile.getCoursework()));
                 applicantProfile.add("experience", JsonUtil.getGson().toJsonTree(profile.getExperience()));
             }

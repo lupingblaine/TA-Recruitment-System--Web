@@ -106,6 +106,7 @@ const messageApi = {
   recallMessage: (messageId) => request('/messages/recall/' + messageId, { method: 'PUT' }),
   markRead: (conversationId) => request('/messages/read/' + conversationId, { method: 'PUT' }),
   getUnreadCount: () => request('/messages/unread-count'),
+  getUserInfo: (userId) => request('/messages/user-info/' + userId),
   uploadFile: (file) => {
     const form = new FormData();
     form.append('file', file);

@@ -100,6 +100,31 @@ public class ApplicantService {
             result.add("workload", workload);
         }
 
+        // ── Offers: jobs with offer status, include workDates for dashboard ──
+        {
+            JsonArray offers = new JsonArray();
+            myApps.stream()
+                    .filter(a -> "offer".equals(a.getStatus()))
+                    .forEach(a -> {
+                        Job job = findJobById(data, a.getJobId());
+                        if (job != null) {
+                            JsonObject o = new JsonObject();
+                            o.addProperty("jobId", job.getId());
+                            o.addProperty("title", job.getTitle());
+                            o.addProperty("moduleCode", job.getModuleCode() != null ? job.getModuleCode() : "");
+                            o.addProperty("department", job.getDepartment() != null ? job.getDepartment() : "");
+                            o.addProperty("hoursPerWeek", job.getHoursPerWeek());
+                            if (job.getWorkDates() != null && !job.getWorkDates().isEmpty()) {
+                                JsonArray dates = new JsonArray();
+                                job.getWorkDates().forEach(dates::add);
+                                o.add("workDates", dates);
+                            }
+                            offers.add(o);
+                        }
+                    });
+            result.add("offers", offers);
+        }
+
         // ── Schedule: upcoming interviews for this TA ──
         {
             List<Interview> interviews = (data.getInterviews() != null
@@ -431,6 +456,8 @@ public class ApplicantService {
 
         if (updates.has("name")) user.setName(updates.get("name").getAsString());
         if (updates.has("phone")) user.setPhone(updates.get("phone").getAsString());
+        if (updates.has("department")) user.setDepartment(updates.get("department").getAsString());
+        if (updates.has("studentId")) profile.setStudentId(updates.get("studentId").getAsString());
         if (updates.has("degree")) profile.setDegree(updates.get("degree").getAsString());
         if (updates.has("year")) profile.setYear(updates.get("year").getAsInt());
         if (updates.has("gpa")) profile.setGpa(updates.get("gpa").getAsDouble());
@@ -523,32 +550,21 @@ public class ApplicantService {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
 
-        Profile ownerProfile = null;
-        for (Profile p : data.getProfiles()) {
-            for (Profile.Document d : p.getDocuments()) {
-                if (d.getId().equals(docId)) {
-                    ownerProfile = p;
-                    break;
-                }
-            }
-            if (ownerProfile != null) break;
+        Profile profile = findProfileByUserId(data, userId);
+        if (profile == null) {
+            result.put("error", "用户资料不存在");
+            result.put("code", 404);
+            return result;
         }
 
-        if (ownerProfile == null) {
+        boolean removed = profile.getDocuments().removeIf(d -> d.getId().equals(docId));
+        if (!removed) {
             result.put("error", "文档不存在");
             result.put("code", 404);
             return result;
         }
 
-        if (!ownerProfile.getUserId().equals(userId)) {
-            result.put("error", "无权限删除该文档");
-            result.put("code", 403);
-            return result;
-        }
-
-        ownerProfile.getDocuments().removeIf(d -> d.getId().equals(docId));
         dataService.save();
-
         result.put("success", true);
         return result;
     }

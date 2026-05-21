@@ -103,7 +103,7 @@
           <!-- Subtle decorative background for cat -->
           <div class="absolute inset-0 bg-gradient-to-tr from-indigo-50 to-purple-50 rounded-[3rem] -z-10 blur-3xl opacity-50"></div>
           
-          <div id="login-cat-container" class="cat-container w-full max-w-[300px] aspect-square flex items-center justify-center relative z-10">
+          <div id="login-cat-container" class="cat-container w-full max-w-[300px] aspect-square flex items-center justify-center relative z-10 bg-white/40 backdrop-blur-md rounded-[3rem] shadow-[0_8px_32px_rgba(99,102,241,0.15)] border-4 border-white/70 overflow-hidden transition-all duration-500 hover:shadow-[0_12px_40px_rgba(99,102,241,0.25)] hover:border-white/90">
             <!-- Cat SVG will be injected here by JS -->
           </div>
           <p class="text-zinc-400 font-medium text-sm mt-8 text-center">Your privacy is perfectly safe.</p>

@@ -9,21 +9,51 @@
   <div class="text-center text-zinc-400 py-12" id="loading">Loading job details...</div>
 </div>
 
-<!-- Apply Modal -->
+<!-- Apply Modal (with pre-filled profile review) -->
 <div id="applyModal" data-modal class="fixed inset-0 z-50 items-center justify-center bg-black/50 backdrop-blur-sm">
-  <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 overflow-hidden">
-    <div class="bg-zinc-50 border-b border-zinc-200/60 p-6">
+  <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+    <div class="bg-zinc-50 border-b border-zinc-200/60 p-6 shrink-0">
       <h2 class="text-xl font-bold text-zinc-900" id="applyTitle">Apply for TA Position</h2>
-      <p class="text-zinc-500 mt-1 text-sm">Provide your cover letter to complete the application.</p>
+      <p class="text-zinc-500 mt-1 text-sm">Review your information below. The MO will see everything listed here.</p>
     </div>
-    <div class="p-6 space-y-4">
+    <div class="p-6 space-y-5 overflow-y-auto flex-1">
+      <!-- Profile Summary Table -->
+      <div class="border border-zinc-200 rounded-xl overflow-hidden">
+        <table class="w-full text-sm">
+          <tbody>
+            <tr class="border-b border-zinc-100"><td class="px-4 py-3 bg-zinc-50 font-medium text-zinc-600 w-32">Name</td><td class="px-4 py-3 text-zinc-900" id="applyName">-</td></tr>
+            <tr class="border-b border-zinc-100"><td class="px-4 py-3 bg-zinc-50 font-medium text-zinc-600">Email</td><td class="px-4 py-3 text-zinc-900" id="applyEmail">-</td></tr>
+            <tr class="border-b border-zinc-100"><td class="px-4 py-3 bg-zinc-50 font-medium text-zinc-600">Degree</td><td class="px-4 py-3 text-zinc-900" id="applyDegree">-</td></tr>
+            <tr class="border-b border-zinc-100"><td class="px-4 py-3 bg-zinc-50 font-medium text-zinc-600">Year</td><td class="px-4 py-3 text-zinc-900" id="applyYear">-</td></tr>
+            <tr class="border-b border-zinc-100"><td class="px-4 py-3 bg-zinc-50 font-medium text-zinc-600">GPA</td><td class="px-4 py-3 text-zinc-900" id="applyGpa">-</td></tr>
+            <tr><td class="px-4 py-3 bg-zinc-50 font-medium text-zinc-600">Skills</td><td class="px-4 py-3" id="applySkills">-</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-zinc-400 flex items-center gap-1"><i data-lucide="info" class="h-3 w-3"></i> Update your profile details on the <a href="profile.jsp" class="text-blue-600 underline">Profile page</a>.</p>
+
+      <!-- Document Selection -->
       <div>
-        <label class="block text-sm font-medium text-zinc-700 mb-1.5">Cover Letter</label>
-        <textarea id="coverLetter" rows="6" class="input resize-none" placeholder="Explain why you're a great fit for this position..."></textarea>
+        <label class="block text-sm font-bold text-zinc-800 mb-2">Attach Documents</label>
+        <div id="applyDocList" class="space-y-2">
+          <p class="text-sm text-zinc-400">Loading documents...</p>
+        </div>
+        <div class="mt-3">
+          <label class="text-xs text-zinc-500 flex items-center gap-2 cursor-pointer hover:text-zinc-700">
+            <input type="file" id="applyNewDoc" class="hidden" accept=".pdf,.doc,.docx,.txt,.rtf" onchange="uploadAndAttach(event)">
+            <span class="btn btn-outline text-xs gap-1"><i data-lucide="upload" class="h-3 w-3"></i> Upload New</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Cover Letter -->
+      <div>
+        <label class="block text-sm font-bold text-zinc-800 mb-1.5">Cover Letter *</label>
+        <textarea id="coverLetter" rows="5" class="input resize-none" placeholder="Explain why you're a great fit for this position..."></textarea>
       </div>
       <div id="applyError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3"></div>
     </div>
-    <div class="p-6 border-t border-zinc-200 flex justify-end gap-3">
+    <div class="p-6 border-t border-zinc-200 flex justify-end gap-3 shrink-0">
       <button onclick="closeApply()" class="btn btn-secondary">Cancel</button>
       <button onclick="submitApply()" class="btn btn-primary gap-2" id="applyBtn">
         <i data-lucide="check-circle-2" class="h-4 w-4"></i> Submit Application
@@ -93,6 +123,18 @@ function renderDetail(job) {
             '<div><p class="text-sm text-zinc-500 mb-1">Department</p><p class="font-medium text-zinc-900">' + (job.department || '-') + '</p></div>' +
           '</div>' +
         '</div>' +
+        (job.workDates && job.workDates.length > 0 ?
+        '<div class="bg-emerald-50/50 rounded-xl p-6 border border-emerald-100">' +
+          '<h4 class="font-semibold text-zinc-900 mb-3 flex items-center gap-2"><i data-lucide="calendar-days" class="h-4 w-4 text-emerald-600"></i> Work Schedule</h4>' +
+          '<p class="text-xs text-zinc-500 mb-3">' + job.workDates.length + ' scheduled session' + (job.workDates.length > 1 ? 's' : '') + '</p>' +
+          '<div class="space-y-1.5 max-h-40 overflow-y-auto">' +
+          job.workDates.slice(0, 20).map(function(d) {
+            var dt = new Date(d + 'T00:00:00');
+            var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            return '<div class="flex items-center gap-2 text-sm"><span class="w-8 text-xs font-medium text-emerald-700">' + dayNames[dt.getDay()] + '</span><span class="text-zinc-700">' + d + '</span></div>';
+          }).join('') +
+          (job.workDates.length > 20 ? '<p class="text-xs text-zinc-400 mt-2">+ ' + (job.workDates.length - 20) + ' more dates</p>' : '') +
+          '</div></div>' : '') +
         '<div class="bg-blue-50/50 rounded-xl p-6 border border-blue-100">' +
           '<div class="flex items-start gap-3"><i data-lucide="alert-circle" class="h-5 w-5 text-blue-500 shrink-0 mt-0.5"></i>' +
           '<p class="text-sm text-blue-800">Applications are reviewed on a rolling basis. Early application is encouraged.</p></div>' +
@@ -105,7 +147,65 @@ function renderDetail(job) {
   lucide.createIcons();
 }
 
-function openApply() { document.getElementById('applyModal').classList.add('show'); }
+let profileDocs = [];
+
+async function openApply() {
+  document.getElementById('applyModal').classList.add('show');
+  try {
+    const data = await applicantApi.getProfile();
+    const user = data.user || {};
+    const profile = data.profile || {};
+    document.getElementById('applyName').textContent = user.name || '-';
+    document.getElementById('applyEmail').textContent = user.email || '-';
+    document.getElementById('applyDegree').textContent = profile.degree || '-';
+    document.getElementById('applyYear').textContent = profile.year || '-';
+    document.getElementById('applyGpa').textContent = profile.gpa ? profile.gpa + ' / ' + (profile.maxGpa || '4.0') : '-';
+    const skills = profile.skills || [];
+    document.getElementById('applySkills').innerHTML = skills.length
+      ? skills.map(s => '<span class="px-2 py-0.5 bg-zinc-100 text-zinc-700 rounded-full text-xs border border-zinc-200">' + s + '</span>').join(' ')
+      : '<span class="text-zinc-400">-</span>';
+
+    profileDocs = profile.documents || [];
+    renderApplyDocs();
+    lucide.createIcons();
+  } catch (e) {
+    console.error('Failed to load profile for apply', e);
+  }
+}
+
+function renderApplyDocs() {
+  const el = document.getElementById('applyDocList');
+  if (profileDocs.length === 0) {
+    el.innerHTML = '<p class="text-sm text-zinc-400">No documents uploaded. Upload one below or on your <a href="profile.jsp" class="text-blue-600 underline">Profile page</a>.</p>';
+    return;
+  }
+  el.innerHTML = profileDocs.map(d =>
+    '<label class="flex items-center gap-3 p-3 border border-zinc-200 rounded-lg hover:bg-zinc-50 cursor-pointer transition-colors">' +
+    '<input type="checkbox" class="applyDocCb accent-blue-600" value="' + d.id + '" checked>' +
+    '<div class="h-8 w-8 bg-red-100 text-red-600 rounded-lg flex items-center justify-center shrink-0"><i data-lucide="file-text" class="h-4 w-4"></i></div>' +
+    '<div class="flex-1 min-w-0"><p class="text-sm font-medium text-zinc-900 truncate">' + (d.name || 'Untitled') + '</p>' +
+    '<p class="text-xs text-zinc-500">' + (d.size || '') + '</p></div></label>'
+  ).join('');
+  lucide.createIcons();
+}
+
+async function uploadAndAttach(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const resp = await fetch(BASE + '/applicant/profile/documents', { method: 'POST', credentials: 'same-origin', body: formData });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw { message: data.error || 'Upload failed' };
+    if (data.document || data.id) profileDocs.push(data.document || data);
+    else { const pdata = await applicantApi.getProfile(); profileDocs = (pdata.profile || {}).documents || []; }
+    renderApplyDocs();
+    showToast('Document uploaded!');
+  } catch (e) { showToast(e.message || 'Upload failed', 'error'); }
+  event.target.value = '';
+}
+
 function closeApply() { document.getElementById('applyModal').classList.remove('show'); }
 
 async function submitApply() {
@@ -114,8 +214,10 @@ async function submitApply() {
   const cl = document.getElementById('coverLetter').value.trim();
   if (!cl) { errDiv.textContent = 'Cover letter is required.'; errDiv.classList.remove('hidden'); return; }
 
+  const selectedDocIds = [...document.querySelectorAll('.applyDocCb:checked')].map(cb => cb.value);
+
   try {
-    await applicantApi.applyForJob(jobId, cl, []);
+    await applicantApi.applyForJob(jobId, cl, selectedDocIds);
     closeApply();
     showToast('Application submitted successfully!');
     setTimeout(() => window.location.href = ctx + '/applicant/applications.jsp', 1500);

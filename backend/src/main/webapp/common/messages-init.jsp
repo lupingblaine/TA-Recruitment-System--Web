@@ -65,7 +65,7 @@ function renderLeftPanel() {
       const time = formatTime(c.lastTimestamp);
       const roleBadge = getRoleBadge(c.otherUserRole);
       return '<div onclick="openConversation(\'' + c.conversationId + '\',\'' + c.otherUserId + '\',\'' + escapeAttr(c.otherUserName) + '\',\'' + c.otherUserRole + '\')" class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ' + (isActive ? 'bg-zinc-100' : 'hover:bg-zinc-50') + '">' +
-        '<div class="h-10 w-10 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center font-bold text-zinc-600 shrink-0">' + initial + '</div>' +
+        '<div onclick="event.stopPropagation();showUserCard(\'' + c.otherUserId + '\')" class="h-10 w-10 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center font-bold text-zinc-600 shrink-0 hover:ring-2 hover:ring-blue-300 transition-all" title="View profile">' + initial + '</div>' +
         '<div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-medium text-sm text-zinc-900 truncate">' + escapeHtml(c.otherUserName) + '</span>' + roleBadge + '</div>' +
         '<p class="text-xs text-zinc-500 truncate mt-0.5">' + escapeHtml(c.lastMessage || '') + '</p></div>' +
         '<div class="flex flex-col items-end gap-1 shrink-0"><span class="text-xs text-zinc-400">' + time + '</span>' + unread + '</div></div>';
@@ -84,7 +84,7 @@ function renderLeftPanel() {
       const initial = (c.name || 'U').charAt(0).toUpperCase();
       const roleBadge = getRoleBadge(c.role);
       return '<div onclick="startChat(\'' + c.id + '\',\'' + escapeAttr(c.name) + '\',\'' + c.role + '\')" class="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-zinc-50 transition-colors">' +
-        '<div class="h-10 w-10 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center font-bold text-zinc-600 shrink-0">' + initial + '</div>' +
+        '<div onclick="event.stopPropagation();showUserCard(\'' + c.id + '\')" class="h-10 w-10 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center font-bold text-zinc-600 shrink-0 hover:ring-2 hover:ring-blue-300 transition-all" title="View profile">' + initial + '</div>' +
         '<div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-medium text-sm text-zinc-900 truncate">' + escapeHtml(c.name) + '</span>' + roleBadge + '</div>' +
         '<p class="text-xs text-zinc-500 mt-0.5">' + escapeHtml(c.department || '') + '</p></div></div>';
     }).join('');
@@ -149,9 +149,10 @@ function findUserName(userId) {
 function setChatHeader(name, role) {
   const initial = (name || 'U').charAt(0).toUpperCase();
   const roleBadge = getRoleBadge(role);
+  const uid = activeReceiverId || '';
   document.getElementById('chatHeader').innerHTML =
-    '<div class="h-9 w-9 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center font-bold text-zinc-600">' + initial + '</div>' +
-    '<div><div class="flex items-center gap-2"><span class="font-semibold text-zinc-900">' + escapeHtml(name) + '</span>' + roleBadge + '</div></div>';
+    '<div onclick="showUserCard(\'' + escapeAttr(uid) + '\')" class="h-9 w-9 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center font-bold text-zinc-600 cursor-pointer hover:ring-2 hover:ring-blue-300 transition-all" title="View profile">' + initial + '</div>' +
+    '<div class="cursor-pointer" onclick="showUserCard(\'' + escapeAttr(uid) + '\')"><div class="flex items-center gap-2"><span class="font-semibold text-zinc-900 hover:text-blue-600 transition-colors">' + escapeHtml(name) + '</span>' + roleBadge + '</div></div>';
   lucide.createIcons();
 }
 
@@ -240,11 +241,14 @@ function renderMessages(messages, scrollToBottom) {
     const time = formatTime(m.timestamp) + (m.edited ? ' · edited' : '');
     const body = renderMessageBody(m);
     const actions = renderMessageActions(m, isMine);
+    const senderInitial = findUserName(m.senderId).charAt(0).toUpperCase();
     if (isMine) {
       html += '<div class="flex justify-end group"><div class="flex flex-col items-end max-w-[75%]"><div class="msg-bubble bg-zinc-900 text-white px-4 py-2.5 rounded-2xl rounded-br-md">' + body + '</div>' +
         '<div class="text-xs text-zinc-400 mt-1">' + time + '</div>' + actions + '</div></div>';
     } else {
-      html += '<div class="flex justify-start group"><div class="flex flex-col items-start max-w-[75%]"><div class="msg-bubble bg-zinc-100 text-zinc-900 px-4 py-2.5 rounded-2xl rounded-bl-md">' + body + '</div>' +
+      html += '<div class="flex justify-start gap-2 group">' +
+        '<div onclick="showUserCard(\'' + escapeAttr(m.senderId) + '\')" class="h-8 w-8 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center font-bold text-zinc-600 text-xs shrink-0 mt-1 cursor-pointer hover:ring-2 hover:ring-blue-300 transition-all" title="View profile">' + senderInitial + '</div>' +
+        '<div class="flex flex-col items-start max-w-[70%]"><div class="msg-bubble bg-zinc-100 text-zinc-900 px-4 py-2.5 rounded-2xl rounded-bl-md">' + body + '</div>' +
         '<div class="text-xs text-zinc-400 mt-1">' + time + '</div>' +
         '<button type="button" onclick="startReply(\'' + escapeAttr(m.id) + '\')" class="text-xs text-zinc-500 hover:text-zinc-800 mt-1 opacity-0 group-hover:opacity-100">Reply</button></div></div>';
     }
@@ -402,6 +406,72 @@ function escapeHtml(str) {
 function escapeAttr(str) {
   if (!str) return '';
   return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function showUserCard(userId) {
+  if (!userId) return;
+  try {
+    const info = await messageApi.getUserInfo(userId);
+    document.getElementById('ucAvatar').textContent = (info.name || '?').charAt(0).toUpperCase();
+    document.getElementById('ucName').textContent = info.name || '-';
+    const roleColors = { admin: 'bg-purple-500/20 text-purple-200', organiser: 'bg-blue-500/20 text-blue-200', applicant: 'bg-emerald-500/20 text-emerald-200' };
+    document.getElementById('ucRole').innerHTML = '<span class="text-xs px-2 py-0.5 rounded-full ' + (roleColors[info.role] || 'bg-white/20 text-white/80') + '">' + (info.role || '') + '</span>';
+
+    let basic = '<div class="space-y-1"><p class="text-xs text-zinc-500">Email</p><p class="font-medium text-zinc-900 text-sm truncate">' + escapeHtml(info.email || '-') + '</p></div>';
+    basic += '<div class="space-y-1"><p class="text-xs text-zinc-500">Department</p><p class="font-medium text-zinc-900 text-sm">' + escapeHtml(info.department || '-') + '</p></div>';
+    document.getElementById('ucBasic').innerHTML = basic;
+
+    let extra = '';
+    if (info.profile) {
+      const p = info.profile;
+      extra += '<div class="border-t border-zinc-100 pt-3 space-y-2">';
+      extra += '<h4 class="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Academic</h4>';
+      extra += '<div class="grid grid-cols-3 gap-2 text-sm">';
+      extra += '<div><p class="text-xs text-zinc-500">Degree</p><p class="font-medium text-zinc-900">' + escapeHtml(p.degree || '-') + '</p></div>';
+      extra += '<div><p class="text-xs text-zinc-500">Year</p><p class="font-medium text-zinc-900">' + (p.year || '-') + '</p></div>';
+      extra += '<div><p class="text-xs text-zinc-500">GPA</p><p class="font-medium text-zinc-900">' + (p.gpa ? p.gpa + '/' + (p.maxGpa || '4.0') : '-') + '</p></div>';
+      extra += '</div>';
+      if (p.skills && p.skills.length > 0) {
+        extra += '<div class="mt-2"><p class="text-xs text-zinc-500 mb-1">Skills</p><div class="flex flex-wrap gap-1">' +
+          p.skills.map(function(s) { return '<span class="text-xs px-2 py-0.5 bg-zinc-100 text-zinc-700 rounded-full border border-zinc-200">' + escapeHtml(s) + '</span>'; }).join('') + '</div></div>';
+      }
+      extra += '</div>';
+    }
+
+    if (info.applications && info.applications.length > 0) {
+      extra += '<div class="border-t border-zinc-100 pt-3 space-y-2">';
+      extra += '<h4 class="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Applications</h4>';
+      extra += info.applications.map(function(a) {
+        var statusColors = { applied: 'badge-neutral', review: 'badge-neutral', shortlisted: 'badge-warning', interview: 'badge-warning', offer: 'badge-success', rejected: 'badge-danger' };
+        return '<div class="flex items-center justify-between text-sm py-1">' +
+          '<div class="min-w-0"><p class="font-medium text-zinc-900 truncate">' + escapeHtml(a.jobTitle) + '</p>' +
+          '<p class="text-xs text-zinc-500">' + escapeHtml(a.moduleCode) + '</p></div>' +
+          '<span class="badge ' + (statusColors[a.status] || 'badge-neutral') + ' shrink-0 ml-2">' + a.status + '</span></div>';
+      }).join('');
+      extra += '</div>';
+    }
+
+    if (info.modules && info.modules.length > 0) {
+      extra += '<div class="border-t border-zinc-100 pt-3 space-y-2">';
+      extra += '<h4 class="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Manages Modules</h4>';
+      extra += info.modules.map(function(m) {
+        return '<div class="flex items-center gap-2 text-sm py-1">' +
+          '<span class="badge badge-neutral shrink-0">' + escapeHtml(m.code) + '</span>' +
+          '<span class="text-zinc-700 truncate">' + escapeHtml(m.name || '') + '</span></div>';
+      }).join('');
+      extra += '</div>';
+    }
+
+    document.getElementById('ucExtra').innerHTML = extra;
+    document.getElementById('userCardModal').classList.remove('hidden');
+    lucide.createIcons();
+  } catch (e) {
+    showToast('Failed to load user info', 'error');
+  }
+}
+
+function closeUserCard() {
+  document.getElementById('userCardModal').classList.add('hidden');
 }
 
 async function initMessaging() {

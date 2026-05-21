@@ -57,6 +57,24 @@
           </div>
           <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Deadline</label><input id="jDeadline"
               type="date" class="input"></div>
+          <!-- Work Schedule Quick Generator -->
+          <div class="border border-zinc-200 rounded-xl p-4 space-y-3 bg-zinc-50/50">
+            <label class="block text-sm font-bold text-zinc-800">Work Schedule</label>
+            <div class="flex flex-wrap gap-2 items-end">
+              <div class="flex-1 min-w-[120px]"><label class="block text-xs text-zinc-500 mb-1">Start Date</label><input id="wsStart" type="date" class="input text-sm"></div>
+              <div class="w-24"><label class="block text-xs text-zinc-500 mb-1">Weeks</label><input id="wsWeeks" type="number" min="1" max="52" value="12" class="input text-sm"></div>
+              <div class="flex-1 min-w-[140px]">
+                <label class="block text-xs text-zinc-500 mb-1">Day of Week</label>
+                <select id="wsDay" class="input text-sm">
+                  <option value="1">Monday</option><option value="2">Tuesday</option><option value="3" selected>Wednesday</option>
+                  <option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option>
+                </select>
+              </div>
+              <button type="button" onclick="generateWorkDates()" class="btn btn-outline text-sm gap-1 shrink-0"><i data-lucide="calendar-plus" class="h-3.5 w-3.5"></i> Generate</button>
+            </div>
+            <div id="workDatesList" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto"></div>
+            <p class="text-xs text-zinc-400" id="workDatesCount">No dates set</p>
+          </div>
           <div id="jobError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
           </div>
         </div>
@@ -177,6 +195,8 @@
         document.getElementById('jDeadline').value = '';
         document.getElementById('jDeadline').min = new Date().toISOString().split('T')[0];
         document.getElementById('jobError').classList.add('hidden');
+        currentWorkDates = [];
+        renderWorkDates();
         document.getElementById('jobModal').classList.add('show');
       }
 
@@ -197,8 +217,57 @@
           document.getElementById('jDeadline').value = job.deadline || '';
           document.getElementById('jDeadline').min = new Date().toISOString().split('T')[0];
           document.getElementById('jobError').classList.add('hidden');
+          currentWorkDates = Array.isArray(job.workDates) ? [...job.workDates] : [];
+          renderWorkDates();
           document.getElementById('jobModal').classList.add('show');
         } catch (e) { showToast(e.message, 'error'); }
+      }
+
+      let currentWorkDates = [];
+
+      function generateWorkDates() {
+        const startStr = document.getElementById('wsStart').value;
+        const weeks = parseInt(document.getElementById('wsWeeks').value) || 12;
+        const targetDay = parseInt(document.getElementById('wsDay').value);
+        if (!startStr) { showToast('Please select a start date', 'error'); return; }
+
+        const start = new Date(startStr + 'T00:00:00');
+        const dayDiff = (targetDay - start.getDay() + 7) % 7;
+        const firstTarget = new Date(start);
+        firstTarget.setDate(start.getDate() + (dayDiff === 0 ? 0 : dayDiff));
+
+        const dates = [];
+        for (let i = 0; i < weeks; i++) {
+          const d = new Date(firstTarget);
+          d.setDate(firstTarget.getDate() + i * 7);
+          dates.push(d.toISOString().split('T')[0]);
+        }
+        currentWorkDates = dates;
+        renderWorkDates();
+      }
+
+      function removeWorkDate(idx) {
+        currentWorkDates.splice(idx, 1);
+        renderWorkDates();
+      }
+
+      function renderWorkDates() {
+        const el = document.getElementById('workDatesList');
+        const countEl = document.getElementById('workDatesCount');
+        if (currentWorkDates.length === 0) {
+          el.innerHTML = '';
+          countEl.textContent = 'No dates set';
+          return;
+        }
+        const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        el.innerHTML = currentWorkDates.map((d, i) => {
+          const dt = new Date(d + 'T00:00:00');
+          return '<span class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-700">' +
+            dayNames[dt.getDay()] + ' ' + d +
+            '<button type="button" onclick="removeWorkDate(' + i + ')" class="text-zinc-400 hover:text-red-500">&times;</button></span>';
+        }).join('');
+        countEl.textContent = currentWorkDates.length + ' work date' + (currentWorkDates.length > 1 ? 's' : '');
+        lucide.createIcons();
       }
 
       function closeModal() { document.getElementById('jobModal').classList.remove('show'); }
@@ -224,6 +293,7 @@
           hoursPerWeek: parseInt(document.getElementById('jHours').value) || 10,
           type: document.getElementById('jType').value,
           deadline: document.getElementById('jDeadline').value,
+          workDates: currentWorkDates,
         };
         try {
           if (id) { await organiserApi.updateJob(id, payload); }

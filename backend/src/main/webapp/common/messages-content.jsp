@@ -64,6 +64,28 @@
   </div>
 </div>
 
+<!-- User Profile Card Modal -->
+<div id="userCardModal" class="fixed inset-0 z-[60] hidden">
+  <div class="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm" onclick="closeUserCard()"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+      <div class="relative bg-gradient-to-br from-zinc-800 to-zinc-900 p-6 pb-12 text-center">
+        <button onclick="closeUserCard()" class="absolute top-3 right-3 text-white/60 hover:text-white"><i data-lucide="x" class="h-5 w-5"></i></button>
+        <div class="h-16 w-16 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-2xl font-bold text-white mx-auto" id="ucAvatar">?</div>
+        <h3 class="text-lg font-bold text-white mt-3" id="ucName">-</h3>
+        <div class="mt-1" id="ucRole"></div>
+      </div>
+      <div class="px-6 pt-4 pb-6 space-y-4 max-h-80 overflow-y-auto">
+        <div class="grid grid-cols-2 gap-3 text-sm" id="ucBasic"></div>
+        <div id="ucExtra"></div>
+      </div>
+      <div class="px-6 pb-4">
+        <button onclick="closeUserCard()" class="btn btn-secondary w-full">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
 .msg-bubble { width: fit-content; max-width: 100%; }
 .msg-bubble p { margin: 0; }

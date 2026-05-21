@@ -20,6 +20,7 @@ public class Job {
     private List<String> responsibilities;
     private String organiserId;
     private String createdAt;
+    private List<String> workDates;
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -55,4 +56,6 @@ public class Job {
     public void setOrganiserId(String organiserId) { this.organiserId = organiserId; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public List<String> getWorkDates() { return workDates; }
+    public void setWorkDates(List<String> workDates) { this.workDates = workDates; }
 }

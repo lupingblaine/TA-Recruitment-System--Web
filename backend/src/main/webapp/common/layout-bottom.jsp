@@ -1,4 +1,8 @@
 <%@ page pageEncoding="UTF-8" %>
+<%
+  String userRole = (String) session.getAttribute("role");
+  if (userRole == null) userRole = "";
+%>
       </div>
     </div>
   </main>
@@ -40,10 +44,18 @@
     }
   });
 
-  // Load notifications for header dropdown
+  const _notifRole = '<%= userRole %>';
+  function _notifApi() {
+    if (_notifRole === 'organiser') return organiserApi;
+    if (_notifRole === 'admin' && typeof adminApi !== 'undefined') return adminApi;
+    return applicantApi;
+  }
+
   async function loadHeaderNotifications() {
     try {
-      const notifications = await applicantApi.getNotifications();
+      const api = _notifApi();
+      if (!api || !api.getNotifications) return;
+      const notifications = await api.getNotifications();
       renderHeaderNotifications(notifications);
     } catch (e) {
       console.log('Could not load notifications');
@@ -87,17 +99,20 @@
 
   function getNotificationLink(n) {
     const ctx = document.querySelector('meta[name="ctx"]')?.content || '';
+    if (_notifRole === 'organiser') {
+      return ctx + '/organiser/applications.jsp';
+    }
     if (n.type === 'interview_scheduled') return ctx + '/applicant/dashboard.jsp';
     return ctx + '/applicant/applications.jsp';
   }
 
   async function markRead(id) {
-    try { await applicantApi.markNotificationRead(id); } catch(e) {}
+    try { await _notifApi().markNotificationRead(id); } catch(e) {}
   }
 
   async function markAllRead() {
     try {
-      await applicantApi.markAllNotificationsRead();
+      await _notifApi().markAllNotificationsRead();
       loadHeaderNotifications();
     } catch(e) {}
   }

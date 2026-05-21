@@ -73,6 +73,11 @@ public class MessageServlet extends HttpServlet {
                 if (path.startsWith("conversations/")) {
                     String conversationId = path.substring("conversations/".length());
                     JsonUtil.writeJson(resp, service.getConversationMessages(userId, conversationId));
+                } else if (path.startsWith("user-info/")) {
+                    String targetUserId = path.substring("user-info/".length());
+                    com.google.gson.JsonObject info = service.getUserInfo(userId, targetUserId);
+                    if (info == null) JsonUtil.writeError(resp, 404, "User not found");
+                    else JsonUtil.writeJson(resp, info);
                 } else {
                     JsonUtil.writeError(resp, 404, "Endpoint not found");
                 }

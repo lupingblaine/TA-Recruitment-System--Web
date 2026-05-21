@@ -446,6 +446,69 @@ public class MessageService {
         if (changed) dataService.save();
     }
 
+    public JsonObject getUserInfo(String requesterId, String targetUserId) {
+        DataStore data = dataService.getData();
+        User target = data.getUsers().stream()
+                .filter(u -> u.getId().equals(targetUserId)).findFirst().orElse(null);
+        if (target == null) return null;
+
+        JsonObject info = new JsonObject();
+        info.addProperty("id", target.getId());
+        info.addProperty("name", target.getName());
+        info.addProperty("email", target.getEmail());
+        info.addProperty("role", target.getRole());
+        info.addProperty("department", target.getDepartment());
+        info.addProperty("avatar", target.getAvatar());
+
+        if ("applicant".equals(target.getRole())) {
+            Profile profile = data.getProfiles().stream()
+                    .filter(p -> p.getUserId().equals(targetUserId)).findFirst().orElse(null);
+            if (profile != null) {
+                JsonObject prof = new JsonObject();
+                prof.addProperty("degree", profile.getDegree());
+                prof.addProperty("year", profile.getYear());
+                prof.addProperty("gpa", profile.getGpa());
+                prof.addProperty("maxGpa", profile.getMaxGpa());
+                if (profile.getSkills() != null) {
+                    JsonArray skills = new JsonArray();
+                    profile.getSkills().forEach(skills::add);
+                    prof.add("skills", skills);
+                }
+                info.add("profile", prof);
+            }
+
+            List<Application> apps = data.getApplications().stream()
+                    .filter(a -> targetUserId.equals(a.getApplicantId()))
+                    .collect(Collectors.toList());
+            JsonArray appArr = new JsonArray();
+            apps.forEach(a -> {
+                Job job = data.getJobs().stream()
+                        .filter(j -> j.getId().equals(a.getJobId())).findFirst().orElse(null);
+                JsonObject ao = new JsonObject();
+                ao.addProperty("jobTitle", job != null ? job.getTitle() : a.getJobId());
+                ao.addProperty("moduleCode", job != null && job.getModuleCode() != null ? job.getModuleCode() : "");
+                ao.addProperty("status", a.getStatus());
+                appArr.add(ao);
+            });
+            info.add("applications", appArr);
+        } else if ("organiser".equals(target.getRole())) {
+            List<com.tamo.model.Module> modules = data.getModules().stream()
+                    .filter(m -> targetUserId.equals(m.getOrganiserId()))
+                    .collect(Collectors.toList());
+            JsonArray modArr = new JsonArray();
+            modules.forEach(m -> {
+                JsonObject mo = new JsonObject();
+                mo.addProperty("code", m.getCode());
+                mo.addProperty("name", m.getName());
+                mo.addProperty("department", m.getDepartment());
+                modArr.add(mo);
+            });
+            info.add("modules", modArr);
+        }
+
+        return info;
+    }
+
     public int getUnreadCount(String userId) {
         DataStore data = dataService.getData();
         if (data.getMessages() == null) return 0;
