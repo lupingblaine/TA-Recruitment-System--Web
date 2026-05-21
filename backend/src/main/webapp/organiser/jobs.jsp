@@ -225,22 +225,29 @@
 
       let currentWorkDates = [];
 
+      function formatLocalDate(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + day;
+      }
+
       function generateWorkDates() {
         const startStr = document.getElementById('wsStart').value;
         const weeks = parseInt(document.getElementById('wsWeeks').value) || 12;
         const targetDay = parseInt(document.getElementById('wsDay').value);
         if (!startStr) { showToast('Please select a start date', 'error'); return; }
 
-        const start = new Date(startStr + 'T00:00:00');
+        const parts = startStr.split('-');
+        const start = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
         const dayDiff = (targetDay - start.getDay() + 7) % 7;
         const firstTarget = new Date(start);
-        firstTarget.setDate(start.getDate() + (dayDiff === 0 ? 0 : dayDiff));
+        firstTarget.setDate(start.getDate() + dayDiff);
 
         const dates = [];
         for (let i = 0; i < weeks; i++) {
-          const d = new Date(firstTarget);
-          d.setDate(firstTarget.getDate() + i * 7);
-          dates.push(d.toISOString().split('T')[0]);
+          const d = new Date(firstTarget.getFullYear(), firstTarget.getMonth(), firstTarget.getDate() + i * 7);
+          dates.push(formatLocalDate(d));
         }
         currentWorkDates = dates;
         renderWorkDates();
