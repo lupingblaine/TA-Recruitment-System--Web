@@ -723,6 +723,26 @@
   ],
   "applications": [
     {
+      "id": "a001",
+      "jobId": "j001",
+      "applicantId": "u001",
+      "status": "applied",
+      "coverLetter": "Dear Dr. Turing, I am writing to express my strong interest in the Teaching Assistant role for CS201. As a third-year Computer Science student who earned an A in CS201 last spring, I am confident I can help students master data structures and algorithm design. I have prior tutoring experience and have built a small open-source data structures library in Java. Yours sincerely, Alex Johnson.",
+      "documentIds": ["doc001", "doc002"],
+      "matchScore": 95,
+      "riskFlag": null,
+      "aiSummary": "Excellent fit: A in CS201, prior peer tutoring, strong Java background.",
+      "appliedAt": "2026-09-18T10:15:00",
+      "updatedAt": "2026-09-18T10:15:00",
+      "timeline": [
+        {"status": "applied", "date": "2026-09-18", "completed": true, "pending": null, "error": null},
+        {"status": "review", "date": null, "completed": false, "pending": true, "error": null},
+        {"status": "shortlisted", "date": null, "completed": false, "pending": null, "error": null},
+        {"status": "interview", "date": null, "completed": false, "pending": null, "error": null},
+        {"status": "offer", "date": null, "completed": false, "pending": null, "error": null}
+      ]
+    },
+    {
       "id": "a002",
       "jobId": "j001",
       "applicantId": "u002",
@@ -1157,59 +1177,6 @@
           "date": "2026-10-12",
           "completed": false,
           "pending": true,
-          "error": null
-        },
-        {
-          "status": "interview",
-          "date": null,
-          "completed": false,
-          "pending": null,
-          "error": null
-        },
-        {
-          "status": "offer",
-          "date": null,
-          "completed": false,
-          "pending": null,
-          "error": null
-        }
-      ]
-    },
-    {
-      "id": "a010",
-      "jobId": "j001",
-      "applicantId": "u001",
-      "status": "applied",
-      "coverLetter": "ok",
-      "documentIds": [
-        "doc001",
-        "doc002"
-      ],
-      "matchScore": 76,
-      "riskFlag": null,
-      "aiSummary": "Application auto-analyzed by system.",
-      "appliedAt": "2026-05-21T21:58:48.798478",
-      "updatedAt": "2026-05-21T21:58:48.798478",
-      "timeline": [
-        {
-          "status": "applied",
-          "date": "2026-05-21",
-          "completed": true,
-          "pending": null,
-          "error": null
-        },
-        {
-          "status": "review",
-          "date": null,
-          "completed": false,
-          "pending": null,
-          "error": null
-        },
-        {
-          "status": "shortlisted",
-          "date": null,
-          "completed": false,
-          "pending": null,
           "error": null
         },
         {

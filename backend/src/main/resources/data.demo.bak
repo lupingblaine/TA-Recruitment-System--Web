@@ -10,7 +10,7 @@
       "department": "Computer Science",
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-05-20T09:30:00",
+      "lastLogin": "2026-05-21T21:56:45.617951",
       "createdAt": "2026-08-15T10:00:00"
     },
     {
@@ -141,20 +141,69 @@
       "gpa": 3.8,
       "maxGpa": 4.0,
       "profileCompletion": 92,
-      "skills": ["Java", "Python", "Algorithms", "Git"],
+      "skills": [
+        "Java",
+        "Python",
+        "Algorithms",
+        "Git"
+      ],
       "coursework": [
-        {"code": "CS101", "name": "Introduction to Programming", "grade": "A", "term": "Fall 2024"},
-        {"code": "CS201", "name": "Data Structures and Algorithms", "grade": "A", "term": "Spring 2025"},
-        {"code": "CS301", "name": "Database Systems", "grade": "A-", "term": "Fall 2025"},
-        {"code": "EBU6304", "name": "Software Engineering", "grade": "A", "term": "Spring 2026"}
+        {
+          "code": "CS101",
+          "name": "Introduction to Programming",
+          "grade": "A",
+          "term": "Fall 2024"
+        },
+        {
+          "code": "CS201",
+          "name": "Data Structures and Algorithms",
+          "grade": "A",
+          "term": "Spring 2025"
+        },
+        {
+          "code": "CS301",
+          "name": "Database Systems",
+          "grade": "A-",
+          "term": "Fall 2025"
+        },
+        {
+          "code": "EBU6304",
+          "name": "Software Engineering",
+          "grade": "A",
+          "term": "Spring 2026"
+        }
       ],
       "experience": [
-        {"role": "Peer Tutor", "course": "CS101", "company": null, "term": "Fall 2025", "description": "Tutored 15 first-year students in weekly programming workshops."},
-        {"role": "Software Engineering Intern", "course": null, "company": "TechCorp Ltd.", "term": "Summer 2025", "description": "Built a microservice for internal billing using Java Spring Boot."}
+        {
+          "role": "Peer Tutor",
+          "course": "CS101",
+          "company": null,
+          "term": "Fall 2025",
+          "description": "Tutored 15 first-year students in weekly programming workshops."
+        },
+        {
+          "role": "Software Engineering Intern",
+          "course": null,
+          "company": "TechCorp Ltd.",
+          "term": "Summer 2025",
+          "description": "Built a microservice for internal billing using Java Spring Boot."
+        }
       ],
       "documents": [
-        {"id": "doc001", "name": "Alex_Johnson_CV.pdf", "type": "cv", "size": "2.4 MB", "uploadedAt": "2026-09-10T10:00:00"},
-        {"id": "doc002", "name": "Alex_Johnson_Transcript.pdf", "type": "transcript", "size": "1.1 MB", "uploadedAt": "2026-09-10T10:05:00"}
+        {
+          "id": "doc001",
+          "name": "Alex_Johnson_CV.pdf",
+          "type": "cv",
+          "size": "2.4 MB",
+          "uploadedAt": "2026-09-10T10:00:00"
+        },
+        {
+          "id": "doc002",
+          "name": "Alex_Johnson_Transcript.pdf",
+          "type": "transcript",
+          "size": "1.1 MB",
+          "uploadedAt": "2026-09-10T10:05:00"
+        }
       ],
       "maxWeeklyHours": 20,
       "currentWeeklyHours": 14
@@ -168,16 +217,42 @@
       "gpa": 3.5,
       "maxGpa": 4.0,
       "profileCompletion": 75,
-      "skills": ["Python", "JavaScript", "HTML/CSS"],
+      "skills": [
+        "Python",
+        "JavaScript",
+        "HTML/CSS"
+      ],
       "coursework": [
-        {"code": "CS101", "name": "Introduction to Programming", "grade": "A-", "term": "Fall 2024"},
-        {"code": "CS201", "name": "Data Structures and Algorithms", "grade": "B+", "term": "Spring 2025"}
+        {
+          "code": "CS101",
+          "name": "Introduction to Programming",
+          "grade": "A-",
+          "term": "Fall 2024"
+        },
+        {
+          "code": "CS201",
+          "name": "Data Structures and Algorithms",
+          "grade": "B+",
+          "term": "Spring 2025"
+        }
       ],
       "experience": [
-        {"role": "Web Developer Intern", "course": null, "company": "Bright Studio", "term": "Summer 2025", "description": "Maintained a Next.js marketing site and built React components."}
+        {
+          "role": "Web Developer Intern",
+          "course": null,
+          "company": "Bright Studio",
+          "term": "Summer 2025",
+          "description": "Maintained a Next.js marketing site and built React components."
+        }
       ],
       "documents": [
-        {"id": "doc003", "name": "Bob_Smith_CV.pdf", "type": "cv", "size": "1.2 MB", "uploadedAt": "2026-09-12T14:30:00"}
+        {
+          "id": "doc003",
+          "name": "Bob_Smith_CV.pdf",
+          "type": "cv",
+          "size": "1.2 MB",
+          "uploadedAt": "2026-09-12T14:30:00"
+        }
       ],
       "maxWeeklyHours": 20,
       "currentWeeklyHours": 8
@@ -191,17 +266,48 @@
       "gpa": 3.6,
       "maxGpa": 4.0,
       "profileCompletion": 68,
-      "skills": ["MATLAB", "R", "LaTeX"],
+      "skills": [
+        "MATLAB",
+        "R",
+        "LaTeX"
+      ],
       "coursework": [
-        {"code": "MATH101", "name": "Calculus I", "grade": "A", "term": "Fall 2024"},
-        {"code": "MATH201", "name": "Linear Algebra", "grade": "A", "term": "Spring 2025"},
-        {"code": "MATH301", "name": "Real Analysis", "grade": "B+", "term": "Fall 2025"}
+        {
+          "code": "MATH101",
+          "name": "Calculus I",
+          "grade": "A",
+          "term": "Fall 2024"
+        },
+        {
+          "code": "MATH201",
+          "name": "Linear Algebra",
+          "grade": "A",
+          "term": "Spring 2025"
+        },
+        {
+          "code": "MATH301",
+          "name": "Real Analysis",
+          "grade": "B+",
+          "term": "Fall 2025"
+        }
       ],
       "experience": [
-        {"role": "Math Society Treasurer", "course": null, "company": "University Maths Society", "term": "2025-2026", "description": "Managed a £4,000 annual budget and organised six student events."}
+        {
+          "role": "Math Society Treasurer",
+          "course": null,
+          "company": "University Maths Society",
+          "term": "2025-2026",
+          "description": "Managed a £4,000 annual budget and organised six student events."
+        }
       ],
       "documents": [
-        {"id": "doc004", "name": "Carol_White_CV.pdf", "type": "cv", "size": "1.5 MB", "uploadedAt": "2026-09-15T09:00:00"}
+        {
+          "id": "doc004",
+          "name": "Carol_White_CV.pdf",
+          "type": "cv",
+          "size": "1.5 MB",
+          "uploadedAt": "2026-09-15T09:00:00"
+        }
       ],
       "maxWeeklyHours": 20,
       "currentWeeklyHours": 0
@@ -215,19 +321,64 @@
       "gpa": 3.9,
       "maxGpa": 4.0,
       "profileCompletion": 98,
-      "skills": ["C", "C++", "Embedded Systems", "Verilog", "Python"],
+      "skills": [
+        "C",
+        "C++",
+        "Embedded Systems",
+        "Verilog",
+        "Python"
+      ],
       "coursework": [
-        {"code": "EE201", "name": "Signals and Systems", "grade": "A", "term": "Spring 2024"},
-        {"code": "EE301", "name": "Digital Signal Processing", "grade": "A", "term": "Fall 2024"},
-        {"code": "CS201", "name": "Data Structures and Algorithms", "grade": "A-", "term": "Spring 2025"}
+        {
+          "code": "EE201",
+          "name": "Signals and Systems",
+          "grade": "A",
+          "term": "Spring 2024"
+        },
+        {
+          "code": "EE301",
+          "name": "Digital Signal Processing",
+          "grade": "A",
+          "term": "Fall 2024"
+        },
+        {
+          "code": "CS201",
+          "name": "Data Structures and Algorithms",
+          "grade": "A-",
+          "term": "Spring 2025"
+        }
       ],
       "experience": [
-        {"role": "Lab Demonstrator", "course": "EE201", "company": null, "term": "Spring 2025", "description": "Supported 30 students through weekly Verilog lab exercises."},
-        {"role": "Research Assistant", "course": null, "company": "Embedded Systems Lab", "term": "Summer 2025", "description": "Co-authored a paper on low-power FPGA inference accepted at ICCAD 2026."}
+        {
+          "role": "Lab Demonstrator",
+          "course": "EE201",
+          "company": null,
+          "term": "Spring 2025",
+          "description": "Supported 30 students through weekly Verilog lab exercises."
+        },
+        {
+          "role": "Research Assistant",
+          "course": null,
+          "company": "Embedded Systems Lab",
+          "term": "Summer 2025",
+          "description": "Co-authored a paper on low-power FPGA inference accepted at ICCAD 2026."
+        }
       ],
       "documents": [
-        {"id": "doc005", "name": "Diana_Chen_CV.pdf", "type": "cv", "size": "1.8 MB", "uploadedAt": "2026-09-08T11:00:00"},
-        {"id": "doc006", "name": "Diana_Chen_Transcript.pdf", "type": "transcript", "size": "0.9 MB", "uploadedAt": "2026-09-08T11:05:00"}
+        {
+          "id": "doc005",
+          "name": "Diana_Chen_CV.pdf",
+          "type": "cv",
+          "size": "1.8 MB",
+          "uploadedAt": "2026-09-08T11:00:00"
+        },
+        {
+          "id": "doc006",
+          "name": "Diana_Chen_Transcript.pdf",
+          "type": "transcript",
+          "size": "0.9 MB",
+          "uploadedAt": "2026-09-08T11:05:00"
+        }
       ],
       "maxWeeklyHours": 20,
       "currentWeeklyHours": 0
@@ -243,7 +394,12 @@
       "profileCompletion": 45,
       "skills": [],
       "coursework": [
-        {"code": "CS101", "name": "Introduction to Programming", "grade": "C", "term": "Fall 2024"}
+        {
+          "code": "CS101",
+          "name": "Introduction to Programming",
+          "grade": "C",
+          "term": "Fall 2024"
+        }
       ],
       "experience": [],
       "documents": [],
@@ -259,28 +415,109 @@
       "gpa": 3.7,
       "maxGpa": 4.0,
       "profileCompletion": 85,
-      "skills": ["SQL", "Python", "Tableau", "Pandas"],
+      "skills": [
+        "SQL",
+        "Python",
+        "Tableau",
+        "Pandas"
+      ],
       "coursework": [
-        {"code": "CS301", "name": "Database Systems", "grade": "A", "term": "Fall 2025"},
-        {"code": "EBU6304", "name": "Software Engineering", "grade": "A-", "term": "Spring 2026"}
+        {
+          "code": "CS301",
+          "name": "Database Systems",
+          "grade": "A",
+          "term": "Fall 2025"
+        },
+        {
+          "code": "EBU6304",
+          "name": "Software Engineering",
+          "grade": "A-",
+          "term": "Spring 2026"
+        }
       ],
       "experience": [
-        {"role": "Data Analyst Intern", "course": null, "company": "FinScope", "term": "Summer 2025", "description": "Built ETL pipelines processing 10M+ rows per day in Python and SQL."}
+        {
+          "role": "Data Analyst Intern",
+          "course": null,
+          "company": "FinScope",
+          "term": "Summer 2025",
+          "description": "Built ETL pipelines processing 10M+ rows per day in Python and SQL."
+        }
       ],
       "documents": [
-        {"id": "doc007", "name": "Sarah_Lee_CV.pdf", "type": "cv", "size": "2.0 MB", "uploadedAt": "2026-09-20T16:00:00"}
+        {
+          "id": "doc007",
+          "name": "Sarah_Lee_CV.pdf",
+          "type": "cv",
+          "size": "2.0 MB",
+          "uploadedAt": "2026-09-20T16:00:00"
+        }
       ],
       "maxWeeklyHours": 20,
       "currentWeeklyHours": 18
     }
   ],
   "modules": [
-    {"id": "m001", "code": "CS201", "name": "Data Structures and Algorithms", "department": "Computer Science", "organiserId": "u006", "organiserName": "Dr. Alan Turing", "term": "Fall 2026", "status": "active"},
-    {"id": "m002", "code": "CS301", "name": "Database Systems", "department": "Computer Science", "organiserId": "u007", "organiserName": "Dr. Grace Hopper", "term": "Fall 2026", "status": "active"},
-    {"id": "m003", "code": "CS101", "name": "Introduction to Programming", "department": "Computer Science", "organiserId": "u006", "organiserName": "Dr. Alan Turing", "term": "Fall 2026", "status": "active"},
-    {"id": "m004", "code": "EBU6304", "name": "Software Engineering", "department": "Computer Science", "organiserId": "u007", "organiserName": "Dr. Grace Hopper", "term": "Fall 2026", "status": "active"},
-    {"id": "m005", "code": "MATH201", "name": "Linear Algebra", "department": "Mathematics", "organiserId": "u007", "organiserName": "Dr. Grace Hopper", "term": "Fall 2026", "status": "active"},
-    {"id": "m006", "code": "EE301", "name": "Digital Signal Processing", "department": "Electronic Engineering", "organiserId": "u008", "organiserName": "Prof. Linus Torvalds", "term": "Fall 2026", "status": "active"}
+    {
+      "id": "m001",
+      "code": "CS201",
+      "name": "Data Structures and Algorithms",
+      "department": "Computer Science",
+      "organiserId": "u006",
+      "organiserName": "Dr. Alan Turing",
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "m002",
+      "code": "CS301",
+      "name": "Database Systems",
+      "department": "Computer Science",
+      "organiserId": "u007",
+      "organiserName": "Dr. Grace Hopper",
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "m003",
+      "code": "CS101",
+      "name": "Introduction to Programming",
+      "department": "Computer Science",
+      "organiserId": "u006",
+      "organiserName": "Dr. Alan Turing",
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "m004",
+      "code": "EBU6304",
+      "name": "Software Engineering",
+      "department": "Computer Science",
+      "organiserId": "u007",
+      "organiserName": "Dr. Grace Hopper",
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "m005",
+      "code": "MATH201",
+      "name": "Linear Algebra",
+      "department": "Mathematics",
+      "organiserId": "u007",
+      "organiserName": "Dr. Grace Hopper",
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "m006",
+      "code": "EE301",
+      "name": "Digital Signal Processing",
+      "department": "Electronic Engineering",
+      "organiserId": "u008",
+      "organiserName": "Prof. Linus Torvalds",
+      "term": "Fall 2026",
+      "status": "active"
+    }
   ],
   "jobs": [
     {
@@ -296,7 +533,11 @@
       "positions": 3,
       "deadline": "2026-12-15",
       "status": "active",
-      "tags": ["Java", "Algorithms", "Teaching"],
+      "tags": [
+        "Java",
+        "Algorithms",
+        "Teaching"
+      ],
       "requirements": [
         "Minimum grade of A- in CS201 or equivalent",
         "Strong proficiency in Java or C++",
@@ -309,7 +550,10 @@
       ],
       "organiserId": "u006",
       "createdAt": "2026-09-01T10:00:00",
-      "workDates": ["2026-09-22", "2026-12-12"]
+      "workDates": [
+        "2026-09-22",
+        "2026-12-12"
+      ]
     },
     {
       "id": "j002",
@@ -324,7 +568,11 @@
       "positions": 2,
       "deadline": "2026-12-20",
       "status": "active",
-      "tags": ["SQL", "Database", "Teaching"],
+      "tags": [
+        "SQL",
+        "Database",
+        "Teaching"
+      ],
       "requirements": [
         "Grade A in CS301 or equivalent",
         "Solid SQL and ER-modelling skills"
@@ -336,7 +584,10 @@
       ],
       "organiserId": "u007",
       "createdAt": "2026-09-03T11:00:00",
-      "workDates": ["2026-09-25", "2026-12-18"]
+      "workDates": [
+        "2026-09-25",
+        "2026-12-18"
+      ]
     },
     {
       "id": "j003",
@@ -351,7 +602,11 @@
       "positions": 4,
       "deadline": "2026-12-22",
       "status": "active",
-      "tags": ["Python", "Beginners", "Teaching"],
+      "tags": [
+        "Python",
+        "Beginners",
+        "Teaching"
+      ],
       "requirements": [
         "Minimum grade of A- in CS101",
         "Strong Python fundamentals"
@@ -363,7 +618,10 @@
       ],
       "organiserId": "u006",
       "createdAt": "2026-09-05T09:30:00",
-      "workDates": ["2026-09-23", "2026-12-15"]
+      "workDates": [
+        "2026-09-23",
+        "2026-12-15"
+      ]
     },
     {
       "id": "j004",
@@ -378,7 +636,11 @@
       "positions": 2,
       "deadline": "2026-12-30",
       "status": "active",
-      "tags": ["Agile", "UML", "Project"],
+      "tags": [
+        "Agile",
+        "UML",
+        "Project"
+      ],
       "requirements": [
         "Grade A in EBU6304",
         "Experience with Git, code review and CI/CD"
@@ -390,7 +652,10 @@
       ],
       "organiserId": "u007",
       "createdAt": "2026-09-08T13:00:00",
-      "workDates": ["2026-09-26", "2026-12-30"]
+      "workDates": [
+        "2026-09-26",
+        "2026-12-30"
+      ]
     },
     {
       "id": "j005",
@@ -405,7 +670,11 @@
       "positions": 1,
       "deadline": "2026-12-25",
       "status": "active",
-      "tags": ["MATLAB", "Python", "DSP"],
+      "tags": [
+        "MATLAB",
+        "Python",
+        "DSP"
+      ],
       "requirements": [
         "Grade A in EE301",
         "Strong MATLAB and Python skills"
@@ -417,7 +686,10 @@
       ],
       "organiserId": "u008",
       "createdAt": "2026-09-10T14:00:00",
-      "workDates": ["2026-09-28", "2026-12-22"]
+      "workDates": [
+        "2026-09-28",
+        "2026-12-22"
+      ]
     },
     {
       "id": "j006",
@@ -432,7 +704,9 @@
       "positions": 1,
       "deadline": "2026-06-30",
       "status": "closed",
-      "tags": ["Java"],
+      "tags": [
+        "Java"
+      ],
       "requirements": [
         "Grade B+ in CS201"
       ],
@@ -441,7 +715,10 @@
       ],
       "organiserId": "u006",
       "createdAt": "2026-05-01T09:00:00",
-      "workDates": ["2026-06-01", "2026-06-30"]
+      "workDates": [
+        "2026-06-01",
+        "2026-06-30"
+      ]
     }
   ],
   "applications": [
@@ -471,18 +748,50 @@
       "applicantId": "u002",
       "status": "review",
       "coverLetter": "Dear Dr. Turing, I would love to assist with CS201. Although my grade was B+, I have invested significant time outside class building data structures in Python and Java and I am eager to learn from you. Best regards, Bob Smith.",
-      "documentIds": ["doc003"],
+      "documentIds": [
+        "doc003"
+      ],
       "matchScore": 72,
       "riskFlag": null,
       "aiSummary": "Solid foundation but grade slightly below the typical bar.",
       "appliedAt": "2026-09-20T14:30:00",
       "updatedAt": "2026-09-22T09:00:00",
       "timeline": [
-        {"status": "applied", "date": "2026-09-20", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": "2026-09-22", "completed": false, "pending": true, "error": null},
-        {"status": "shortlisted", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "interview", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "offer", "date": null, "completed": false, "pending": null, "error": null}
+        {
+          "status": "applied",
+          "date": "2026-09-20",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-09-22",
+          "completed": false,
+          "pending": true,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
       ]
     },
     {
@@ -490,19 +799,51 @@
       "jobId": "j001",
       "applicantId": "u010",
       "status": "shortlisted",
-      "coverLetter": "Dear Dr. Turing, as an MSc Computer Science student with a strong background in algorithms and software engineering, I would be glad to help support CS201. I previously TA'd a data-structures bootcamp at my undergraduate university. Kind regards, Sarah Lee.",
-      "documentIds": ["doc007"],
+      "coverLetter": "Dear Dr. Turing, as an MSc Computer Science student with a strong background in algorithms and software engineering, I would be glad to help support CS201. I previously TA\u0027d a data-structures bootcamp at my undergraduate university. Kind regards, Sarah Lee.",
+      "documentIds": [
+        "doc007"
+      ],
       "matchScore": 88,
       "riskFlag": "overload",
       "aiSummary": "Strong MSc candidate but already at 18/20 weekly hours.",
       "appliedAt": "2026-09-21T11:00:00",
       "updatedAt": "2026-09-28T16:00:00",
       "timeline": [
-        {"status": "applied", "date": "2026-09-21", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": "2026-09-24", "completed": true, "pending": null, "error": null},
-        {"status": "shortlisted", "date": "2026-09-28", "completed": false, "pending": true, "error": null},
-        {"status": "interview", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "offer", "date": null, "completed": false, "pending": null, "error": null}
+        {
+          "status": "applied",
+          "date": "2026-09-21",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-09-24",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-09-28",
+          "completed": false,
+          "pending": true,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
       ]
     },
     {
@@ -511,18 +852,51 @@
       "applicantId": "u004",
       "status": "interview",
       "coverLetter": "Dear Dr. Turing, I am a final-year EE student who took CS201 as an elective and earned an A-. I have demonstrator experience for EE201 and I would value the chance to broaden my teaching experience into the CS department. Best, Diana Chen.",
-      "documentIds": ["doc005", "doc006"],
+      "documentIds": [
+        "doc005",
+        "doc006"
+      ],
       "matchScore": 90,
       "riskFlag": null,
       "aiSummary": "Cross-department candidate with strong CS grade and prior teaching experience.",
       "appliedAt": "2026-09-22T08:45:00",
       "updatedAt": "2026-10-08T14:00:00",
       "timeline": [
-        {"status": "applied", "date": "2026-09-22", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": "2026-09-26", "completed": true, "pending": null, "error": null},
-        {"status": "shortlisted", "date": "2026-10-02", "completed": true, "pending": null, "error": null},
-        {"status": "interview", "date": "2026-10-08", "completed": false, "pending": true, "error": null},
-        {"status": "offer", "date": null, "completed": false, "pending": null, "error": null}
+        {
+          "status": "applied",
+          "date": "2026-09-22",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-09-26",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-10-02",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-10-08",
+          "completed": false,
+          "pending": true,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
       ]
     },
     {
@@ -531,18 +905,50 @@
       "applicantId": "u003",
       "status": "offer",
       "coverLetter": "Dear Dr. Turing, I am applying for the CS201 TA position. While my home department is Mathematics, I have taken three CS modules as electives and achieved strong results. I love explaining mathematical foundations of algorithms. Thank you for considering me. Best, Carol White.",
-      "documentIds": ["doc004"],
+      "documentIds": [
+        "doc004"
+      ],
       "matchScore": 84,
       "riskFlag": null,
       "aiSummary": "Strong mathematical foundation; particularly suited to algorithm proofs.",
       "appliedAt": "2026-09-19T16:20:00",
       "updatedAt": "2026-10-12T10:30:00",
       "timeline": [
-        {"status": "applied", "date": "2026-09-19", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": "2026-09-23", "completed": true, "pending": null, "error": null},
-        {"status": "shortlisted", "date": "2026-09-30", "completed": true, "pending": null, "error": null},
-        {"status": "interview", "date": "2026-10-06", "completed": true, "pending": null, "error": null},
-        {"status": "offer", "date": "2026-10-12", "completed": true, "pending": null, "error": null}
+        {
+          "status": "applied",
+          "date": "2026-09-19",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-09-23",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-09-30",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-10-06",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": "2026-10-12",
+          "completed": true,
+          "pending": null,
+          "error": null
+        }
       ]
     },
     {
@@ -558,9 +964,27 @@
       "appliedAt": "2026-09-25T12:00:00",
       "updatedAt": "2026-10-01T09:00:00",
       "timeline": [
-        {"status": "applied", "date": "2026-09-25", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": "2026-09-28", "completed": true, "pending": null, "error": null},
-        {"status": "rejected", "date": "2026-10-01", "completed": true, "pending": null, "error": true}
+        {
+          "status": "applied",
+          "date": "2026-09-25",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-09-28",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "rejected",
+          "date": "2026-10-01",
+          "completed": true,
+          "pending": null,
+          "error": true
+        }
       ]
     },
     {
@@ -569,18 +993,50 @@
       "applicantId": "u001",
       "status": "offer",
       "coverLetter": "Dear Dr. Hopper, I would be delighted to support CS301. I achieved an A- in your module last semester and have worked extensively with PostgreSQL and MongoDB in side projects. Thank you, Alex Johnson.",
-      "documentIds": ["doc001"],
+      "documentIds": [
+        "doc001"
+      ],
       "matchScore": 89,
       "riskFlag": null,
       "aiSummary": "Strong CS301 result; production database experience from internship.",
       "appliedAt": "2026-09-25T09:30:00",
       "updatedAt": "2026-10-15T11:00:00",
       "timeline": [
-        {"status": "applied", "date": "2026-09-25", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": "2026-09-28", "completed": true, "pending": null, "error": null},
-        {"status": "shortlisted", "date": "2026-10-03", "completed": true, "pending": null, "error": null},
-        {"status": "interview", "date": "2026-10-10", "completed": true, "pending": null, "error": null},
-        {"status": "offer", "date": "2026-10-15", "completed": true, "pending": null, "error": null}
+        {
+          "status": "applied",
+          "date": "2026-09-25",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-09-28",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-10-03",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": "2026-10-10",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": "2026-10-15",
+          "completed": true,
+          "pending": null,
+          "error": null
+        }
       ]
     },
     {
@@ -588,19 +1044,51 @@
       "jobId": "j003",
       "applicantId": "u002",
       "status": "applied",
-      "coverLetter": "Dear Dr. Turing, I'd love to TA for CS101. I remember how intimidating my first programming module was and I want to make it easier for the new cohort. Best, Bob Smith.",
-      "documentIds": ["doc003"],
+      "coverLetter": "Dear Dr. Turing, I\u0027d love to TA for CS101. I remember how intimidating my first programming module was and I want to make it easier for the new cohort. Best, Bob Smith.",
+      "documentIds": [
+        "doc003"
+      ],
       "matchScore": 78,
       "riskFlag": null,
       "aiSummary": "Good rapport potential with first-year students.",
       "appliedAt": "2026-09-30T10:00:00",
       "updatedAt": "2026-09-30T10:00:00",
       "timeline": [
-        {"status": "applied", "date": "2026-09-30", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": null, "completed": false, "pending": true, "error": null},
-        {"status": "shortlisted", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "interview", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "offer", "date": null, "completed": false, "pending": null, "error": null}
+        {
+          "status": "applied",
+          "date": "2026-09-30",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": null,
+          "completed": false,
+          "pending": true,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
       ]
     },
     {
@@ -609,18 +1097,50 @@
       "applicantId": "u010",
       "status": "review",
       "coverLetter": "Dear Dr. Hopper, I am writing to apply for the EBU6304 TA role. My MSc team project used Scrum, GitHub Actions and pair-programming, and I would love to share those practices with undergraduate teams. Sincerely, Sarah Lee.",
-      "documentIds": ["doc007"],
+      "documentIds": [
+        "doc007"
+      ],
       "matchScore": 86,
       "riskFlag": null,
       "aiSummary": "MSc candidate with real-world agile and CI/CD exposure.",
       "appliedAt": "2026-10-02T13:00:00",
       "updatedAt": "2026-10-05T15:00:00",
       "timeline": [
-        {"status": "applied", "date": "2026-10-02", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": "2026-10-05", "completed": false, "pending": true, "error": null},
-        {"status": "shortlisted", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "interview", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "offer", "date": null, "completed": false, "pending": null, "error": null}
+        {
+          "status": "applied",
+          "date": "2026-10-02",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-10-05",
+          "completed": false,
+          "pending": true,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
       ]
     },
     {
@@ -628,19 +1148,51 @@
       "jobId": "j005",
       "applicantId": "u004",
       "status": "shortlisted",
-      "coverLetter": "Dear Prof. Torvalds, I scored an A in EE301 and I have continued working on DSP through my research assistantship. I would be honoured to support next year's cohort. Best, Diana Chen.",
-      "documentIds": ["doc005"],
+      "coverLetter": "Dear Prof. Torvalds, I scored an A in EE301 and I have continued working on DSP through my research assistantship. I would be honoured to support next year\u0027s cohort. Best, Diana Chen.",
+      "documentIds": [
+        "doc005"
+      ],
       "matchScore": 96,
       "riskFlag": null,
       "aiSummary": "Outstanding EE301 grade; ongoing DSP research.",
       "appliedAt": "2026-10-04T09:00:00",
       "updatedAt": "2026-10-12T11:00:00",
       "timeline": [
-        {"status": "applied", "date": "2026-10-04", "completed": true, "pending": null, "error": null},
-        {"status": "review", "date": "2026-10-07", "completed": true, "pending": null, "error": null},
-        {"status": "shortlisted", "date": "2026-10-12", "completed": false, "pending": true, "error": null},
-        {"status": "interview", "date": null, "completed": false, "pending": null, "error": null},
-        {"status": "offer", "date": null, "completed": false, "pending": null, "error": null}
+        {
+          "status": "applied",
+          "date": "2026-10-04",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "review",
+          "date": "2026-10-07",
+          "completed": true,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "shortlisted",
+          "date": "2026-10-12",
+          "completed": false,
+          "pending": true,
+          "error": null
+        },
+        {
+          "status": "interview",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        },
+        {
+          "status": "offer",
+          "date": null,
+          "completed": false,
+          "pending": null,
+          "error": null
+        }
       ]
     }
   ],
@@ -765,7 +1317,7 @@
       "id": "n006",
       "userId": "u010",
       "type": "status_change",
-      "title": "You've Been Shortlisted!",
+      "title": "You\u0027ve Been Shortlisted!",
       "message": "Congratulations! Your application for CS201 Teaching Assistant has been shortlisted.",
       "relatedId": "a003",
       "createdAt": "2026-09-28T16:00:00",
@@ -793,49 +1345,395 @@
     }
   ],
   "terms": [
-    {"id": "t001", "name": "Fall 2026", "startDate": "2026-09-15", "endDate": "2026-12-20", "status": "active"},
-    {"id": "t002", "name": "Spring 2027", "startDate": "2027-01-15", "endDate": "2027-05-10", "status": "upcoming"},
-    {"id": "t003", "name": "Fall 2025", "startDate": "2025-09-15", "endDate": "2025-12-20", "status": "closed"}
+    {
+      "id": "t001",
+      "name": "Fall 2026",
+      "startDate": "2026-09-15",
+      "endDate": "2026-12-20",
+      "status": "active"
+    },
+    {
+      "id": "t002",
+      "name": "Spring 2027",
+      "startDate": "2027-01-15",
+      "endDate": "2027-05-10",
+      "status": "upcoming"
+    },
+    {
+      "id": "t003",
+      "name": "Fall 2025",
+      "startDate": "2025-09-15",
+      "endDate": "2025-12-20",
+      "status": "closed"
+    }
   ],
   "departments": [
-    {"id": "d001", "name": "Computer Science", "moduleCount": 4, "status": "active"},
-    {"id": "d002", "name": "Mathematics", "moduleCount": 1, "status": "active"},
-    {"id": "d003", "name": "Electronic Engineering", "moduleCount": 1, "status": "active"},
-    {"id": "d004", "name": "Physics", "moduleCount": 0, "status": "active"}
+    {
+      "id": "d001",
+      "name": "Computer Science",
+      "moduleCount": 4,
+      "status": "active"
+    },
+    {
+      "id": "d002",
+      "name": "Mathematics",
+      "moduleCount": 1,
+      "status": "active"
+    },
+    {
+      "id": "d003",
+      "name": "Electronic Engineering",
+      "moduleCount": 1,
+      "status": "active"
+    },
+    {
+      "id": "d004",
+      "name": "Physics",
+      "moduleCount": 0,
+      "status": "active"
+    }
   ],
   "logs": [
-    {"id": "EVT-1001", "timestamp": "2025-05-20T09:00:00", "action": "User Login", "actor": "Admin Root", "actorId": "u009", "type": "info", "details": "User Admin Root (admin) logged in", "ip": "192.168.1.5"},
-    {"id": "EVT-1002", "timestamp": "2025-05-20T09:30:00", "action": "User Login", "actor": "Alex Johnson", "actorId": "u001", "type": "info", "details": "User Alex Johnson (applicant) logged in", "ip": "192.168.1.20"},
-    {"id": "EVT-1003", "timestamp": "2025-05-20T08:45:00", "action": "User Login", "actor": "Dr. Alan Turing", "actorId": "u006", "type": "info", "details": "User Dr. Alan Turing (organiser) logged in", "ip": "192.168.1.10"},
-    {"id": "EVT-1004", "timestamp": "2025-05-20T08:30:00", "action": "System Backup", "actor": "System", "actorId": null, "type": "success", "details": "Automated database snapshot completed in 1.2s.", "ip": "127.0.0.1"},
-    {"id": "EVT-1005", "timestamp": "2025-05-20T07:55:00", "action": "User Login", "actor": "Sarah Lee", "actorId": "u010", "type": "info", "details": "User Sarah Lee (applicant) logged in", "ip": "192.168.1.30"},
-    {"id": "EVT-1006", "timestamp": "2025-05-20T03:14:22", "action": "Failed Login", "actor": "unknown", "actorId": null, "type": "error", "details": "Invalid credentials for edward.p@university.edu. 3rd consecutive attempt; account auto-suspended.", "ip": "203.0.113.42"},
-    {"id": "EVT-1007", "timestamp": "2025-05-20T03:13:18", "action": "Failed Login", "actor": "unknown", "actorId": null, "type": "warning", "details": "Invalid credentials for edward.p@university.edu. 2nd attempt.", "ip": "203.0.113.42"},
-    {"id": "EVT-1008", "timestamp": "2025-05-20T03:12:55", "action": "Failed Login", "actor": "unknown", "actorId": null, "type": "warning", "details": "Invalid credentials for edward.p@university.edu. 1st attempt.", "ip": "203.0.113.42"},
-    {"id": "EVT-1009", "timestamp": "2025-05-19T15:30:00", "action": "User Login", "actor": "Dr. Grace Hopper", "actorId": "u007", "type": "info", "details": "User Dr. Grace Hopper (organiser) logged in", "ip": "192.168.1.11"},
-    {"id": "EVT-1010", "timestamp": "2025-05-19T15:35:42", "action": "Candidate Status Changed", "actor": "Dr. Grace Hopper", "actorId": "u007", "type": "info", "details": "Application a007 moved to offer for CS301 Teaching Assistant.", "ip": "192.168.1.11"},
-    {"id": "EVT-1011", "timestamp": "2025-05-19T11:20:00", "action": "User Login", "actor": "Prof. Linus Torvalds", "actorId": "u008", "type": "info", "details": "User Prof. Linus Torvalds (organiser) logged in", "ip": "192.168.1.12"},
-    {"id": "EVT-1012", "timestamp": "2025-05-19T11:25:18", "action": "Interview Scheduled", "actor": "Prof. Linus Torvalds", "actorId": "u008", "type": "info", "details": "Scheduled interview i004 for application a010 (EE301).", "ip": "192.168.1.12"},
-    {"id": "EVT-1013", "timestamp": "2025-10-15T11:00:00", "action": "Candidate Status Changed", "actor": "Dr. Grace Hopper", "actorId": "u007", "type": "success", "details": "Application a007 offer extended to Alex Johnson.", "ip": "192.168.1.11"},
-    {"id": "EVT-1014", "timestamp": "2025-10-12T10:30:00", "action": "Candidate Status Changed", "actor": "Dr. Alan Turing", "actorId": "u006", "type": "success", "details": "Application a005 offer extended to Carol White.", "ip": "192.168.1.10"},
-    {"id": "EVT-1015", "timestamp": "2025-10-08T14:00:00", "action": "Interview Scheduled", "actor": "Dr. Alan Turing", "actorId": "u006", "type": "info", "details": "Scheduled interview i001 for application a004 (CS201).", "ip": "192.168.1.10"},
-    {"id": "EVT-1016", "timestamp": "2025-10-01T09:00:00", "action": "Application Reject", "actor": "Dr. Alan Turing", "actorId": "u006", "type": "warning", "details": "Application a006 rejected (does not meet minimum grade requirement).", "ip": "192.168.1.10"},
-    {"id": "EVT-1017", "timestamp": "2025-09-30T10:00:00", "action": "Application Submitted", "actor": "Bob Smith", "actorId": "u002", "type": "info", "details": "Applied for job j003 (CS101 TA).", "ip": "192.168.1.21"},
-    {"id": "EVT-1018", "timestamp": "2025-09-25T09:30:00", "action": "Application Submitted", "actor": "Alex Johnson", "actorId": "u001", "type": "info", "details": "Applied for job j002 (CS301 TA).", "ip": "192.168.1.20"},
-    {"id": "EVT-1019", "timestamp": "2025-09-18T10:15:00", "action": "Application Submitted", "actor": "Alex Johnson", "actorId": "u001", "type": "info", "details": "Applied for job j001 (CS201 TA).", "ip": "192.168.1.20"},
-    {"id": "EVT-1020", "timestamp": "2025-09-10T14:00:00", "action": "Job Posted", "actor": "Prof. Linus Torvalds", "actorId": "u008", "type": "success", "details": "Posted new job: Teaching Assistant - Digital Signal Processing.", "ip": "192.168.1.12"},
-    {"id": "EVT-1021", "timestamp": "2025-09-08T13:00:00", "action": "Job Posted", "actor": "Dr. Grace Hopper", "actorId": "u007", "type": "success", "details": "Posted new job: Teaching Assistant - Software Engineering.", "ip": "192.168.1.11"},
-    {"id": "EVT-1022", "timestamp": "2025-09-01T10:00:00", "action": "Job Posted", "actor": "Dr. Alan Turing", "actorId": "u006", "type": "success", "details": "Posted new job: Teaching Assistant - Data Structures and Algorithms.", "ip": "192.168.1.10"},
-    {"id": "EVT-1023", "timestamp": "2025-09-01T14:00:00", "action": "User Signup", "actor": "Sarah Lee", "actorId": "u010", "type": "success", "details": "New applicant account registered: sarah.l@university.edu.", "ip": "192.168.1.30"},
-    {"id": "EVT-1024", "timestamp": "2025-04-12T10:00:00", "action": "Account Suspended", "actor": "System", "actorId": null, "type": "error", "details": "User edward.p@university.edu was auto-suspended after repeated failed login attempts.", "ip": "127.0.0.1"}
+    {
+      "id": "EVT-1001",
+      "timestamp": "2025-05-20T09:00:00",
+      "action": "User Login",
+      "actor": "Admin Root",
+      "actorId": "u009",
+      "type": "info",
+      "details": "User Admin Root (admin) logged in",
+      "ip": "192.168.1.5"
+    },
+    {
+      "id": "EVT-1002",
+      "timestamp": "2025-05-20T09:30:00",
+      "action": "User Login",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "info",
+      "details": "User Alex Johnson (applicant) logged in",
+      "ip": "192.168.1.20"
+    },
+    {
+      "id": "EVT-1003",
+      "timestamp": "2025-05-20T08:45:00",
+      "action": "User Login",
+      "actor": "Dr. Alan Turing",
+      "actorId": "u006",
+      "type": "info",
+      "details": "User Dr. Alan Turing (organiser) logged in",
+      "ip": "192.168.1.10"
+    },
+    {
+      "id": "EVT-1004",
+      "timestamp": "2025-05-20T08:30:00",
+      "action": "System Backup",
+      "actor": "System",
+      "actorId": null,
+      "type": "success",
+      "details": "Automated database snapshot completed in 1.2s.",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "EVT-1005",
+      "timestamp": "2025-05-20T07:55:00",
+      "action": "User Login",
+      "actor": "Sarah Lee",
+      "actorId": "u010",
+      "type": "info",
+      "details": "User Sarah Lee (applicant) logged in",
+      "ip": "192.168.1.30"
+    },
+    {
+      "id": "EVT-1006",
+      "timestamp": "2025-05-20T03:14:22",
+      "action": "Failed Login",
+      "actor": "unknown",
+      "actorId": null,
+      "type": "error",
+      "details": "Invalid credentials for edward.p@university.edu. 3rd consecutive attempt; account auto-suspended.",
+      "ip": "203.0.113.42"
+    },
+    {
+      "id": "EVT-1007",
+      "timestamp": "2025-05-20T03:13:18",
+      "action": "Failed Login",
+      "actor": "unknown",
+      "actorId": null,
+      "type": "warning",
+      "details": "Invalid credentials for edward.p@university.edu. 2nd attempt.",
+      "ip": "203.0.113.42"
+    },
+    {
+      "id": "EVT-1008",
+      "timestamp": "2025-05-20T03:12:55",
+      "action": "Failed Login",
+      "actor": "unknown",
+      "actorId": null,
+      "type": "warning",
+      "details": "Invalid credentials for edward.p@university.edu. 1st attempt.",
+      "ip": "203.0.113.42"
+    },
+    {
+      "id": "EVT-1009",
+      "timestamp": "2025-05-19T15:30:00",
+      "action": "User Login",
+      "actor": "Dr. Grace Hopper",
+      "actorId": "u007",
+      "type": "info",
+      "details": "User Dr. Grace Hopper (organiser) logged in",
+      "ip": "192.168.1.11"
+    },
+    {
+      "id": "EVT-1010",
+      "timestamp": "2025-05-19T15:35:42",
+      "action": "Candidate Status Changed",
+      "actor": "Dr. Grace Hopper",
+      "actorId": "u007",
+      "type": "info",
+      "details": "Application a007 moved to offer for CS301 Teaching Assistant.",
+      "ip": "192.168.1.11"
+    },
+    {
+      "id": "EVT-1011",
+      "timestamp": "2025-05-19T11:20:00",
+      "action": "User Login",
+      "actor": "Prof. Linus Torvalds",
+      "actorId": "u008",
+      "type": "info",
+      "details": "User Prof. Linus Torvalds (organiser) logged in",
+      "ip": "192.168.1.12"
+    },
+    {
+      "id": "EVT-1012",
+      "timestamp": "2025-05-19T11:25:18",
+      "action": "Interview Scheduled",
+      "actor": "Prof. Linus Torvalds",
+      "actorId": "u008",
+      "type": "info",
+      "details": "Scheduled interview i004 for application a010 (EE301).",
+      "ip": "192.168.1.12"
+    },
+    {
+      "id": "EVT-1013",
+      "timestamp": "2025-10-15T11:00:00",
+      "action": "Candidate Status Changed",
+      "actor": "Dr. Grace Hopper",
+      "actorId": "u007",
+      "type": "success",
+      "details": "Application a007 offer extended to Alex Johnson.",
+      "ip": "192.168.1.11"
+    },
+    {
+      "id": "EVT-1014",
+      "timestamp": "2025-10-12T10:30:00",
+      "action": "Candidate Status Changed",
+      "actor": "Dr. Alan Turing",
+      "actorId": "u006",
+      "type": "success",
+      "details": "Application a005 offer extended to Carol White.",
+      "ip": "192.168.1.10"
+    },
+    {
+      "id": "EVT-1015",
+      "timestamp": "2025-10-08T14:00:00",
+      "action": "Interview Scheduled",
+      "actor": "Dr. Alan Turing",
+      "actorId": "u006",
+      "type": "info",
+      "details": "Scheduled interview i001 for application a004 (CS201).",
+      "ip": "192.168.1.10"
+    },
+    {
+      "id": "EVT-1016",
+      "timestamp": "2025-10-01T09:00:00",
+      "action": "Application Reject",
+      "actor": "Dr. Alan Turing",
+      "actorId": "u006",
+      "type": "warning",
+      "details": "Application a006 rejected (does not meet minimum grade requirement).",
+      "ip": "192.168.1.10"
+    },
+    {
+      "id": "EVT-1017",
+      "timestamp": "2025-09-30T10:00:00",
+      "action": "Application Submitted",
+      "actor": "Bob Smith",
+      "actorId": "u002",
+      "type": "info",
+      "details": "Applied for job j003 (CS101 TA).",
+      "ip": "192.168.1.21"
+    },
+    {
+      "id": "EVT-1018",
+      "timestamp": "2025-09-25T09:30:00",
+      "action": "Application Submitted",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "info",
+      "details": "Applied for job j002 (CS301 TA).",
+      "ip": "192.168.1.20"
+    },
+    {
+      "id": "EVT-1019",
+      "timestamp": "2025-09-18T10:15:00",
+      "action": "Application Submitted",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "info",
+      "details": "Applied for job j001 (CS201 TA).",
+      "ip": "192.168.1.20"
+    },
+    {
+      "id": "EVT-1020",
+      "timestamp": "2025-09-10T14:00:00",
+      "action": "Job Posted",
+      "actor": "Prof. Linus Torvalds",
+      "actorId": "u008",
+      "type": "success",
+      "details": "Posted new job: Teaching Assistant - Digital Signal Processing.",
+      "ip": "192.168.1.12"
+    },
+    {
+      "id": "EVT-1021",
+      "timestamp": "2025-09-08T13:00:00",
+      "action": "Job Posted",
+      "actor": "Dr. Grace Hopper",
+      "actorId": "u007",
+      "type": "success",
+      "details": "Posted new job: Teaching Assistant - Software Engineering.",
+      "ip": "192.168.1.11"
+    },
+    {
+      "id": "EVT-1022",
+      "timestamp": "2025-09-01T10:00:00",
+      "action": "Job Posted",
+      "actor": "Dr. Alan Turing",
+      "actorId": "u006",
+      "type": "success",
+      "details": "Posted new job: Teaching Assistant - Data Structures and Algorithms.",
+      "ip": "192.168.1.10"
+    },
+    {
+      "id": "EVT-1023",
+      "timestamp": "2025-09-01T14:00:00",
+      "action": "User Signup",
+      "actor": "Sarah Lee",
+      "actorId": "u010",
+      "type": "success",
+      "details": "New applicant account registered: sarah.l@university.edu.",
+      "ip": "192.168.1.30"
+    },
+    {
+      "id": "EVT-1024",
+      "timestamp": "2025-04-12T10:00:00",
+      "action": "Account Suspended",
+      "actor": "System",
+      "actorId": null,
+      "type": "error",
+      "details": "User edward.p@university.edu was auto-suspended after repeated failed login attempts.",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "EVT-9025",
+      "timestamp": "2026-05-21T21:56:45.630436",
+      "action": "User Login",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "info",
+      "details": "User Alex Johnson (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9026",
+      "timestamp": "2026-05-21T21:58:33.309894",
+      "action": "Application Withdrawn",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "warning",
+      "details": "Withdrew application a001",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9027",
+      "timestamp": "2026-05-21T21:58:48.805322",
+      "action": "Application Submitted",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "success",
+      "details": "Applied for job j001",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9028",
+      "timestamp": "2026-05-21T21:59:26.961689",
+      "action": "Application Submitted",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "success",
+      "details": "Applied for job j003",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9029",
+      "timestamp": "2026-05-21T21:59:37.029541",
+      "action": "Application Withdrawn",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "warning",
+      "details": "Withdrew application a011",
+      "ip": "0:0:0:0:0:0:0:1"
+    }
   ],
   "workloadAssignments": [
-    {"id": "w001", "taUserId": "u001", "moduleCode": "CS201", "hoursPerWeek": 10, "term": "Fall 2026", "status": "active"},
-    {"id": "w002", "taUserId": "u001", "moduleCode": "EBU6304", "hoursPerWeek": 4, "term": "Fall 2026", "status": "active"},
-    {"id": "w003", "taUserId": "u002", "moduleCode": "CS101", "hoursPerWeek": 8, "term": "Fall 2026", "status": "active"},
-    {"id": "w004", "taUserId": "u010", "moduleCode": "CS301", "hoursPerWeek": 12, "term": "Fall 2026", "status": "active"},
-    {"id": "w005", "taUserId": "u010", "moduleCode": "EBU6304", "hoursPerWeek": 6, "term": "Fall 2026", "status": "active"},
-    {"id": "w006", "taUserId": "u004", "moduleCode": "EE301", "hoursPerWeek": 0, "term": "Fall 2026", "status": "pending"}
+    {
+      "id": "w001",
+      "taUserId": "u001",
+      "moduleCode": "CS201",
+      "hoursPerWeek": 10,
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "w002",
+      "taUserId": "u001",
+      "moduleCode": "EBU6304",
+      "hoursPerWeek": 4,
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "w003",
+      "taUserId": "u002",
+      "moduleCode": "CS101",
+      "hoursPerWeek": 8,
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "w004",
+      "taUserId": "u010",
+      "moduleCode": "CS301",
+      "hoursPerWeek": 12,
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "w005",
+      "taUserId": "u010",
+      "moduleCode": "EBU6304",
+      "hoursPerWeek": 6,
+      "term": "Fall 2026",
+      "status": "active"
+    },
+    {
+      "id": "w006",
+      "taUserId": "u004",
+      "moduleCode": "EE301",
+      "hoursPerWeek": 0,
+      "term": "Fall 2026",
+      "status": "pending"
+    }
   ],
   "messages": [
     {

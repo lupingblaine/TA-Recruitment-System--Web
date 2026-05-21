@@ -20,11 +20,20 @@ const STEPS = ['applied', 'under_review', 'shortlisted', 'interview', 'hired'];
 const STEP_LABELS = ['Applied', 'Under Review', 'Shortlisted', 'Interview', 'Offer / Rejected'];
 const WITHDRAWABLE_STATUSES = ['applied', 'review', 'shortlisted', 'interview'];
 
+/** Maps API status values (review, offer) to timeline step indices. */
 function getStepIndex(status) {
+  const map = {
+    applied: 0,
+    review: 1,
+    under_review: 1,
+    shortlisted: 2,
+    interview: 3,
+    offer: 4,
+    hired: 4
+  };
   const s = (status || '').toLowerCase();
   if (s === 'rejected') return -1;
-  const idx = STEPS.indexOf(s);
-  return idx >= 0 ? idx : 0;
+  return map[s] !== undefined ? map[s] : 0;
 }
 
 async function loadApplications() {
@@ -48,9 +57,10 @@ async function loadApplications() {
         '<div class="absolute top-4 left-0 h-0.5 bg-zinc-900 transition-all duration-1000 ease-out hidden md:block" style="width:' + (currentIdx / (STEPS.length - 1) * 100) + '%"></div>' +
         '<div class="flex flex-col md:flex-row justify-between relative z-10 gap-8 md:gap-4">';
 
+      const isTerminalSuccess = app.status === 'offer' || app.status === 'hired';
       STEPS.forEach((step, i) => {
-        const isCompleted = i < currentIdx || (i === currentIdx && !isRejected && app.status === 'hired');
-        const isPending = i === currentIdx;
+        const isCompleted = !isRejected && (isTerminalSuccess ? i <= currentIdx : i < currentIdx);
+        const isPending = !isRejected && !isTerminalSuccess && i === currentIdx;
         const isError = isRejected && i === STEPS.length - 1;
         const label = isError ? 'Rejected' : STEP_LABELS[i];
 
