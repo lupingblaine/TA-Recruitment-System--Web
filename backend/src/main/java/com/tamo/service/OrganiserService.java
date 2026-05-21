@@ -311,7 +311,7 @@ public class OrganiserService {
         }
 
         if (title == null || title.isBlank() || moduleId == null || moduleId.isBlank()) {
-            result.put("error", "缺少必填字段");
+            result.put("error", "Missing required fields");
             result.put("code", 400);
             return result;
         }
@@ -328,7 +328,7 @@ public class OrganiserService {
             try {
                 LocalDate deadline = LocalDate.parse(body.get("deadline").getAsString());
                 if (deadline.isBefore(LocalDate.now())) {
-                    result.put("error", "截止日期不能为过去时间");
+                    result.put("error", "Deadline cannot be in the past");
                     result.put("code", 400);
                     return result;
                 }
@@ -382,13 +382,13 @@ public class OrganiserService {
                 .findFirst().orElse(null);
 
         if (job == null) {
-            result.put("error", "岗位不存在");
+            result.put("error", "Job not found");
             result.put("code", 404);
             return result;
         }
 
         if (!job.getOrganiserId().equals(organiserId)) {
-            result.put("error", "无权限编辑该岗位");
+            result.put("error", "No permission to edit this job");
             result.put("code", 403);
             return result;
         }
@@ -421,7 +421,7 @@ public class OrganiserService {
                 try {
                     LocalDate deadline = LocalDate.parse(deadlineStr);
                     if (deadline.isBefore(LocalDate.now())) {
-                        result.put("error", "截止日期不能为过去时间");
+                        result.put("error", "Deadline cannot be in the past");
                         result.put("code", 400);
                         return result;
                     }
@@ -454,15 +454,16 @@ public class OrganiserService {
                 .findFirst().orElse(null);
 
         if (job == null) {
-            result.put("error", "岗位不存在");
+            result.put("error", "Job not found");
             result.put("code", 404);
             return result;
         }
 
         if (!job.getOrganiserId().equals(organiserId)) {
-            result.put("error", "无权限删除该岗位");
+            result.put("error", "No permission to delete this job");
             result.put("code", 403);
             return result;
+       
         }
 
         // 删除岗位时同时清理该岗位相关申请和面试，避免 TA 页面显示遗留 pipeline
@@ -544,13 +545,13 @@ public class OrganiserService {
         Map<String, Object> result = new HashMap<>();
 
         if (newStatus == null || newStatus.isBlank()) {
-            result.put("error", "缺少 status 参数");
+            result.put("error", "Missing status parameter");
             result.put("code", 400);
             return result;
         }
 
         if (!VALID_APP_STATUSES.contains(newStatus)) {
-            result.put("error", "状态值不合法");
+            result.put("error", "Invalid status value");
             result.put("code", 400);
             return result;
         }
@@ -560,14 +561,14 @@ public class OrganiserService {
                 .findFirst().orElse(null);
 
         if (app == null) {
-            result.put("error", "申请不存在");
+            result.put("error", "Application not found");
             result.put("code", 404);
             return result;
         }
 
         Job job = findJobById(data, app.getJobId());
         if (job == null || !job.getOrganiserId().equals(organiserId)) {
-            result.put("error", "无权限操作该候选人");
+            result.put("error", "No permission to update this candidate");
             result.put("code", 403);
             return result;
         }
@@ -656,14 +657,14 @@ public class OrganiserService {
                 .filter(a -> a.getId().equals(appId))
                 .findFirst().orElse(null);
         if (app == null) {
-            result.put("error", "申请不存在");
+            result.put("error", "Application not found");
             result.put("code", 404);
             return result;
         }
 
         Job job = findJobById(data, app.getJobId());
         if (job == null || !job.getOrganiserId().equals(organiserId)) {
-            result.put("error", "无权限查看该申请");
+            result.put("error", "No permission to view this application");
             result.put("code", 403);
             return result;
         }
@@ -713,13 +714,13 @@ public class OrganiserService {
         Map<String, Object> result = new HashMap<>();
 
         if (action == null || action.isBlank()) {
-            result.put("error", "缺少必填字段");
+            result.put("error", "Missing required fields");
             result.put("code", 400);
             return result;
         }
 
         if (!VALID_ACTIONS.contains(action)) {
-            result.put("error", "操作类型不合法，仅支持 shortlist/reject/offer");
+            result.put("error", "Invalid action type; only shortlist/reject/offer are supported");
             result.put("code", 400);
             return result;
         }
@@ -763,7 +764,7 @@ public class OrganiserService {
         if (applicationId == null || applicationId.isBlank() ||
                 date == null || date.isBlank() ||
                 startTime == null || startTime.isBlank()) {
-            result.put("error", "缺少必填字段");
+            result.put("error", "Missing required fields");
             result.put("code", 400);
             return result;
         }
@@ -773,7 +774,7 @@ public class OrganiserService {
             type = "in-person";
         }
         if (!VALID_INTERVIEW_TYPES.contains(type)) {
-            result.put("error", "面试类型不合法，仅支持 video/in-person");
+            result.put("error", "Invalid interview type; only video/in-person are supported");
             result.put("code", 400);
             return result;
         }
@@ -783,7 +784,7 @@ public class OrganiserService {
                 .filter(a -> a.getId().equals(applicationId))
                 .findFirst().orElse(null);
         if (app == null) {
-            result.put("error", "申请不存在");
+            result.put("error", "Application not found");
             result.put("code", 404);
             return result;
         }
@@ -791,7 +792,7 @@ public class OrganiserService {
             candidateId = app.getApplicantId();
         }
         if (candidateId == null || candidateId.isBlank()) {
-            result.put("error", "缺少候选人ID");
+            result.put("error", "Missing candidate ID");
             result.put("code", 400);
             return result;
         }
@@ -886,13 +887,13 @@ public class OrganiserService {
                 .findFirst().orElse(null);
 
         if (iv == null) {
-            result.put("error", "面试不存在");
+            result.put("error", "Interview not found");
             result.put("code", 404);
             return result;
         }
 
         if (!iv.getOrganiserId().equals(organiserId)) {
-            result.put("error", "无权限操作该面试");
+            result.put("error", "No permission to manage this interview");
             result.put("code", 403);
             return result;
         }
@@ -918,12 +919,12 @@ public class OrganiserService {
                 .filter(i -> i.getId().equals(interviewId))
                 .findFirst().orElse(null);
         if (iv == null) {
-            result.put("error", "面试不存在");
+            result.put("error", "Interview not found");
             result.put("code", 404);
             return result;
         }
         if (!iv.getOrganiserId().equals(organiserId)) {
-            result.put("error", "无权限删除该面试");
+            result.put("error", "No permission to delete this interview");
             result.put("code", 403);
             return result;
         }

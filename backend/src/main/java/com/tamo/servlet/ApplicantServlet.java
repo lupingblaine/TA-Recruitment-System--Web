@@ -58,13 +58,14 @@ public class ApplicantServlet extends HttpServlet {
             String keyword = req.getParameter("keyword");
             String department = req.getParameter("department");
             String type = req.getParameter("type");
-            JsonUtil.writeJson(resp, service.getJobs(keyword, department, type));
+            String status = req.getParameter("status");
+            JsonUtil.writeJson(resp, service.getJobs(keyword, department, type, status));
 
         } else if (path.matches("jobs/[\\w]+")) {
             String jobId = path.split("/")[1];
             Job job = service.getJobById(jobId);
             if (job == null) {
-                JsonUtil.writeError(resp, 404, "职位不存在");
+                JsonUtil.writeError(resp, 404, "Job not found");
             } else {
                 JsonUtil.writeJson(resp, job);
             }
@@ -76,9 +77,9 @@ public class ApplicantServlet extends HttpServlet {
             String appId = path.split("/")[1];
             Map<String, Object> result = service.getApplicationDetail(userId, appId);
             if (result.containsKey("notFound")) {
-                JsonUtil.writeError(resp, 404, "申请不存在");
+                JsonUtil.writeError(resp, 404, "Application not found");
             } else if (result.containsKey("forbidden")) {
-                JsonUtil.writeError(resp, 403, "无权限访问该申请");
+                JsonUtil.writeError(resp, 403, "You are not authorized to access this application");
             } else {
                 JsonUtil.writeJson(resp, result.get("data"));
             }
@@ -86,7 +87,7 @@ public class ApplicantServlet extends HttpServlet {
         } else if ("profile".equals(path)) {
             JsonObject profile = service.getProfile(userId);
             if (profile == null) {
-                JsonUtil.writeError(resp, 404, "资料不存在");
+                JsonUtil.writeError(resp, 404, "Profile not found");
             } else {
                 JsonUtil.writeJson(resp, profile);
             }
@@ -95,7 +96,7 @@ public class ApplicantServlet extends HttpServlet {
             JsonUtil.writeJson(resp, service.getNotifications(userId));
 
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 
@@ -182,14 +183,14 @@ public class ApplicantServlet extends HttpServlet {
                                 "Uploaded document: " + fileName + " (" + sizeStr + ")", req.getRemoteAddr());
                     }
                 } else {
-                    JsonUtil.writeError(resp, 400, "没有上传文件");
+                    JsonUtil.writeError(resp, 400, "No file uploaded");
                 }
             } catch (Exception e) {
-                JsonUtil.writeError(resp, 500, "上传失败: " + e.getMessage());
+                JsonUtil.writeError(resp, 500, "Upload failed: " + e.getMessage());
             }
 
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 
@@ -206,7 +207,7 @@ public class ApplicantServlet extends HttpServlet {
                 JsonUtil.writeJson(resp, profile);
                 dataService.addLog("Profile Updated", "info", getUserName(req), userId,
                         "Applicant updated their profile", req.getRemoteAddr());
-            } else if ("GPA 不能超过最大值".equals(error)) {
+            } else if ("GPA cannot exceed maximum".equals(error)) {
                 JsonUtil.writeError(resp, 400, error);
             } else {
                 JsonUtil.writeError(resp, 404, error);
@@ -223,7 +224,7 @@ public class ApplicantServlet extends HttpServlet {
             ok.addProperty("success", true);
             JsonUtil.writeJson(resp, ok);
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 
@@ -240,7 +241,7 @@ public class ApplicantServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonObject ok = new JsonObject();
-                ok.addProperty("message", "申请已撤销");
+                ok.addProperty("message", "Application withdrawn");
                 JsonUtil.writeJson(resp, ok);
                 dataService.addLog("Application Withdrawn", "warning", getUserName(req), userId,
                         "Withdrew application " + appId, req.getRemoteAddr());
@@ -253,13 +254,13 @@ public class ApplicantServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonObject ok = new JsonObject();
-                ok.addProperty("message", "文档删除成功");
+                ok.addProperty("message", "Document deleted successfully");
                 JsonUtil.writeJson(resp, ok);
                 dataService.addLog("Document Deleted", "warning", getUserName(req), userId,
                         "Deleted document " + docId, req.getRemoteAddr());
             }
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 }

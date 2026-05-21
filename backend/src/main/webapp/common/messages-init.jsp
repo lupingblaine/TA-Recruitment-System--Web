@@ -18,7 +18,7 @@ async function loadContacts() {
   contactsLoadError = null;
   if (typeof messageApi === 'undefined') {
     allContacts = [];
-    contactsLoadError = 'api.js 未包含 messageApi（服务器 static/js/api.js 过旧，请执行 ./deploy.sh full 并强制刷新缓存）';
+    contactsLoadError = 'api.js does not include messageApi (stale static/js/api.js on server; run ./deploy.sh full and hard-refresh cache)';
     return;
   }
   try {
@@ -76,7 +76,7 @@ function renderLeftPanel() {
     if (items.length === 0) {
       const hint = contactsLoadError
         ? escapeHtml(contactsLoadError)
-        : '当前角色下暂无可用联系人（申请人需有投递记录，Organiser 需有申请人投递其岗位）';
+        : 'No contacts available for this role (applicants need applications; organisers need applicants on their jobs)';
       panel.innerHTML = '<div class="p-4 text-center text-zinc-400 text-sm">' + hint + '</div>';
       return;
     }
@@ -476,7 +476,7 @@ function closeUserCard() {
 
 async function initMessaging() {
   if (typeof messageApi === 'undefined') {
-    contactsLoadError = contactsLoadError || 'api.js 未加载或版本过旧';
+    contactsLoadError = contactsLoadError || 'api.js not loaded or outdated';
     renderLeftPanel();
     lucide.createIcons();
     return;

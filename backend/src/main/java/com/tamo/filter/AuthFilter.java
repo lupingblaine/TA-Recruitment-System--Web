@@ -24,7 +24,7 @@ public class AuthFilter implements Filter {
 
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
-            JsonUtil.writeError(resp, 401, "未登录");
+            JsonUtil.writeError(resp, 401, "Not logged in");
             return;
         }
 
@@ -32,15 +32,15 @@ public class AuthFilter implements Filter {
         String path = req.getRequestURI();
 
         if (path.contains("/api/applicant") && !"applicant".equals(role)) {
-            JsonUtil.writeError(resp, 403, "无权限访问");
+            JsonUtil.writeError(resp, 403, "Access denied");
             return;
         }
         if (path.contains("/api/organiser") && !"organiser".equals(role)) {
-            JsonUtil.writeError(resp, 403, "无权限访问");
+            JsonUtil.writeError(resp, 403, "Access denied");
             return;
         }
         if (path.contains("/api/admin") && !"admin".equals(role)) {
-            JsonUtil.writeError(resp, 403, "无权限访问");
+            JsonUtil.writeError(resp, 403, "Access denied");
             return;
         }
 

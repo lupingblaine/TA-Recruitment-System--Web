@@ -214,12 +214,13 @@ public class ApplicantService {
     }
 
     /**
-     * 获取职位列表（仅活跃岗位），支持搜索和筛选
+     * 获取职位列表，支持搜索、部门/类型筛选及状态筛选（active / closed）
      */
-    public List<JsonObject> getJobs(String keyword, String department, String type) {
+    public List<JsonObject> getJobs(String keyword, String department, String type, String status) {
         DataStore data = dataService.getData();
         return data.getJobs().stream()
-                .filter(j -> "active".equals(j.getStatus()))
+                .filter(j -> status == null || status.isEmpty() ||
+                        j.getStatus().equalsIgnoreCase(status))
                 .filter(j -> keyword == null || keyword.isEmpty() ||
                         j.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
                         (j.getDescription() != null && j.getDescription().toLowerCase().contains(keyword.toLowerCase())))
@@ -257,19 +258,19 @@ public class ApplicantService {
 
         Job job = findJobById(data, jobId);
         if (job == null) {
-            result.put("error", "职位不存在");
+            result.put("error", "Job not found");
             result.put("code", 404);
             return result;
         }
 
         if (!"active".equals(job.getStatus())) {
-            result.put("error", "该岗位已关闭，无法申请");
+            result.put("error", "This position is closed and cannot be applied for");
             result.put("code", 400);
             return result;
         }
 
         if (coverLetter == null || coverLetter.isBlank()) {
-            result.put("error", "缺少必填字段");
+            result.put("error", "Missing required field(s)");
             result.put("code", 400);
             return result;
         }
@@ -277,10 +278,11 @@ public class ApplicantService {
         boolean alreadyApplied = data.getApplications().stream()
                 .anyMatch(a -> a.getApplicantId().equals(userId) && a.getJobId().equals(jobId));
         if (alreadyApplied) {
-            result.put("error", "已申请过该岗位");
+            result.put("error", "You have already applied for this position");
             result.put("code", 409);
             return result;
         }
+   
 
         String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         String today = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -370,19 +372,19 @@ public class ApplicantService {
                 .findFirst().orElse(null);
 
         if (app == null) {
-            result.put("error", "申请不存在");
+            result.put("error", "Application not found");
             result.put("code", 404);
             return result;
         }
 
         if (!app.getApplicantId().equals(userId)) {
-            result.put("error", "无权限撤销该申请");
+            result.put("error", "You are not authorized to withdraw this application");
             result.put("code", 403);
             return result;
         }
 
         if ("offer".equals(app.getStatus()) || "rejected".equals(app.getStatus())) {
-            result.put("error", "当前申请状态不支持撤销");
+            result.put("error", "Withdrawal not allowed for current status");
             result.put("code", 400);
             return result;
         }
@@ -439,18 +441,18 @@ public class ApplicantService {
         Profile profile = getOrCreateProfile(data, userId);
         User user = data.getUsers().stream()
                 .filter(u -> u.getId().equals(userId)).findFirst().orElse(null);
-        if (profile == null || user == null) return "用户资料不存在";
+        if (profile == null || user == null) return "Profile not found";
 
         if (updates.has("gpa") && updates.has("maxGpa")) {
             double gpa = updates.get("gpa").getAsDouble();
             double maxGpa = updates.get("maxGpa").getAsDouble();
             if (gpa > maxGpa) {
-                return "GPA 不能超过最大值";
+                return "GPA cannot exceed maximum";
             }
         } else if (updates.has("gpa")) {
             double gpa = updates.get("gpa").getAsDouble();
             if (gpa > profile.getMaxGpa()) {
-                return "GPA 不能超过最大值";
+                return "GPA cannot exceed maximum";
             }
         }
 
@@ -504,7 +506,7 @@ public class ApplicantService {
         Map<String, Object> result = new HashMap<>();
 
         if (fileName == null || fileName.isBlank()) {
-            result.put("error", "缺少上传文件");
+            result.put("error", "No file uploaded");
             result.put("code", 400);
             return result;
         }
@@ -515,14 +517,14 @@ public class ApplicantService {
             ext = fileName.substring(dotIdx + 1).toLowerCase();
         }
         if (!ALLOWED_FILE_EXTENSIONS.contains(ext)) {
-            result.put("error", "不支持的文件类型");
+            result.put("error", "Unsupported file type");
             result.put("code", 400);
             return result;
         }
 
         Profile profile = getOrCreateProfile(data, userId);
         if (profile == null) {
-            result.put("error", "用户资料不存在");
+            result.put("error", "Profile not found");
             result.put("code", 404);
             return result;
         }
@@ -552,14 +554,14 @@ public class ApplicantService {
 
         Profile profile = findProfileByUserId(data, userId);
         if (profile == null) {
-            result.put("error", "用户资料不存在");
+            result.put("error", "Profile not found");
             result.put("code", 404);
             return result;
         }
 
         boolean removed = profile.getDocuments().removeIf(d -> d.getId().equals(docId));
         if (!removed) {
-            result.put("error", "文档不存在");
+            result.put("error", "Document not found");
             result.put("code", 404);
             return result;
         }

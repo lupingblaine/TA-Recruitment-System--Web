@@ -66,7 +66,7 @@ public class OrganiserServlet extends HttpServlet {
             JsonUtil.writeJson(resp, service.getInterviews(userId));
 
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 
@@ -104,7 +104,7 @@ public class OrganiserServlet extends HttpServlet {
             }
 
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 
@@ -182,7 +182,7 @@ public class OrganiserServlet extends HttpServlet {
             JsonUtil.writeJson(resp, ok);
 
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 
@@ -199,7 +199,7 @@ public class OrganiserServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonObject ok = new JsonObject();
-                ok.addProperty("message", "岗位删除成功");
+                ok.addProperty("message", "Job deleted successfully");
                 JsonUtil.writeJson(resp, ok);
                 dataService.addLog("Job Deleted", "warning", getUserName(req), userId,
                         "Deleted job " + jobId, req.getRemoteAddr());
@@ -212,13 +212,13 @@ public class OrganiserServlet extends HttpServlet {
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
                 JsonObject ok = new JsonObject();
-                ok.addProperty("message", "面试删除成功");
+                ok.addProperty("message", "Interview deleted successfully");
                 JsonUtil.writeJson(resp, ok);
                 dataService.addLog("Interview Deleted", "warning", getUserName(req), userId,
                         "Deleted interview " + interviewId, req.getRemoteAddr());
             }
         } else {
-            JsonUtil.writeError(resp, 404, "接口不存在");
+            JsonUtil.writeError(resp, 404, "Endpoint not found");
         }
     }
 }
