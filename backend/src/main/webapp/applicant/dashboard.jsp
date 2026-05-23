@@ -97,8 +97,54 @@ const ctx = document.querySelector('meta[name="ctx"]').content;
 let currentWeekOffset = 0;
 let cachedSchedule = [];
 
+function padDate(dt) {
+  var y = dt.getFullYear();
+  var m = String(dt.getMonth() + 1).padStart(2, '0');
+  var d = String(dt.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+
+function expandWorkDates(rawDates) {
+  if (!rawDates || rawDates.length === 0) return [];
+  var sorted = rawDates.slice().sort();
+  if (sorted.length > 2) return sorted;
+  var start = new Date(sorted[0] + 'T00:00:00');
+  var end = new Date(sorted[sorted.length - 1] + 'T00:00:00');
+  var targetDays = {};
+  sorted.forEach(function(d) { targetDays[new Date(d + 'T00:00:00').getDay()] = true; });
+  var allDates = [];
+  var cursor = new Date(start);
+  while (cursor <= end) {
+    if (targetDays[cursor.getDay()]) {
+      allDates.push(padDate(cursor));
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return allDates;
+}
+
+var allExpandedWorkDates = [];
+
 function shiftWeek(delta) {
   currentWeekOffset += delta;
+  renderSchedule(cachedSchedule);
+  lucide.createIcons();
+}
+
+function jumpToNextWorkDay() {
+  var todayStr = padDate(new Date());
+  var nextWork = allExpandedWorkDates.find(function(d) { return d >= todayStr; });
+  if (!nextWork) {
+    if (allExpandedWorkDates.length > 0) nextWork = allExpandedWorkDates[allExpandedWorkDates.length - 1];
+    else return;
+  }
+  var target = new Date(nextWork + 'T00:00:00');
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var diffDays = Math.round((target - today) / 86400000);
+  var dow = today.getDay();
+  var todayMondayOff = dow === 0 ? 6 : dow - 1;
+  currentWeekOffset = Math.floor((diffDays + todayMondayOff) / 7);
   renderSchedule(cachedSchedule);
   lucide.createIcons();
 }
@@ -238,14 +284,22 @@ function renderSchedule(schedule, offers) {
   });
 
   duties.forEach(function(d) {
+    if (!d.date) return;
+    var evDate = new Date(d.date + 'T00:00:00');
     for (let i = 0; i < 7; i++) {
-      eventsByDay[i].push({ type: 'duty', data: d });
+      if (weekDates[i].toDateString() === evDate.toDateString()) {
+        eventsByDay[i].push({ type: 'duty', data: d });
+        break;
+      }
     }
   });
 
+  allExpandedWorkDates = [];
   (cachedOffers || []).forEach(function(offer) {
     if (!offer.workDates) return;
-    offer.workDates.forEach(function(dateStr) {
+    var expanded = expandWorkDates(offer.workDates);
+    allExpandedWorkDates = allExpandedWorkDates.concat(expanded);
+    expanded.forEach(function(dateStr) {
       var evDate = new Date(dateStr + 'T00:00:00');
       for (let i = 0; i < 7; i++) {
         if (weekDates[i].toDateString() === evDate.toDateString()) {
@@ -255,6 +309,7 @@ function renderSchedule(schedule, offers) {
       }
     });
   });
+  allExpandedWorkDates.sort();
 
   const isCurrentWeek = currentWeekOffset === 0;
   let html = '<div class="flex items-center justify-between mb-4">' +
@@ -263,8 +318,10 @@ function renderSchedule(schedule, offers) {
     '<button onclick="shiftWeek(1)" class="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors"><i data-lucide="chevron-right" class="h-5 w-5 text-zinc-500"></i></button>' +
     '</div>' +
     '<span class="font-semibold text-zinc-800">' + monthNames[monday.getMonth()] + ' ' + monday.getFullYear() + '</span>' +
-    (isCurrentWeek ? '<div class="w-16"></div>' : '<button onclick="currentWeekOffset=0;renderSchedule(cachedSchedule);lucide.createIcons();" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Today</button>') +
-    '</div>';
+    '<div class="flex gap-2">' +
+    (isCurrentWeek ? '' : '<button onclick="currentWeekOffset=0;renderSchedule(cachedSchedule);lucide.createIcons();" class="text-xs px-2 py-1 rounded-md bg-indigo-100 text-indigo-700 hover:bg-indigo-200 font-medium">Today</button>') +
+    (allExpandedWorkDates.length > 0 ? '<button onclick="jumpToNextWorkDay()" class="text-xs px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-medium">Next Work</button>' : '') +
+    '</div></div>';
 
   html += '<div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-zinc-500 mb-2">';
   weekDays.forEach(function(day) { html += '<div>' + day + '</div>'; });
@@ -283,9 +340,8 @@ function renderSchedule(schedule, offers) {
       (isToday ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : hasWork ? 'bg-emerald-50 border-emerald-200 hover:border-emerald-400' : 'bg-white border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50/50') + '">';
     html += '<span class="text-sm font-semibold">' + date.getDate() + '</span>';
     
-    if (hasInterview || hasDuty || hasWork) {
+    if (hasInterview || hasWork) {
       html += '<div class="flex gap-0.5 mt-1">';
-      if (hasDuty) html += '<span class="w-1.5 h-1.5 rounded-full ' + (isToday ? 'bg-white/70' : 'bg-indigo-400') + '"></span>';
       if (hasWork) html += '<span class="w-1.5 h-1.5 rounded-full ' + (isToday ? 'bg-emerald-300' : 'bg-emerald-500') + '"></span>';
       if (hasInterview) html += '<span class="w-1.5 h-1.5 rounded-full ' + (isToday ? 'bg-amber-300' : 'bg-amber-500') + '"></span>';
       html += '</div>';
@@ -319,7 +375,6 @@ function renderSchedule(schedule, offers) {
   html += '</div>';
 
   html += '<div class="flex items-center gap-4 mt-4 pt-4 border-t border-zinc-100 text-xs text-zinc-500">' +
-    '<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>TA Duty</div>' +
     '<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Work Day</div>' +
     '<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>Interview</div></div>';
 
@@ -420,8 +475,10 @@ function renderOffers(offers) {
   el.classList.remove('hidden');
   const listEl = document.getElementById('offersList');
   listEl.innerHTML = offers.map(function(o) {
-    const dateCount = (o.workDates || []).length;
-    const nextDate = (o.workDates || []).find(function(d) { return d >= new Date().toISOString().split('T')[0]; });
+    var expanded = expandWorkDates(o.workDates || []);
+    const dateCount = expanded.length;
+    const todayISO = padDate(new Date());
+    const nextDate = expanded.find(function(d) { return d >= todayISO; });
     return '<div class="p-5 border border-emerald-200 rounded-xl bg-emerald-50/50">' +
       '<div class="flex items-center justify-between mb-3">' +
       '<div class="flex items-center gap-3">' +
@@ -434,10 +491,10 @@ function renderOffers(offers) {
         '<p class="text-xs font-medium text-emerald-700 mb-2">' + dateCount + ' scheduled work session' + (dateCount > 1 ? 's' : '') +
         (nextDate ? ' · Next: ' + nextDate : '') + '</p>' +
         '<div class="flex flex-wrap gap-1">' +
-        o.workDates.slice(0, 8).map(function(d) {
+        expanded.slice(0, 8).map(function(d) {
           var dt = new Date(d + 'T00:00:00');
           var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-          var isPast = d < new Date().toISOString().split('T')[0];
+          var isPast = d < todayISO;
           return '<span class="text-xs px-2 py-0.5 rounded-full border ' +
             (isPast ? 'bg-zinc-100 text-zinc-400 border-zinc-200 line-through' : 'bg-white text-emerald-700 border-emerald-200') + '">' +
             dayNames[dt.getDay()] + ' ' + d.substring(5) + '</span>';
