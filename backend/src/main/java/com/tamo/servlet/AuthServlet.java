@@ -14,12 +14,22 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+/**
+ * Implementation of AuthServlet.
+ * Provides necessary operations and logic for the system.
+ */
 public class AuthServlet extends HttpServlet {
 
     private AuthService authService;
     private JsonDataService dataService;
 
     @Override
+    /**
+     * Executes the init operation.
+     */
+    /**
+     * Executes the init operation.
+     */
     public void init() throws ServletException {
         this.dataService = JsonDataService.getInstance(
                 JsonDataService.resolveClassesPath(getServletContext()));
@@ -30,6 +40,11 @@ public class AuthServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doPost operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
 
@@ -42,6 +57,11 @@ public class AuthServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doGet operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
 

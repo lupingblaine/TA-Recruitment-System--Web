@@ -25,18 +25,36 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of AdminService.
+ * Provides necessary operations and logic for the system.
+ */
 public class AdminService {
 
     private static final List<String> VALID_ROLES = Arrays.asList("applicant", "organiser", "admin");
 
     private final JsonDataService dataService;
 
+    /**
+     * Constructs a new AdminService instance.
+     */
+    /**
+     * Constructs a new AdminService instance.
+     */
     public AdminService(JsonDataService dataService) {
         this.dataService = dataService;
     }
 
     // ==================== Dashboard ====================
 
+    /**
+     * Executes the getDashboard operation.
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getDashboard operation.
+     * @return the resulting object or status
+     */
     public JsonObject getDashboard() {
         DataStore data = dataService.getData();
 
@@ -89,6 +107,20 @@ public class AdminService {
     /**
      * Get user list (without password)
      */
+    /**
+     * Executes the getUsers operation.
+     * @param keyword the keyword argument
+     * @param role the role argument
+     * @param status the status argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getUsers operation.
+     * @param keyword the keyword argument
+     * @param role the role argument
+     * @param status the status argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getUsers(String keyword, String role, String status) {
         DataStore data = dataService.getData();
         return data.getUsers().stream()
@@ -101,6 +133,16 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Executes the createUser operation.
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the createUser operation.
+     * @param body the body argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> createUser(JsonObject body) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -165,6 +207,20 @@ public class AdminService {
         return result;
     }
 
+    /**
+     * Executes the updateUser operation.
+     * @param adminId the adminId argument
+     * @param userId the userId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the updateUser operation.
+     * @param adminId the adminId argument
+     * @param userId the userId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> updateUser(String adminId, String userId, JsonObject body) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -192,6 +248,18 @@ public class AdminService {
         return result;
     }
 
+    /**
+     * Executes the deleteUser operation.
+     * @param adminId the adminId argument
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the deleteUser operation.
+     * @param adminId the adminId argument
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> deleteUser(String adminId, String userId) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -218,6 +286,16 @@ public class AdminService {
 
     // ==================== Modules ====================
 
+    /**
+     * Executes the getModules operation.
+     * @param keyword the keyword argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getModules operation.
+     * @param keyword the keyword argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getModules(String keyword) {
         DataStore data = dataService.getData();
         return data.getModules().stream()
@@ -275,6 +353,16 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Executes the createModule operation.
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the createModule operation.
+     * @param body the body argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> createModule(JsonObject body) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -322,6 +410,18 @@ public class AdminService {
         return result;
     }
 
+    /**
+     * Executes the updateModule operation.
+     * @param moduleId the moduleId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the updateModule operation.
+     * @param moduleId the moduleId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> updateModule(String moduleId, JsonObject body) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -378,6 +478,16 @@ public class AdminService {
         return null;
     }
 
+    /**
+     * Executes the deleteModule operation.
+     * @param moduleId the moduleId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the deleteModule operation.
+     * @param moduleId the moduleId argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> deleteModule(String moduleId) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -404,10 +514,28 @@ public class AdminService {
 
     // ==================== Properties: Terms ====================
 
+    /**
+     * Executes the getTerms operation.
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getTerms operation.
+     * @return the resulting object or status
+     */
     public List<Term> getTerms() {
         return dataService.getData().getTerms();
     }
 
+    /**
+     * Executes the createTerm operation.
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the createTerm operation.
+     * @param body the body argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> createTerm(JsonObject body) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -458,10 +586,28 @@ public class AdminService {
 
     // ==================== Properties: Departments ====================
 
+    /**
+     * Executes the getDepartments operation.
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getDepartments operation.
+     * @return the resulting object or status
+     */
     public List<Department> getDepartments() {
         return dataService.getData().getDepartments();
     }
 
+    /**
+     * Executes the createDepartment operation.
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the createDepartment operation.
+     * @param body the body argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> createDepartment(JsonObject body) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -496,6 +642,18 @@ public class AdminService {
 
     // ==================== Logs ====================
 
+    /**
+     * Executes the getLogs operation.
+     * @param keyword the keyword argument
+     * @param type the type argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getLogs operation.
+     * @param keyword the keyword argument
+     * @param type the type argument
+     * @return the resulting object or status
+     */
     public List<LogEntry> getLogs(String keyword, String type) {
         DataStore data = dataService.getData();
         return data.getLogs().stream()
@@ -517,6 +675,18 @@ public class AdminService {
     /**
      * Workload is derived from confirmed offers: each application with status="offer" is
      * counted as an active job for its applicant, contributing the job's hoursPerWeek.
+     */
+    /**
+     * Executes the getWorkload operation.
+     * @param keyword the keyword argument
+     * @param statusFilter the statusFilter argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getWorkload operation.
+     * @param keyword the keyword argument
+     * @param statusFilter the statusFilter argument
+     * @return the resulting object or status
      */
     public List<JsonObject> getWorkload(String keyword, String statusFilter) {
         DataStore data = dataService.getData();
@@ -595,6 +765,18 @@ public class AdminService {
      * - reopen   : revoke the current offer (set application status to "rejected") and
      *              reopen the job (set job status to "active") so it can be applied to again.
      * - transfer : reassign the existing offer to another applicant (only changes applicantId).
+     */
+    /**
+     * Executes the reassignWorkload operation.
+     * @param taUserId the taUserId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the reassignWorkload operation.
+     * @param taUserId the taUserId argument
+     * @param body the body argument
+     * @return the resulting object or status
      */
     public Map<String, Object> reassignWorkload(String taUserId, JsonObject body) {
         DataStore data = dataService.getData();
@@ -755,12 +937,30 @@ public class AdminService {
                 : userId2 + "_" + userId1;
     }
 
+    /**
+     * Executes the getCollectionNames operation.
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getCollectionNames operation.
+     * @return the resulting object or status
+     */
     public JsonArray getCollectionNames() {
         JsonArray arr = new JsonArray();
         COLLECTION_NAMES.forEach(arr::add);
         return arr;
     }
 
+    /**
+     * Executes the getCollectionData operation.
+     * @param collection the collection argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getCollectionData operation.
+     * @param collection the collection argument
+     * @return the resulting object or status
+     */
     public JsonElement getCollectionData(String collection) {
         DataStore data = dataService.getData();
         Gson gson = JsonUtil.getGson();
@@ -781,6 +981,18 @@ public class AdminService {
         };
     }
 
+    /**
+     * Executes the addToCollection operation.
+     * @param collection the collection argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the addToCollection operation.
+     * @param collection the collection argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> addToCollection(String collection, JsonObject body) {
         DataStore data = dataService.getData();
         Gson gson = JsonUtil.getGson();
@@ -1120,6 +1332,20 @@ public class AdminService {
         return null;
     }
 
+    /**
+     * Executes the updateCollectionItem operation.
+     * @param collection the collection argument
+     * @param itemId the itemId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the updateCollectionItem operation.
+     * @param collection the collection argument
+     * @param itemId the itemId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> updateCollectionItem(String collection, String itemId, JsonObject body) {
         DataStore data = dataService.getData();
         Gson gson = JsonUtil.getGson();
@@ -1313,6 +1539,18 @@ public class AdminService {
         return result;
     }
 
+    /**
+     * Executes the deleteFromCollection operation.
+     * @param collection the collection argument
+     * @param itemId the itemId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the deleteFromCollection operation.
+     * @param collection the collection argument
+     * @param itemId the itemId argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> deleteFromCollection(String collection, String itemId) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();

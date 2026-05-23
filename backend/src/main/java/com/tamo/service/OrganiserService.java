@@ -19,6 +19,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of OrganiserService.
+ * Provides necessary operations and logic for the system.
+ */
 public class OrganiserService {
 
     private static final Set<String> VALID_APP_STATUSES = Set.of(
@@ -29,10 +33,26 @@ public class OrganiserService {
 
     private final JsonDataService dataService;
 
+    /**
+     * Constructs a new OrganiserService instance.
+     */
+    /**
+     * Constructs a new OrganiserService instance.
+     */
     public OrganiserService(JsonDataService dataService) {
         this.dataService = dataService;
     }
 
+    /**
+     * Executes the getDashboard operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getDashboard operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
+     */
     public JsonObject getDashboard(String organiserId) {
         DataStore data = dataService.getData();
 
@@ -55,7 +75,7 @@ public class OrganiserService {
                 .filter(a -> "interview".equals(a.getStatus()))
                 .count();
 
-        // 统计当前组织者所有非取消状态的面试总数
+        // Count all non-cancelled interviews for current organiser
         long currentInterviews = 0;
         if (data.getInterviews() != null) {
             currentInterviews = data.getInterviews().stream()
@@ -72,10 +92,10 @@ public class OrganiserService {
         result.addProperty("interviewsToSchedule", currentInterviews);
         result.addProperty("pendingInterviews", pendingInterviews);
 
-        // 构建近期活动：优先显示面试信息，再显示最近申请
+        // Build recent activities: prioritize interview information, then recent applications
         JsonArray recentApplications = new JsonArray();
 
-        // 先添加当前organiser的面试信息
+        // First add interview information for current organiser
         if (data.getInterviews() != null) {
             data.getInterviews().stream()
                     .filter(iv -> organiserId.equals(iv.getOrganiserId()))
@@ -100,7 +120,7 @@ public class OrganiserService {
                     });
         }
 
-        // 再添加最近申请（排除已通过面试展示的）
+        // Then add recent applications (excluding those already shown through interviews)
         Set<String> shownCandidateIds = new HashSet<>();
         for (int i = 0; i < recentApplications.size(); i++) {
             JsonObject obj = recentApplications.get(i).getAsJsonObject();
@@ -147,7 +167,7 @@ public class OrganiserService {
         result.add("activeJobs", activeJobsArr);
         result.add("jobs", activeJobsArr);
 
-        // 添加当前组织者的面试列表
+        // Add current organiser's interview list
         JsonArray interviewsArr = new JsonArray();
         if (data.getInterviews() != null) {
             data.getInterviews().stream()
@@ -162,6 +182,16 @@ public class OrganiserService {
         return result;
     }
 
+    /**
+     * Executes the getNotifications operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getNotifications operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getNotifications(String organiserId) {
         DataStore data = dataService.getData();
         List<Notification> notifications = (data.getNotifications() != null
@@ -187,6 +217,16 @@ public class OrganiserService {
         return result;
     }
 
+    /**
+     * Executes the markNotificationRead operation.
+     * @param organiserId the organiserId argument
+     * @param notifId the notifId argument
+     */
+    /**
+     * Executes the markNotificationRead operation.
+     * @param organiserId the organiserId argument
+     * @param notifId the notifId argument
+     */
     public void markNotificationRead(String organiserId, String notifId) {
         DataStore data = dataService.getData();
         if (data.getNotifications() == null) return;
@@ -199,6 +239,14 @@ public class OrganiserService {
                 });
     }
 
+    /**
+     * Executes the markAllNotificationsRead operation.
+     * @param organiserId the organiserId argument
+     */
+    /**
+     * Executes the markAllNotificationsRead operation.
+     * @param organiserId the organiserId argument
+     */
     public void markAllNotificationsRead(String organiserId) {
         DataStore data = dataService.getData();
         if (data.getNotifications() == null) return;
@@ -228,6 +276,16 @@ public class OrganiserService {
      * Return the list of modules owned by the given organiser. Used by the
      * organiser job-posting UI so MOs may only pick modules they are
      * responsible for, rather than any module in the system.
+     */
+    /**
+     * Executes the getMyModules operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getMyModules operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
      */
     public List<JsonObject> getMyModules(String organiserId) {
         DataStore data = dataService.getData();
@@ -267,6 +325,16 @@ public class OrganiserService {
         return module != null && organiserId.equals(module.getOrganiserId());
     }
 
+    /**
+     * Executes the getJobs operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getJobs operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getJobs(String organiserId) {
         DataStore data = dataService.getData();
         return data.getJobs().stream()
@@ -293,7 +361,19 @@ public class OrganiserService {
     }
 
     /**
-     * 创建岗位，返回 Map（"error"/"code" 或 "job"）
+     * Create job, return Map ("error"/"code" or "job")
+     */
+    /**
+     * Executes the createJob operation.
+     * @param organiserId the organiserId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the createJob operation.
+     * @param organiserId the organiserId argument
+     * @param body the body argument
+     * @return the resulting object or status
      */
     public Map<String, Object> createJob(String organiserId, JsonObject body) {
         Map<String, Object> result = new HashMap<>();
@@ -371,7 +451,21 @@ public class OrganiserService {
     }
 
     /**
-     * 编辑岗位，返回 Map（"error"/"code" 或 "job"）
+     * Edit job, return Map ("error"/"code" or "job")
+     */
+    /**
+     * Executes the updateJob operation.
+     * @param organiserId the organiserId argument
+     * @param jobId the jobId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the updateJob operation.
+     * @param organiserId the organiserId argument
+     * @param jobId the jobId argument
+     * @param body the body argument
+     * @return the resulting object or status
      */
     public Map<String, Object> updateJob(String organiserId, String jobId, JsonObject body) {
         DataStore data = dataService.getData();
@@ -443,7 +537,19 @@ public class OrganiserService {
     }
 
     /**
-     * 删除岗位，返回 Map（"error"/"code" 或 "success"=true）
+     * Delete job, return Map ("error"/"code" or "success"=true)
+     */
+    /**
+     * Executes the deleteJob operation.
+     * @param organiserId the organiserId argument
+     * @param jobId the jobId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the deleteJob operation.
+     * @param organiserId the organiserId argument
+     * @param jobId the jobId argument
+     * @return the resulting object or status
      */
     public Map<String, Object> deleteJob(String organiserId, String jobId) {
         DataStore data = dataService.getData();
@@ -466,7 +572,7 @@ public class OrganiserService {
        
         }
 
-        // 删除岗位时同时清理该岗位相关申请和面试，避免 TA 页面显示遗留 pipeline
+        // When deleting a job, also clean up related applications and interviews to avoid leftover pipeline in TA pages
         Set<String> deletedAppIds = data.getApplications().stream()
                 .filter(a -> a.getJobId().equals(jobId))
                 .map(Application::getId)
@@ -480,6 +586,18 @@ public class OrganiserService {
         return result;
     }
 
+    /**
+     * Executes the getPipeline operation.
+     * @param organiserId the organiserId argument
+     * @param moduleFilter the moduleFilter argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getPipeline operation.
+     * @param organiserId the organiserId argument
+     * @param moduleFilter the moduleFilter argument
+     * @return the resulting object or status
+     */
     public JsonObject getPipeline(String organiserId, String moduleFilter) {
         DataStore data = dataService.getData();
         Set<String> myJobIds = data.getJobs().stream()
@@ -514,7 +632,7 @@ public class OrganiserService {
                 obj.addProperty("matchScore", a.getMatchScore());
                 obj.addProperty("riskFlag", a.getRiskFlag());
                 obj.addProperty("aiSummary", a.getAiSummary());
-                // 如果状态是 interview，添加面试信息
+                // If status is interview, add interview information
                 if ("interview".equals(status)) {
                     Interview iv = data.getInterviews().stream()
                             .filter(i -> i.getApplicationId().equals(a.getId()))
@@ -538,7 +656,21 @@ public class OrganiserService {
     }
 
     /**
-     * 更新候选人状态，返回 Map
+     * Update candidate status, return Map
+     */
+    /**
+     * Executes the updateCandidateStatus operation.
+     * @param organiserId the organiserId argument
+     * @param appId the appId argument
+     * @param newStatus the newStatus argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the updateCandidateStatus operation.
+     * @param organiserId the organiserId argument
+     * @param appId the appId argument
+     * @param newStatus the newStatus argument
+     * @return the resulting object or status
      */
     public Map<String, Object> updateCandidateStatus(String organiserId, String appId, String newStatus) {
         DataStore data = dataService.getData();
@@ -647,7 +779,19 @@ public class OrganiserService {
     }
 
     /**
-     * 获取申请详情，含所有权校验
+     * Get application details, including ownership verification
+     */
+    /**
+     * Executes the getApplicationDetails operation.
+     * @param organiserId the organiserId argument
+     * @param appId the appId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getApplicationDetails operation.
+     * @param organiserId the organiserId argument
+     * @param appId the appId argument
+     * @return the resulting object or status
      */
     public Map<String, Object> getApplicationDetails(String organiserId, String appId) {
         DataStore data = dataService.getData();
@@ -708,7 +852,21 @@ public class OrganiserService {
     }
 
     /**
-     * 对申请执行操作（shortlist/reject/offer），返回 Map
+     * Perform action on application (shortlist/reject/offer), return Map
+     */
+    /**
+     * Executes the applicationAction operation.
+     * @param organiserId the organiserId argument
+     * @param appId the appId argument
+     * @param action the action argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the applicationAction operation.
+     * @param organiserId the organiserId argument
+     * @param appId the appId argument
+     * @param action the action argument
+     * @return the resulting object or status
      */
     public Map<String, Object> applicationAction(String organiserId, String appId, String action) {
         Map<String, Object> result = new HashMap<>();
@@ -736,7 +894,17 @@ public class OrganiserService {
     }
 
     /**
-     * 获取面试列表
+     * Get interview list
+     */
+    /**
+     * Executes the getInterviews operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getInterviews operation.
+     * @param organiserId the organiserId argument
+     * @return the resulting object or status
      */
     public List<Object> getInterviews(String organiserId) {
         DataStore data = dataService.getData();
@@ -748,7 +916,19 @@ public class OrganiserService {
     }
 
     /**
-     * 创建面试，返回 Map
+     * Create interview, return Map
+     */
+    /**
+     * Executes the createInterview operation.
+     * @param organiserId the organiserId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the createInterview operation.
+     * @param organiserId the organiserId argument
+     * @param body the body argument
+     * @return the resulting object or status
      */
     public Map<String, Object> createInterview(String organiserId, JsonObject body) {
         Map<String, Object> result = new HashMap<>();
@@ -876,7 +1056,21 @@ public class OrganiserService {
     }
 
     /**
-     * 更新面试，返回 Map
+     * Update interview, return Map
+     */
+    /**
+     * Executes the updateInterview operation.
+     * @param organiserId the organiserId argument
+     * @param interviewId the interviewId argument
+     * @param body the body argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the updateInterview operation.
+     * @param organiserId the organiserId argument
+     * @param interviewId the interviewId argument
+     * @param body the body argument
+     * @return the resulting object or status
      */
     public Map<String, Object> updateInterview(String organiserId, String interviewId, JsonObject body) {
         DataStore data = dataService.getData();
@@ -911,6 +1105,18 @@ public class OrganiserService {
         return result;
     }
 
+    /**
+     * Executes the deleteInterview operation.
+     * @param organiserId the organiserId argument
+     * @param interviewId the interviewId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the deleteInterview operation.
+     * @param organiserId the organiserId argument
+     * @param interviewId the interviewId argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> deleteInterview(String organiserId, String interviewId) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -931,7 +1137,7 @@ public class OrganiserService {
 
         data.getInterviews().remove(iv);
 
-        // 删除面试时不应更改申请人的 pipeline 状态，状态仍应保持为当前阶段。
+        // When deleting an interview, should not change applicant's pipeline status, which should remain at the current stage.
         dataService.save();
         result.put("success", true);
         return result;

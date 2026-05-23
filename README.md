@@ -1,5 +1,14 @@
 # TA&MO — TA Recruitment & Management System
 
+<div align="center">
+  <a href="http://47.93.90.208:8080/tamo" target="_blank">
+    <img src="backend/src/main/webapp/static/images/image.png" alt="TA&MO Logo" width="150">
+  </a>
+  <br>
+  <strong>🌍 <a href="http://47.93.90.208:8080/tamo" target="_blank">Official Website: http://47.93.90.208:8080/tamo</a></strong>
+</div>
+<br>
+
 > University-oriented Teaching Assistant recruitment and management platform built with **Java Servlet/JSP** + **Embedded Tomcat**.
 
 ---
@@ -7,34 +16,135 @@
 ## Table of Contents
 
 - [Project Overview](#project-overview)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
+- [System Interface Showcase](#system-interface-showcase)
+- [Architecture & Tech Stack](#architecture--tech-stack)
+- [Getting Started (Setup & Configuration)](#getting-started-setup--configuration)
+- [Running the Software](#running-the-software)
+- [Running Tests](#running-tests)
+- [Generating Javadoc](#generating-javadoc)
 - [Project Structure](#project-structure)
-- [Access URLs](#access-urls)
 - [User Roles & Test Accounts](#user-roles--test-accounts)
 - [API Reference](#api-reference)
-- [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
-- [Archive: TypeScript Prototype](#archive-typescript-prototype)
 - [License](#license)
 
 ---
 
 ## Project Overview
 
-TA&MO is a full-stack web application for managing the TA recruitment lifecycle at a university. It supports three user roles:
+TA&MO is a full-stack web application designed for managing the Teaching Assistant recruitment lifecycle at a university. It provides a robust, role-based platform that streamlines the hiring process from start to finish.
 
 | Role | Key Features |
 |------|-------------|
-| **Applicant (TA)** | Browse & apply for TA positions, track application status, manage profile & CV documents |
+| **Applicant (TA)** | Browse & apply for TA positions, track application status, manage profile & CV documents, chat system |
 | **Organiser (Professor)** | Manage TA job postings, review applications via Kanban pipeline, schedule & manage interviews |
-| **Admin** | Analytics dashboard, user & module management, workload monitoring, system logs, term & department configuration |
+| **Admin** | Analytics dashboard, user & module management, workload monitoring, system logs, data editor, configuration |
 
 ---
 
-## Architecture
+## Feature Walkthrough & Usage Guide
+
+TA&MO offers distinct interfaces and features based on your logged-in role. Below is a guide on how to navigate and utilize the primary functions of the system, complete with hidden visual references you can expand to see the UI.
+
+### 1. Authentication
+To get started, users must either log in to an existing account or sign up.
+- **Login**: Navigate to `/auth/login.jsp`. Enter your email and password. The system uses an interactive animated character that reacts to your input fields.
+- **Sign Up**: Navigate to `/auth/signup.jsp` to create a new account as an Applicant. 
+
+<details>
+<summary>Click to view Authentication UI</summary>
+<br>
+
+- **Login Page**  
+  <img src="screenshot/01_login_page.png" alt="Login Page" width="800">
+- **Sign Up Page**  
+  <img src="screenshot/02_signup_page.png" alt="Sign Up Page" width="800">
+</details>
+
+### 2. Using the System as an Applicant
+Once logged in as an Applicant (TA), you have access to a suite of tools to find and secure jobs.
+- **Dashboard & Notifications**: Your landing page gives you a bird's-eye view of your active applications and recent notifications.
+- **Finding & Applying for Jobs**: Go to the "Find Jobs" tab to browse open module positions. Click on a job to view its details, and use the Apply modal to submit your application and cover letter.
+- **Tracking Applications**: Use the "My Applications" section to track your progress through the recruitment pipeline.
+- **Profile Management**: Update your academic details, skills, and CVs under the "Profile" tab to improve your chances.
+- **Communication**: Use the built-in messaging system to chat with Module Organisers regarding your application.
+
+<details>
+<summary>Click to view Applicant UI</summary>
+<br>
+
+- **Dashboard**  
+  <img src="screenshot/03_applicant_dashboard.png" alt="Applicant Dashboard" width="800">
+- **Find Jobs**  
+  <img src="screenshot/04_applicant_find_jobs.png" alt="Find Jobs" width="800">
+- **Job Details**  
+  <img src="screenshot/05_applicant_find_jobs_details.png" alt="Job Details" width="800">
+- **Apply for Job**  
+  <img src="screenshot/06_applicant_apply_modal.png" alt="Apply Modal" width="800">
+- **My Applications & Tracker**  
+  <img src="screenshot/07_applicant_my_applications.png" alt="My Applications" width="800">
+- **Messaging (Chat)**  
+  <img src="screenshot/09_applicant_messages_chat.png" alt="Applicant Messages Chat" width="800">
+- **Profile**  
+  <img src="screenshot/10_applicant_profile.png" alt="Applicant Profile" width="800">
+- **Notifications**  
+  <img src="screenshot/11_applicant_dashboard_notifications.png" alt="Dashboard Notifications" width="800">
+</details>
+
+### 3. Using the System as an Organiser
+Module Organisers (Professors) can manage their job postings and review candidates.
+- **Managing Postings**: Use the "TA Positions" tab to create, edit, or delete job postings for your modules.
+- **Recruitment Pipeline**: The Kanban-style pipeline allows you to drag-and-drop applicants between stages (Review, Shortlisted, Interview, Offer).
+- **Interviews**: Schedule and manage video or in-person interviews directly from the "Interviews" tab. Notifications are automatically sent to applicants.
+- **Communication**: Reach out to promising candidates using the Organiser Messages interface.
+
+<details>
+<summary>Click to view Organiser UI</summary>
+<br>
+
+- **Organiser Overview**  
+  <img src="screenshot/13_organiser_overview.png" alt="Organiser Overview" width="800">
+- **TA Positions**  
+  <img src="screenshot/14_organiser_ta_positions.png" alt="TA Positions" width="800">
+- **Recruitment Pipeline (Kanban)**  
+  <img src="screenshot/15_organiser_pipeline.png" alt="Recruitment Pipeline" width="800">
+- **Interviews Management**  
+  <img src="screenshot/16_organiser_interviews.png" alt="Interviews" width="800">
+- **Schedule Interview**  
+  <img src="screenshot/18_organiser_schedule_interview.png" alt="Schedule Interview" width="800">
+- **Messages**  
+  <img src="screenshot/12_organiser_messages.png" alt="Organiser Messages" width="800">
+</details>
+
+### 4. Using the System as an Admin
+System Administrators maintain the platform and oversee all activities.
+- **Analytics & Workload**: Monitor platform usage on the Analytics dashboard. The AI-assisted Workload Intelligence tab helps balance TA hours across departments.
+- **Platform Management**: Use "Global Modules", "Properties", and "User Management" to configure system-wide settings, departments, terms, and roles.
+- **Data & Logs**: The "Data Editor" provides raw CRUD access to the underlying storage collections, while "System Logs" tracks every action taken on the platform for auditing.
+
+<details>
+<summary>Click to view Admin UI</summary>
+<br>
+
+- **Platform Analytics**  
+  <img src="screenshot/19_admin_analytics.png" alt="Admin Analytics" width="800">
+- **Workload Intelligence (AI Assisted)**  
+  <img src="screenshot/20_admin_workload_intel.png" alt="Workload Intel" width="800">
+- **Global Modules**  
+  <img src="screenshot/21_admin_global_modules.png" alt="Global Modules" width="800">
+- **Properties & Settings**  
+  <img src="screenshot/22_admin_properties.png" alt="Properties" width="800">
+- **User Management**  
+  <img src="screenshot/23_admin_users.png" alt="Users" width="800">
+- **Data Editor (CRUD)**  
+  <img src="screenshot/24_admin_data_editor.png" alt="Data Editor" width="800">
+- **System Logs**  
+  <img src="screenshot/25_admin_system_logs.png" alt="System Logs" width="800">
+</details>
+
+---
+
+## Architecture & Tech Stack
 
 ```
 ┌───────────────────────────────────────────────────┐
@@ -42,7 +152,7 @@ TA&MO is a full-stack web application for managing the TA recruitment lifecycle 
 │                                                   │
 │  ┌───────────────┐     ┌───────────────────────┐  │
 │  │  JSP Frontend │     │  Servlet Backend API  │  │
-│  │  (18 pages)   │────▶│  (42 REST endpoints)  │  │ 
+│  │  (18+ pages)  │────▶│  (40+ REST endpoints) │  │ 
 │  │  Tailwind CSS │     │  Session Auth + RBAC  │  │
 │  │  Vanilla JS   │     │  JSON file storage    │  │
 │  └───────────────┘     └───────────────────────┘  │
@@ -53,15 +163,6 @@ TA&MO is a full-stack web application for managing the TA recruitment lifecycle 
 └───────────────────────────────────────────────────┘
 ```
 
-- **Frontend**: JSP pages served by Tomcat, styled with Tailwind CSS CDN, interactive via vanilla JavaScript + Fetch API
-- **Backend**: Java Servlets handling RESTful JSON APIs, with `CorsFilter` and `AuthFilter` for cross-origin and role-based access control
-- **Data**: Single `data.json` file as persistent storage, managed by thread-safe `JsonDataService` singleton
-- **Auth**: HTTP Session-based authentication; `AuthFilter` protects `/api/applicant/*`, `/api/organiser/*`, `/api/admin/*` endpoints
-
----
-
-## Tech Stack
-
 | Layer | Technology | Version |
 |-------|-----------|---------|
 | Language | Java | 17 |
@@ -70,75 +171,25 @@ TA&MO is a full-stack web application for managing the TA recruitment lifecycle 
 | Servlet API | Jakarta Servlet | 6.0.0 |
 | JSP API | Jakarta JSP | 3.1.0 |
 | JSON Parsing | Gson | 2.10.1 |
-| CSS Framework | Tailwind CSS (CDN) | 4.x |
-| Icons | Lucide Icons (CDN) | latest |
-| Charts | Chart.js (CDN) | 4.x |
+| Testing | JUnit | 5.x |
+| Styling & UI | Tailwind CSS, Lucide Icons, Chart.js, Rive | Latest (via CDN) |
 
 ---
 
-## Prerequisites
+## Getting Started (Setup & Configuration)
 
-Before running the project, ensure you have the following installed:
+### Prerequisites
 
-### 1. Java Development Kit (JDK) 17+
+Before setting up the project, ensure you have the following installed on your system:
 
-```bash
-# Verify installation
-java -version
-# Expected output: java version "17.x.x" or higher
+1. **Java Development Kit (JDK) 17+**
+   - Verify installation: `java -version` and `javac -version`
+2. **Apache Maven 3.6+**
+   - Verify installation: `mvn -version`
+3. **Active Internet Connection**
+   - Required to fetch CDN resources (Tailwind CSS, Icons, JS libraries).
 
-javac -version
-# Expected output: javac 17.x.x or higher
-```
-
-**Install options:**
-- **macOS**: `brew install openjdk@17`
-- **Ubuntu/Debian**: `sudo apt install openjdk-17-jdk`
-- **Windows**: Download from [Adoptium](https://adoptium.net/) or [Oracle](https://www.oracle.com/java/technologies/downloads/)
-
-After installation, ensure `JAVA_HOME` is set:
-```bash
-# macOS/Linux
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)   # macOS
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64  # Ubuntu
-
-# Windows (System Environment Variables)
-set JAVA_HOME=C:\Program Files\Java\jdk-17
-```
-
-### 2. Apache Maven 3.6+
-
-```bash
-# Verify installation
-mvn -version
-# Expected output: Apache Maven 3.6.x or higher
-```
-
-**Install options:**
-- **macOS**: `brew install maven`
-- **Ubuntu/Debian**: `sudo apt install maven`
-- **Windows**: Download from [Maven Official](https://maven.apache.org/download.cgi), extract, and add `bin/` to `PATH`
-- **Manual install (any OS)**:
-  ```bash
-  wget https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz
-  tar -xzf apache-maven-3.9.6-bin.tar.gz -C /opt
-  export PATH="/opt/apache-maven-3.9.6/bin:$PATH"
-  ```
-
-### 3. Network Access
-
-The application loads the following resources from CDN at runtime (browser-side):
-- Tailwind CSS: `https://cdn.tailwindcss.com`
-- Lucide Icons: `https://unpkg.com/lucide@latest`
-- Chart.js: `https://cdn.jsdelivr.net/npm/chart.js`
-
-Ensure the client browser has internet access, or the pages will load without styling/icons.
-
----
-
-## Quick Start
-
-### Step 1: Clone the Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Elrond-JJ/Elrond-JJ-EBU6304-TA-Recruitment-System-Group100.git
@@ -146,39 +197,80 @@ cd Elrond-JJ-EBU6304-TA-Recruitment-System-Group100
 git checkout dev
 ```
 
-### Step 2: Navigate to Backend Directory
+### 2. Configuration Settings
+
+The system is configured out of the box to run on localhost. You can modify the following default behaviors if needed:
+
+- **Server Port**: The embedded Tomcat server defaults to **Port 8080**. If this port is occupied, you can change it by editing `tomcat.setPort(8080);` in `backend/src/main/java/com/tamo/Main.java`.
+- **Database**: The application utilizes a JSON file as persistent storage. The file is located at `backend/src/main/resources/data.json`.
+- **Context Path**: The application is served under the `/tamo` context path.
+
+---
+
+## Running the Software
+
+We use a Maven plugin to compile and boot the Embedded Tomcat server in a single command. 
+
+### Start the Application
+
+1. Navigate to the `backend` directory:
+   ```bash
+   cd backend
+   ```
+2. Run the application:
+   ```bash
+   mvn compile exec:java
+   ```
+   *This command will download Maven dependencies, compile Java source files, and start the Tomcat server on port 8080.*
+
+### Access the System
+
+Once the server has successfully started (you will see the "TA&MO Backend Started" message in the terminal), open your browser and navigate to:
+
+- **Landing Page**: [http://localhost:8080/tamo](http://localhost:8080/tamo)
+- **Login Page**: [http://localhost:8080/tamo/auth/login.jsp](http://localhost:8080/tamo/auth/login.jsp)
+- **Registration**: [http://localhost:8080/tamo/auth/signup.jsp](http://localhost:8080/tamo/auth/signup.jsp)
+
+*To stop the server, simply press `Ctrl + C` in the terminal.*
+
+---
+
+## Running Tests
+
+The project includes an extensive suite of automated tests (200+ unit test cases) built with **JUnit 5**. These tests validate the integrity of our core service logic, models, authentication filters, and utility classes.
+
+### How to Execute Tests
+
+Navigate to the `backend` directory and run the standard Maven test command:
 
 ```bash
 cd backend
+mvn test
 ```
 
-### Step 3: Compile and Run
+Maven will execute all tests automatically via the Maven Surefire Plugin. You should see a `BUILD SUCCESS` message along with the summary of tests run, failures, and skipped tests.
 
-```bash
-mvn compile exec:java
-```
+---
 
-This single command will:
-1. Download all Maven dependencies (first run only, ~30s)
-2. Compile all Java source files
-3. Start the embedded Tomcat server on port **8080**
+## Generating Javadoc
 
-**Expected output:**
-```
-========================================
-  TA&MO 后端已启动: http://localhost:8080/tamo
-  落地页: http://localhost:8080/tamo/index.jsp
-  登录页: http://localhost:8080/tamo/auth/login.jsp
-========================================
-```
+The entire Java codebase is fully documented with comprehensive Javadoc comments detailing classes, attributes, methods, parameters, and return types. 
 
-### Step 4: Open in Browser
+### How to Generate and View Javadocs
 
-Visit: **http://localhost:8080/tamo**
-
-### Step 5: Stop the Server
-
-Press `Ctrl + C` in the terminal to gracefully shut down.
+1. Navigate to the `backend` directory:
+   ```bash
+   cd backend
+   ```
+2. Generate the documentation using the Maven Javadoc plugin:
+   ```bash
+   mvn javadoc:javadoc
+   ```
+3. Open the generated API documentation in your browser. If you are on macOS, you can use the following command:
+   ```bash
+   open target/site/apidocs/index.html
+   ```
+   *Alternatively, manually navigate to `backend/target/site/apidocs/index.html` and open it with Chrome/Safari/Edge.*
 
 ---
 
@@ -186,319 +278,83 @@ Press `Ctrl + C` in the terminal to gracefully shut down.
 
 ```
 TA&MO_v1.0/
-├── README.md                          # This file
-├── .gitignore
-├── ATTRIBUTIONS.md
-├── LICENSE
-├── EBU6304_GroupProjectHandout.pdf
-│
 ├── backend/                           # Main application
 │   ├── pom.xml                        # Maven project config
-│   ├── TEST_DOCUMENT.md              # API test documentation (42 endpoints, 207 test cases)
+│   ├── TEST_DOCUMENT.md               # API test documentation
 │   │
-│   └── src/main/
-│       ├── java/com/tamo/
-│       │   ├── Main.java              # Entry point — embedded Tomcat bootstrap
-│       │   ├── filter/
-│       │   │   ├── AuthFilter.java    # Session-based auth guard for /api/* endpoints
-│       │   │   └── CorsFilter.java    # CORS headers for cross-origin requests
-│       │   ├── servlet/
-│       │   │   ├── AuthServlet.java       # /api/auth/*     (login, signup, logout, me)
-│       │   │   ├── ApplicantServlet.java  # /api/applicant/* (jobs, applications, profile)
-│       │   │   ├── OrganiserServlet.java  # /api/organiser/* (jobs, pipeline, interviews)
-│       │   │   └── AdminServlet.java      # /api/admin/*     (users, modules, logs, workload)
-│       │   ├── service/
-│       │   │   ├── JsonDataService.java   # Thread-safe JSON file read/write (singleton)
-│       │   │   ├── AuthService.java
-│       │   │   ├── ApplicantService.java
-│       │   │   ├── OrganiserService.java
-│       │   │   └── AdminService.java
-│       │   ├── model/                 # Data models (POJO)
-│       │   │   ├── DataStore.java     # Root data container
-│       │   │   ├── User.java
-│       │   │   ├── Profile.java
-│       │   │   ├── Job.java
-│       │   │   ├── Application.java
-│       │   │   ├── Interview.java
-│       │   │   ├── Module.java
-│       │   │   ├── Term.java
-│       │   │   ├── Department.java
-│       │   │   ├── LogEntry.java
-│       │   │   └── WorkloadAssignment.java
-│       │   └── util/
-│       │       └── JsonUtil.java      # Gson instance with date formatting
-│       │
-│       ├── resources/
-│       │   └── data.json              # Persistent data store (JSON file database)
-│       │
-│       └── webapp/
-│           ├── WEB-INF/web.xml        # Servlet & filter declarations
-│           ├── index.jsp              # Landing page (public)
-│           ├── auth/
-│           │   ├── login.jsp          # Login page
-│           │   └── signup.jsp         # Registration page
-│           ├── applicant/             # Applicant role pages (5)
-│           │   ├── dashboard.jsp
-│           │   ├── jobs.jsp
-│           │   ├── job-detail.jsp
-│           │   ├── applications.jsp
-│           │   └── profile.jsp
-│           ├── organiser/             # Organiser role pages (5)
-│           │   ├── dashboard.jsp
-│           │   ├── jobs.jsp
-│           │   ├── pipeline.jsp
-│           │   ├── application-detail.jsp
-│           │   └── interviews.jsp
-│           ├── admin/                 # Admin role pages (6)
-│           │   ├── dashboard.jsp
-│           │   ├── users.jsp
-│           │   ├── modules.jsp
-│           │   ├── properties.jsp
-│           │   ├── logs.jsp
-│           │   └── workload.jsp
-│           ├── common/                # Shared JSP fragments
-│           │   ├── head.jsp           # HTML head (meta, CDN links, Tailwind config)
-│           │   ├── sidebar.jsp        # Navigation sidebar (role-aware)
-│           │   ├── layout-top.jsp     # Page layout wrapper (top)
-│           │   ├── layout-bottom.jsp  # Page layout wrapper (bottom)
-│           │   └── auth-check.jsp     # Session auth guard (static include)
-│           └── static/
-│               ├── css/custom.css     # Custom component styles
-│               └── js/api.js          # JavaScript API client (all 42 endpoints)
+│   ├── src/main/java/com/tamo/        # Java Source Code
+│   │   ├── Main.java                  # Entry point — embedded Tomcat bootstrap
+│   │   ├── filter/                    # Security & CORS filters
+│   │   ├── listener/                  # Servlet Context Listeners
+│   │   ├── model/                     # Data Entities (POJOs)
+│   │   ├── service/                   # Core Business Logic Services
+│   │   ├── servlet/                   # RESTful API Controllers
+│   │   └── util/                      # Helper Classes
+│   │
+│   ├── src/main/resources/
+│   │   └── data.json                  # Persistent JSON Database
+│   │
+│   ├── src/main/webapp/               # Frontend Files
+│   │   ├── WEB-INF/web.xml            # Servlet configurations
+│   │   ├── index.jsp                  # Landing page
+│   │   ├── auth/, applicant/, admin/, organiser/ # Role-based JSP Pages
+│   │   ├── common/                    # Shared UI Fragments (Sidebar, Head)
+│   │   └── static/                    # CSS, JS APIs, Rive assets
+│   │
+│   └── src/test/java/com/tamo/        # JUnit Test Cases
 │
-└── 软件Prototype_v1.1/                # Archived early-stage code
-    ├── Adviser/                       # Admin UI prototype screenshots
-    ├── MO/                            # Organiser UI prototype screenshots
-    ├── TA/                            # Applicant UI prototype screenshots
-    ├── Web_pages/                     # Landing & login screenshots
-    └── ts-frontend/                   # Original TypeScript/React frontend source
-        ├── src/                       # React components, pages, routes
-        ├── package.json
-        ├── vite.config.ts
-        └── ...
+├── screenshot/                        # System Interface Screenshots
+└── README.md                          # Documentation
 ```
-
----
-
-## Access URLs
-
-After starting the server, the following URLs are available:
-
-### Public Pages (no login required)
-
-| Page | URL |
-|------|-----|
-| Landing Page | http://localhost:8080/tamo/index.jsp |
-| Login | http://localhost:8080/tamo/auth/login.jsp |
-| Sign Up | http://localhost:8080/tamo/auth/signup.jsp |
-
-### Applicant Pages (login required, role: applicant)
-
-| Page | URL |
-|------|-----|
-| Dashboard | http://localhost:8080/tamo/applicant/dashboard.jsp |
-| Browse Jobs | http://localhost:8080/tamo/applicant/jobs.jsp |
-| Job Details | http://localhost:8080/tamo/applicant/job-detail.jsp?id={jobId} |
-| My Applications | http://localhost:8080/tamo/applicant/applications.jsp |
-| Profile | http://localhost:8080/tamo/applicant/profile.jsp |
-
-### Organiser Pages (login required, role: organiser)
-
-| Page | URL |
-|------|-----|
-| Dashboard | http://localhost:8080/tamo/organiser/dashboard.jsp |
-| Manage Jobs | http://localhost:8080/tamo/organiser/jobs.jsp |
-| Recruitment Pipeline | http://localhost:8080/tamo/organiser/pipeline.jsp |
-| Application Detail | http://localhost:8080/tamo/organiser/application-detail.jsp?id={appId} |
-| Interviews | http://localhost:8080/tamo/organiser/interviews.jsp |
-
-### Admin Pages (login required, role: admin)
-
-| Page | URL |
-|------|-----|
-| Dashboard | http://localhost:8080/tamo/admin/dashboard.jsp |
-| User Management | http://localhost:8080/tamo/admin/users.jsp |
-| Module Management | http://localhost:8080/tamo/admin/modules.jsp |
-| Properties (Terms & Depts) | http://localhost:8080/tamo/admin/properties.jsp |
-| System Logs | http://localhost:8080/tamo/admin/logs.jsp |
-| Workload Management | http://localhost:8080/tamo/admin/workload.jsp |
 
 ---
 
 ## User Roles & Test Accounts
 
-The application ships with pre-configured test accounts in `data.json`:
+You can test the system using the pre-configured accounts below. (Note: Passwords in testing are matched directly to their hashed placeholder strings).
 
 | Role | Name | Email | Password |
 |------|------|-------|----------|
 | Applicant | Alex Johnson | `alex.j@university.edu` | `hashed_password_1` |
 | Applicant | Bob Smith | `bob.s@university.edu` | `hashed_password_2` |
-| Applicant | Carol Williams | `carol.w@university.edu` | `hashed_password_3` |
 | Organiser | Alan Turing | `alan@university.edu` | `hashed_password_5` |
 | Organiser | Grace Hopper | `grace@university.edu` | `hashed_password_6` |
 | Admin | System Admin | `admin@university.edu` | `admin_hashed` |
-
-> **Note**: Passwords are stored as plaintext placeholders (prefixed `hashed_`). In the login flow, the password field is compared directly against this stored value. You can also register new accounts via the Sign Up page.
 
 ---
 
 ## API Reference
 
-The backend exposes **42 RESTful API endpoints** under the `/tamo/api/` prefix. All protected endpoints require an active HTTP session (obtained via login).
+The backend exposes **42 RESTful API endpoints** under the `/tamo/api/` prefix. All protected endpoints utilize HTTP Session-based authentication enforced via the `AuthFilter`.
 
-### Authentication (`/api/auth/*`) — 4 endpoints
+- `/api/auth/*` : Registration, Login, Session validation.
+- `/api/applicant/*` : Job browsing, profile management, and application submissions.
+- `/api/organiser/*` : Job publishing, Kanban pipeline status management, interview scheduling.
+- `/api/admin/*` : System analytics, user roles, terminology config, system logs, and workload AI assignments.
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/login` | Login with email & password |
-| POST | `/api/auth/signup` | Register new user |
-| POST | `/api/auth/logout` | Destroy session |
-| GET | `/api/auth/me` | Get current logged-in user info |
-
-### Applicant (`/api/applicant/*`) — 10 endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/applicant/dashboard` | Dashboard statistics |
-| GET | `/api/applicant/jobs` | List available jobs (supports query filters) |
-| GET | `/api/applicant/jobs/{id}` | Job details |
-| POST | `/api/applicant/jobs/{jobId}/apply` | Submit application |
-| GET | `/api/applicant/applications` | List my applications |
-| GET | `/api/applicant/applications/{id}` | Application details |
-| GET | `/api/applicant/profile` | Get my profile |
-| PUT | `/api/applicant/profile` | Update profile |
-| POST | `/api/applicant/profile/documents` | Upload document |
-| DELETE | `/api/applicant/profile/documents/{docId}` | Delete document |
-
-### Organiser (`/api/organiser/*`) — 12 endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/organiser/dashboard` | Dashboard statistics |
-| GET | `/api/organiser/jobs` | List managed jobs |
-| POST | `/api/organiser/jobs` | Create new job posting |
-| PUT | `/api/organiser/jobs/{id}` | Update job posting |
-| DELETE | `/api/organiser/jobs/{id}` | Delete job posting |
-| GET | `/api/organiser/pipeline` | Recruitment pipeline (Kanban view, `?module=` filter) |
-| PUT | `/api/organiser/pipeline/{appId}/status` | Move application in pipeline |
-| GET | `/api/organiser/applications/{id}` | Application details |
-| PUT | `/api/organiser/applications/{id}/action` | Accept/reject application |
-| GET | `/api/organiser/interviews` | List interviews |
-| POST | `/api/organiser/interviews` | Schedule interview |
-| PUT | `/api/organiser/interviews/{id}` | Update interview |
-
-### Admin (`/api/admin/*`) — 16 endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/admin/dashboard` | System-wide analytics |
-| GET | `/api/admin/users` | List all users (supports query filters) |
-| POST | `/api/admin/users` | Create user |
-| PUT | `/api/admin/users/{id}` | Update user |
-| DELETE | `/api/admin/users/{id}` | Delete user |
-| GET | `/api/admin/modules` | List modules (`?keyword=` filter) |
-| POST | `/api/admin/modules` | Create module |
-| PUT | `/api/admin/modules/{id}` | Update module |
-| DELETE | `/api/admin/modules/{id}` | Delete module |
-| GET | `/api/admin/properties/terms` | List terms |
-| POST | `/api/admin/properties/terms` | Create term |
-| GET | `/api/admin/properties/departments` | List departments |
-| POST | `/api/admin/properties/departments` | Create department |
-| GET | `/api/admin/logs` | System logs (supports query filters) |
-| GET | `/api/admin/workload` | Workload assignments (supports query filters) |
-| PUT | `/api/admin/workload/{taId}/reassign` | Reassign TA workload |
-
-> For detailed request/response schemas and test cases, see [`backend/TEST_DOCUMENT.md`](backend/TEST_DOCUMENT.md).
-
----
-
-## Configuration
-
-### Port
-
-The server runs on port **8080** by default. To change it, modify `Main.java`:
-
-```java
-tomcat.setPort(8080);  // Change to desired port
-```
-
-### Data File
-
-All application data is stored in `backend/src/main/resources/data.json`. The service reads/writes this file directly at runtime.
-
-To reset data to defaults, restore the original `data.json` from version control:
-
-```bash
-cd backend
-git checkout -- src/main/resources/data.json
-```
-
-### Context Path
-
-The application is deployed under the `/tamo` context path. This is configured in `Main.java`:
-
-```java
-Context ctx = tomcat.addWebapp("/tamo", webappDir);
-```
+*For detailed request/response schemas, please see `backend/TEST_DOCUMENT.md`.*
 
 ---
 
 ## Troubleshooting
 
 ### Port 8080 already in use
-
+If another application is using port 8080, kill the process before running:
 ```bash
-# Find and kill the process
 lsof -ti :8080 | xargs kill -9
-
-# Then restart
-cd backend && mvn compile exec:java
 ```
 
-### Maven not found
+### Pages load without CSS or Icons
+The frontend relies on CDN links for Tailwind CSS and Lucide icons. Verify your internet connection.
 
-Ensure Maven is installed and in your PATH:
+### Missing Data Changes
+Since the application writes to `src/main/resources/data.json` at runtime, any modifications will persist. If you wish to reset the database to its default factory state, checkout the original file:
 ```bash
-mvn -version
+git checkout -- backend/src/main/resources/data.json
 ```
-
-If not installed, see [Prerequisites](#prerequisites).
-
-### Java version mismatch
-
-The project requires **Java 17+**. Verify with:
-```bash
-java -version
-```
-
-If you have multiple Java versions, set `JAVA_HOME` explicitly:
-```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)  # macOS
-```
-
-### Pages load without CSS styling
-
-The frontend uses Tailwind CSS from CDN. Ensure the browser has internet access. If running in an isolated environment, the pages will be functional but unstyled.
-
-### Data changes not persisting
-
-The application writes to `src/main/resources/data.json` at runtime. If you run `mvn compile` again, Maven copies the source file to `target/classes/`, but the runtime reads from the source directory directly. Changes will persist across restarts as long as you don't manually revert the file.
-
----
-
-## Archive: TypeScript Prototype
-
-The `软件Prototype_v1.1/` directory contains the archived early-stage codebase:
-
-- **`ts-frontend/`**: Original React/TypeScript UI prototype (Vite + React 18 + shadcn/ui + Tailwind CSS 4)
-- **`Adviser/`, `MO/`, `TA/`, `Web_pages/`**: UI prototype screenshots for each role
-
-This code served as the design reference for the current Java Servlet/JSP implementation and is preserved for historical purposes.
 
 ---
 
 ## License
 
-This project is developed by **Group 100** for the **EBU6304 Software Engineering** course.
-
-See [LICENSE](LICENSE) for details.
+This project is developed by **Group 100** for the **EBU6304 Software Engineering** coursework. See the `LICENSE` file for distribution terms.

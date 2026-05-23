@@ -9,6 +9,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of MessageService.
+ * Provides necessary operations and logic for the system.
+ */
 public class MessageService {
 
     private static final int EDIT_WINDOW_MINUTES = 15;
@@ -16,6 +20,12 @@ public class MessageService {
 
     private final JsonDataService dataService;
 
+    /**
+     * Constructs a new MessageService instance.
+     */
+    /**
+     * Constructs a new MessageService instance.
+     */
     public MessageService(JsonDataService dataService) {
         this.dataService = dataService;
     }
@@ -26,6 +36,18 @@ public class MessageService {
                 : userId2 + "_" + userId1;
     }
 
+    /**
+     * Executes the canMessage operation.
+     * @param senderId the senderId argument
+     * @param receiverId the receiverId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the canMessage operation.
+     * @param senderId the senderId argument
+     * @param receiverId the receiverId argument
+     * @return the resulting object or status
+     */
     public boolean canMessage(String senderId, String receiverId) {
         DataStore data = dataService.getData();
         User sender = data.getUsers().stream().filter(u -> u.getId().equals(senderId)).findFirst().orElse(null);
@@ -61,6 +83,16 @@ public class MessageService {
         return false;
     }
 
+    /**
+     * Executes the getContacts operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getContacts operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getContacts(String userId) {
         if (userId == null || userId.isBlank()) return Collections.emptyList();
 
@@ -123,6 +155,16 @@ public class MessageService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Executes the getConversations operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getConversations operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getConversations(String userId) {
         DataStore data = dataService.getData();
         if (data.getMessages() == null) return Collections.emptyList();
@@ -168,6 +210,18 @@ public class MessageService {
         return conversations;
     }
 
+    /**
+     * Executes the getConversationMessages operation.
+     * @param userId the userId argument
+     * @param conversationId the conversationId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getConversationMessages operation.
+     * @param userId the userId argument
+     * @param conversationId the conversationId argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getConversationMessages(String userId, String conversationId) {
         DataStore data = dataService.getData();
         if (data.getMessages() == null) return Collections.emptyList();
@@ -257,6 +311,20 @@ public class MessageService {
         return result;
     }
 
+    /**
+     * Executes the editMessage operation.
+     * @param userId the userId argument
+     * @param messageId the messageId argument
+     * @param newContent the newContent argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the editMessage operation.
+     * @param userId the userId argument
+     * @param messageId the messageId argument
+     * @param newContent the newContent argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> editMessage(String userId, String messageId, String newContent) {
         Map<String, Object> result = new HashMap<>();
         DataStore data = dataService.getData();
@@ -309,6 +377,18 @@ public class MessageService {
         return result;
     }
 
+    /**
+     * Executes the recallMessage operation.
+     * @param userId the userId argument
+     * @param messageId the messageId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the recallMessage operation.
+     * @param userId the userId argument
+     * @param messageId the messageId argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> recallMessage(String userId, String messageId) {
         Map<String, Object> result = new HashMap<>();
         DataStore data = dataService.getData();
@@ -430,6 +510,16 @@ public class MessageService {
         return obj;
     }
 
+    /**
+     * Executes the markConversationRead operation.
+     * @param userId the userId argument
+     * @param conversationId the conversationId argument
+     */
+    /**
+     * Executes the markConversationRead operation.
+     * @param userId the userId argument
+     * @param conversationId the conversationId argument
+     */
     public void markConversationRead(String userId, String conversationId) {
         DataStore data = dataService.getData();
         if (data.getMessages() == null) return;
@@ -446,6 +536,18 @@ public class MessageService {
         if (changed) dataService.save();
     }
 
+    /**
+     * Executes the getUserInfo operation.
+     * @param requesterId the requesterId argument
+     * @param targetUserId the targetUserId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getUserInfo operation.
+     * @param requesterId the requesterId argument
+     * @param targetUserId the targetUserId argument
+     * @return the resulting object or status
+     */
     public JsonObject getUserInfo(String requesterId, String targetUserId) {
         DataStore data = dataService.getData();
         User target = data.getUsers().stream()
@@ -509,6 +611,16 @@ public class MessageService {
         return info;
     }
 
+    /**
+     * Executes the getUnreadCount operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getUnreadCount operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
     public int getUnreadCount(String userId) {
         DataStore data = dataService.getData();
         if (data.getMessages() == null) return 0;

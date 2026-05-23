@@ -11,7 +11,7 @@ import java.io.File;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        // 嵌入式 Tomcat 下 Listener 的 getRealPath 可能为 null，必须在启动前初始化数据层
+        // In embedded Tomcat, Listener's getRealPath may be null, must initialize data layer before startup
         String classesDir = new File("target/classes").getAbsolutePath();
         JsonDataService.ensureInitialized(classesDir);
 

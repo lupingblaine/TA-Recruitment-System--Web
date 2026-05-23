@@ -6,6 +6,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Implementation of CharacterEncodingFilter.
+ * Provides necessary operations and logic for the system.
+ */
 public class CharacterEncodingFilter implements Filter {
 
     @Override

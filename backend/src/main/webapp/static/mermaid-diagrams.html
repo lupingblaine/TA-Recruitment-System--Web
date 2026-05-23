@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            background: #ffffff;
+            padding: 20px;
+        }
+        .diagram-container {
+            margin-bottom: 50px;
+            padding: 20px;
+            background: white;
+            display: inline-block;
+        }
+    </style>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            fontFamily: '"Times New Roman", Times, serif',
+            themeVariables: {
+                primaryColor: '#ffffff',
+                primaryTextColor: '#000000',
+                primaryBorderColor: '#333333',
+                lineColor: '#333333',
+                secondaryColor: '#f4f4f4',
+                tertiaryColor: '#ffffff',
+                nodeBorder: '#333333',
+                clusterBkg: '#ffffff',
+                clusterBorder: '#666666'
+            }
+        });
+    </script>
+</head>
+<body>
+
+    <!-- 1. Architecture Component Diagram -->
+    <div class="diagram-container" id="diagram-arch">
+        <pre class="mermaid">
+        flowchart TD
+            subgraph ClientNode ["&lt;&lt;node&gt;&gt; Client Browser"]
+                UI["&lt;&lt;component&gt;&gt;<br/>JSP View & Tailwind"]
+                JS["&lt;&lt;component&gt;&gt;<br/>Fetch API Client"]
+                UI -.-> JS
+            end
+
+            subgraph ServerNode ["&lt;&lt;node&gt;&gt; Embedded Tomcat"]
+                Auth["&lt;&lt;component&gt;&gt;<br/>AuthFilter (RBAC)"]
+                
+                subgraph Controllers ["Controllers"]
+                    AppServlet["ApplicantServlet"]
+                    OrgServlet["OrganiserServlet"]
+                    AdmServlet["AdminServlet"]
+                end
+                
+                subgraph Services ["Business Services"]
+                    AppSvc["ApplicantService"]
+                    OrgSvc["OrganiserService"]
+                    AdmSvc["AdminService"]
+                end
+                
+                DataSvc["&lt;&lt;component&gt;&gt;<br/>JsonDataService"]
+                
+                Auth --> Controllers
+                Controllers --> Services
+                Services --> DataSvc
+            end
+            
+            FS[/"&lt;&lt;file&gt;&gt;<br/>data.json"/]
+            
+            JS == "HTTP/JSON" ==> Auth
+            DataSvc -.-> FS
+        </pre>
+    </div>
+
+    <!-- 2. Domain Model Class Diagram -->
+    <div class="diagram-container" id="diagram-domain">
+        <pre class="mermaid">
+        classDiagram
+            class User {
+                -String id
+                -String email
+                -String name
+                -String role
+                -String department
+            }
+            class Profile {
+                -String studentId
+                -Double gpa
+                -List skills
+                -List documents
+                -List experience
+            }
+            class Job {
+                -String id
+                -String moduleCode
+                -String title
+                -int positions
+                -List workDates
+                -String status
+            }
+            class Application {
+                -String id
+                -String status
+                -Date appliedAt
+                -List selectedDocIds
+            }
+            class Interview {
+                -String id
+                -String date
+                -String startTime
+                -String type
+            }
+            class Module {
+                -String code
+                -String name
+                -String department
+            }
+
+            User "1" -- "0..1" Profile : owns
+            User "1" -- "0..*" Job : creates
+            Module "1" -- "0..*" Job : advertises
+            Job "1" -- "0..*" Application : receives
+            User "1" -- "0..*" Application : submits
+            Application "1" -- "0..1" Interview : results in
+        </pre>
+    </div>
+
+    <!-- 3. Recruitment Workflow Activity Diagram -->
+    <div class="diagram-container" id="diagram-workflow">
+        <pre class="mermaid">
+        sequenceDiagram
+            actor MO as Organiser
+            participant Sys as System
+            actor TA as Applicant
+            
+            MO->>Sys: Create Job (Title, Module, Dates)
+            Sys-->>MO: Validate & Persist
+            
+            TA->>Sys: Browse Jobs & View Schedules
+            Sys-->>TA: Return Job Details
+            
+            TA->>Sys: Submit Application (Profile + Docs)
+            Sys->>Sys: RBAC & Duplicate Check
+            Sys-->>TA: Application Confirmed
+            
+            MO->>Sys: Review Kanban Pipeline
+            Sys-->>MO: Return Applicant Full Profile
+            
+            MO->>Sys: Schedule Interview
+            Sys-->>TA: Notification: Interview
+            
+            MO->>Sys: Update Status to Offer
+            Sys-->>TA: Notification: Offer Received
+            TA->>Sys: View Offer & Work Calendar
+        </pre>
+    </div>
+
+    <!-- 4. RBAC Flow (for discussion) -->
+    <div class="diagram-container" id="diagram-rbac">
+        <pre class="mermaid">
+        flowchart LR
+            Request["HTTP Request"] --> Filter{"AuthFilter"}
+            Filter -- "No Session" --> 401["401 Unauthorized"]
+            Filter -- "Has Session" --> Check{"Role matches<br/>URL path?"}
+            Check -- "No" --> 403["403 Forbidden"]
+            Check -- "Yes" --> Servlet["Execute Servlet"]
+        </pre>
+    </div>
+
+    <!-- 5. Persistence Pattern (for discussion) -->
+    <div class="diagram-container" id="diagram-persistence">
+        <pre class="mermaid">
+        sequenceDiagram
+            participant C as Controller
+            participant S as Service
+            participant J as JsonDataService
+            participant F as data.json
+            
+            C->>S: updateProfile(updates)
+            S->>J: getData()
+            J->>S: DataStore
+            S->>S: Mutate Domain Objects
+            S->>J: save()
+            J->>J: Acquire Lock
+            J->>F: FileWriter (Gson.toJson)
+            J->>J: Release Lock
+            S-->>C: Success
+        </pre>
+    </div>
+
+</body>
+</html>

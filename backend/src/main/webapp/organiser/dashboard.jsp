@@ -155,7 +155,7 @@
           if (interviewsList.length === 0) {
             actDiv.innerHTML = '<div class="p-6 text-center text-zinc-400">No recent activity</div>';
           } else {
-            // 只显示面试信息，按日期排序，显示状态和时间
+            // Only show interview information, sorted by date, showing status and time
             const sortedInterviews = interviewsList
               .filter(iv => iv.date)
               .sort((a, b) => (b.date || '').localeCompare(a.date || ''))

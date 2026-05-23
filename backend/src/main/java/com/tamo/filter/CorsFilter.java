@@ -6,6 +6,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Implementation of CorsFilter.
+ * Provides necessary operations and logic for the system.
+ */
 public class CorsFilter implements Filter {
 
     @Override
@@ -30,8 +34,22 @@ public class CorsFilter implements Filter {
     }
 
     @Override
+    /**
+     * Executes the init operation.
+     * @param filterConfig the filterConfig argument
+     */
+    /**
+     * Executes the init operation.
+     * @param filterConfig the filterConfig argument
+     */
     public void init(FilterConfig filterConfig) {}
 
     @Override
+    /**
+     * Executes the destroy operation.
+     */
+    /**
+     * Executes the destroy operation.
+     */
     public void destroy() {}
 }

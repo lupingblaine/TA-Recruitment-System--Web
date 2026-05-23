@@ -7,9 +7,21 @@ import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 
 @WebListener
+/**
+ * Implementation of AppContextListener.
+ * Provides necessary operations and logic for the system.
+ */
 public class AppContextListener implements ServletContextListener {
 
     @Override
+    /**
+     * Executes the contextInitialized operation.
+     * @param sce the sce argument
+     */
+    /**
+     * Executes the contextInitialized operation.
+     * @param sce the sce argument
+     */
     public void contextInitialized(ServletContextEvent sce) {
         try {
             JsonDataService.ensureInitialized(JsonDataService.resolveClassesPath(sce.getServletContext()));

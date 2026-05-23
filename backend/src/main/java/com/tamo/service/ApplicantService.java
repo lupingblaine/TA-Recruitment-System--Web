@@ -17,14 +17,34 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of ApplicantService.
+ * Provides necessary operations and logic for the system.
+ */
 public class ApplicantService {
 
     private final JsonDataService dataService;
 
+    /**
+     * Constructs a new ApplicantService instance.
+     */
+    /**
+     * Constructs a new ApplicantService instance.
+     */
     public ApplicantService(JsonDataService dataService) {
         this.dataService = dataService;
     }
 
+    /**
+     * Executes the getDashboard operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getDashboard operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
     public JsonObject getDashboard(String userId) {
         DataStore data = dataService.getData();
         Profile profile = findProfileByUserId(data, userId);
@@ -216,6 +236,22 @@ public class ApplicantService {
     /**
      * 获取职位列表，支持搜索、部门/类型筛选及状态筛选（active / closed）
      */
+    /**
+     * Executes the getJobs operation.
+     * @param keyword the keyword argument
+     * @param department the department argument
+     * @param type the type argument
+     * @param status the status argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getJobs operation.
+     * @param keyword the keyword argument
+     * @param department the department argument
+     * @param type the type argument
+     * @param status the status argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getJobs(String keyword, String department, String type, String status) {
         DataStore data = dataService.getData();
         return data.getJobs().stream()
@@ -242,6 +278,16 @@ public class ApplicantService {
     /**
      * 获取单个职位详情（任何状态都可查看）
      */
+    /**
+     * Executes the getJobById operation.
+     * @param jobId the jobId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getJobById operation.
+     * @param jobId the jobId argument
+     * @return the resulting object or status
+     */
     public Job getJobById(String jobId) {
         DataStore data = dataService.getData();
         return findJobById(data, jobId);
@@ -251,6 +297,22 @@ public class ApplicantService {
      * 提交申请，返回结果封装在 Map 中：
      * - "error" + "code" 表示失败
      * - "application" 表示成功
+     */
+    /**
+     * Executes the applyForJob operation.
+     * @param userId the userId argument
+     * @param jobId the jobId argument
+     * @param coverLetter the coverLetter argument
+     * @param documentIds the documentIds argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the applyForJob operation.
+     * @param userId the userId argument
+     * @param jobId the jobId argument
+     * @param coverLetter the coverLetter argument
+     * @param documentIds the documentIds argument
+     * @return the resulting object or status
      */
     public Map<String, Object> applyForJob(String userId, String jobId, String coverLetter, List<String> documentIds) {
         DataStore data = dataService.getData();
@@ -318,6 +380,16 @@ public class ApplicantService {
         return result;
     }
 
+    /**
+     * Executes the getMyApplications operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getMyApplications operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getMyApplications(String userId) {
         DataStore data = dataService.getData();
         return data.getApplications().stream()
@@ -337,6 +409,18 @@ public class ApplicantService {
      * - "notFound" = true : 申请不存在
      * - "forbidden" = true : 无权访问
      * - "data" : 数据
+     */
+    /**
+     * Executes the getApplicationDetail operation.
+     * @param userId the userId argument
+     * @param appId the appId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getApplicationDetail operation.
+     * @param userId the userId argument
+     * @param appId the appId argument
+     * @return the resulting object or status
      */
     public Map<String, Object> getApplicationDetail(String userId, String appId) {
         DataStore data = dataService.getData();
@@ -363,6 +447,18 @@ public class ApplicantService {
         return result;
     }
 
+    /**
+     * Executes the withdrawApplication operation.
+     * @param userId the userId argument
+     * @param appId the appId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the withdrawApplication operation.
+     * @param userId the userId argument
+     * @param appId the appId argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> withdrawApplication(String userId, String appId) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -399,6 +495,16 @@ public class ApplicantService {
         return result;
     }
 
+    /**
+     * Executes the getProfile operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getProfile operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
     public JsonObject getProfile(String userId) {
         DataStore data = dataService.getData();
         User user = data.getUsers().stream()
@@ -435,6 +541,18 @@ public class ApplicantService {
 
     /**
      * 更新个人资料，返回错误信息或 null（成功）
+     */
+    /**
+     * Executes the updateProfile operation.
+     * @param userId the userId argument
+     * @param updates the updates argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the updateProfile operation.
+     * @param userId the userId argument
+     * @param updates the updates argument
+     * @return the resulting object or status
      */
     public String updateProfile(String userId, JsonObject updates) {
         DataStore data = dataService.getData();
@@ -501,6 +619,22 @@ public class ApplicantService {
      * - "error" + "code" 表示失败
      * - "document" 表示成功
      */
+    /**
+     * Executes the uploadDocument operation.
+     * @param userId the userId argument
+     * @param fileName the fileName argument
+     * @param fileType the fileType argument
+     * @param fileSize the fileSize argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the uploadDocument operation.
+     * @param userId the userId argument
+     * @param fileName the fileName argument
+     * @param fileType the fileType argument
+     * @param fileSize the fileSize argument
+     * @return the resulting object or status
+     */
     public Map<String, Object> uploadDocument(String userId, String fileName, String fileType, String fileSize) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
@@ -547,6 +681,18 @@ public class ApplicantService {
      * 删除文档，返回 Map:
      * - "error" + "code" 表示失败
      * - "success" = true 表示成功
+     */
+    /**
+     * Executes the deleteDocument operation.
+     * @param userId the userId argument
+     * @param docId the docId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the deleteDocument operation.
+     * @param userId the userId argument
+     * @param docId the docId argument
+     * @return the resulting object or status
      */
     public Map<String, Object> deleteDocument(String userId, String docId) {
         DataStore data = dataService.getData();
@@ -640,6 +786,16 @@ public class ApplicantService {
                 .findFirst().orElse(null);
     }
 
+    /**
+     * Executes the getNotifications operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getNotifications operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
     public List<JsonObject> getNotifications(String userId) {
         DataStore data = dataService.getData();
         List<Notification> notifications = (data.getNotifications() != null
@@ -665,6 +821,16 @@ public class ApplicantService {
         return result;
     }
 
+    /**
+     * Executes the markNotificationRead operation.
+     * @param userId the userId argument
+     * @param notifId the notifId argument
+     */
+    /**
+     * Executes the markNotificationRead operation.
+     * @param userId the userId argument
+     * @param notifId the notifId argument
+     */
     public void markNotificationRead(String userId, String notifId) {
         DataStore data = dataService.getData();
         if (data.getNotifications() == null) return;
@@ -677,6 +843,14 @@ public class ApplicantService {
                 });
     }
 
+    /**
+     * Executes the markAllNotificationsRead operation.
+     * @param userId the userId argument
+     */
+    /**
+     * Executes the markAllNotificationsRead operation.
+     * @param userId the userId argument
+     */
     public void markAllNotificationsRead(String userId) {
         DataStore data = dataService.getData();
         if (data.getNotifications() == null) return;

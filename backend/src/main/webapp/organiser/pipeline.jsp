@@ -458,7 +458,7 @@
           }
           currentInterviewId = interview.id || currentInterviewId;
           closeSchedule();
-          loadPipeline(); // 重新加载以获取面试信息
+          loadPipeline(); // Reload to get interview information
         } catch (e) {
           errDiv.textContent = e.message || 'Schedule failed';
           errDiv.classList.remove('hidden');

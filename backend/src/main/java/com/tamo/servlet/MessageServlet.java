@@ -26,6 +26,10 @@ import java.util.UUID;
         maxRequestSize = 25 * 1024 * 1024,
         fileSizeThreshold = 1024 * 1024
 )
+/**
+ * Implementation of MessageServlet.
+ * Provides necessary operations and logic for the system.
+ */
 public class MessageServlet extends HttpServlet {
 
     private static final Set<String> IMAGE_TYPES = Set.of(
@@ -45,6 +49,12 @@ public class MessageServlet extends HttpServlet {
     private MessageService service;
 
     @Override
+    /**
+     * Executes the init operation.
+     */
+    /**
+     * Executes the init operation.
+     */
     public void init() throws ServletException {
         JsonDataService dataService = JsonDataService.getInstance(
                 JsonDataService.resolveClassesPath(getServletContext()));
@@ -56,6 +66,11 @@ public class MessageServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doGet operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
         String path = JsonUtil.getPathInfo(req);
@@ -86,6 +101,11 @@ public class MessageServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doPost operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
         String path = JsonUtil.getPathInfo(req);
@@ -173,6 +193,11 @@ public class MessageServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doPut operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
         String path = JsonUtil.getPathInfo(req);

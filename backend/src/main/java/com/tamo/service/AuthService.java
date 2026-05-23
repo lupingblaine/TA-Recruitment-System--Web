@@ -10,18 +10,40 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Implementation of AuthService.
+ * Provides necessary operations and logic for the system.
+ */
 public class AuthService {
 
     private static final List<String> VALID_ROLES = Arrays.asList("applicant", "organiser", "admin");
 
     private final JsonDataService dataService;
 
+    /**
+     * Constructs a new AuthService instance.
+     */
+    /**
+     * Constructs a new AuthService instance.
+     */
     public AuthService(JsonDataService dataService) {
         this.dataService = dataService;
     }
 
     /**
      * 根据邮箱和密码查找用户（不验证角色和状态）
+     */
+    /**
+     * Executes the findByEmailAndPassword operation.
+     * @param email the email argument
+     * @param password the password argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the findByEmailAndPassword operation.
+     * @param email the email argument
+     * @param password the password argument
+     * @return the resulting object or status
      */
     public User findByEmailAndPassword(String email, String password) {
         DataStore data = dataService.getData();
@@ -36,6 +58,14 @@ public class AuthService {
     /**
      * 执行登录并更新最后登录时间
      */
+    /**
+     * Executes the recordLogin operation.
+     * @param user the user argument
+     */
+    /**
+     * Executes the recordLogin operation.
+     * @param user the user argument
+     */
     public void recordLogin(User user) {
         user.setLastLogin(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         dataService.save();
@@ -43,6 +73,22 @@ public class AuthService {
 
     /**
      * 用户注册
+     */
+    /**
+     * Executes the signup operation.
+     * @param name the name argument
+     * @param email the email argument
+     * @param password the password argument
+     * @param role the role argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the signup operation.
+     * @param name the name argument
+     * @param email the email argument
+     * @param password the password argument
+     * @param role the role argument
+     * @return the resulting object or status
      */
     public User signup(String name, String email, String password, String role) {
         DataStore data = dataService.getData();
@@ -91,6 +137,16 @@ public class AuthService {
     /**
      * 根据 ID 获取用户
      */
+    /**
+     * Executes the getUserById operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getUserById operation.
+     * @param userId the userId argument
+     * @return the resulting object or status
+     */
     public User getUserById(String userId) {
         DataStore data = dataService.getData();
         for (User user : data.getUsers()) {
@@ -104,12 +160,32 @@ public class AuthService {
     /**
      * 验证邮箱格式
      */
+    /**
+     * Executes the isValidEmail operation.
+     * @param email the email argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the isValidEmail operation.
+     * @param email the email argument
+     * @return the resulting object or status
+     */
     public static boolean isValidEmail(String email) {
         return email != null && email.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
     }
 
     /**
      * 验证角色值
+     */
+    /**
+     * Executes the isValidRole operation.
+     * @param role the role argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the isValidRole operation.
+     * @param role the role argument
+     * @return the resulting object or status
      */
     public static boolean isValidRole(String role) {
         return role != null && VALID_ROLES.contains(role);

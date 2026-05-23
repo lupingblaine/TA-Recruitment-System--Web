@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * 线程安全的 JSON 文件读写核心服务（单例模式）
+ * Thread-safe JSON file read/write core service (Singleton pattern)
  */
 public class JsonDataService {
 
@@ -52,7 +52,17 @@ public class JsonDataService {
     }
 
     /**
-     * 解析 data.json 所在目录。嵌入式 Tomcat 下 getRealPath 常为 null，需回退到 target/classes。
+     * Resolve the directory containing data.json. getRealPath may be null in embedded Tomcat, fall back to target/classes.
+     */
+    /**
+     * Executes the resolveClassesPath operation.
+     * @param ctx the ctx argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the resolveClassesPath operation.
+     * @param ctx the ctx argument
+     * @return the resulting object or status
      */
     public static String resolveClassesPath(ServletContext ctx) {
         if (ctx != null) {
@@ -75,6 +85,16 @@ public class JsonDataService {
         throw new IllegalStateException("Cannot resolve WEB-INF/classes directory for data.json");
     }
 
+    /**
+     * Executes the getInstance operation.
+     * @param basePath the basePath argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getInstance operation.
+     * @param basePath the basePath argument
+     * @return the resulting object or status
+     */
     public static synchronized JsonDataService getInstance(String basePath) {
         if (instance == null) {
             if (basePath == null || basePath.isBlank()) {
@@ -87,11 +107,19 @@ public class JsonDataService {
         return instance;
     }
 
-    /** 确保单例已初始化（Main 或 Listener 启动时调用） */
+    /** Ensure the singleton is initialized (called by Main or Listener on startup). */
     public static synchronized JsonDataService ensureInitialized(String basePath) {
         return getInstance(basePath);
     }
 
+    /**
+     * Executes the getInstance operation.
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getInstance operation.
+     * @return the resulting object or status
+     */
     public static synchronized JsonDataService getInstance() {
         if (instance == null) {
             throw new IllegalStateException("JsonDataService is not initialized. Call getInstance(basePath) first.");
@@ -106,31 +134,31 @@ public class JsonDataService {
         try {
             Path path = Paths.get(dataFilePath);
             if (!Files.exists(path)) {
-                // 尝试从 classpath 加载
+                // Try to load from classpath
                 try (InputStream is = getClass().getClassLoader().getResourceAsStream("data.json")) {
                     if (is != null) {
                         String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                         DataStore ds = JsonUtil.getGson().fromJson(json, DataStore.class);
-                        // 写入文件以供后续修改
+                        // Write to file for subsequent modifications
                         Files.createDirectories(path.getParent());
                         Files.writeString(path, json, StandardCharsets.UTF_8);
                         return ds;
                     }
                 }
-                System.err.println("数据文件不存在: " + dataFilePath);
+                System.err.println("Data file does not exist: " + dataFilePath);
                 return new DataStore();
             }
             String json = Files.readString(path, StandardCharsets.UTF_8);
             return JsonUtil.getGson().fromJson(json, DataStore.class);
         } catch (Exception e) {
-            System.err.println("加载数据文件失败: " + e.getMessage());
+            System.err.println("Failed to load data file: " + e.getMessage());
             e.printStackTrace();
             return new DataStore();
         }
     }
 
     /**
-     * 保存数据到文件 — 同时写入 target/classes 和 src/main/resources
+     * Save data to file — write to both target/classes and src/main/resources
      */
     private void saveToFile() {
         try {
@@ -140,13 +168,21 @@ public class JsonDataService {
                 Files.writeString(Paths.get(sourceFilePath), json, StandardCharsets.UTF_8);
             }
         } catch (IOException e) {
-            System.err.println("保存数据文件失败: " + e.getMessage());
+            System.err.println("Failed to save data file: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     /**
-     * 获取数据存储（只读操作直接获取即可）
+     * Get data store (read-only operations can directly get)
+     */
+    /**
+     * Executes the getData operation.
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getData operation.
+     * @return the resulting object or status
      */
     public DataStore getData() {
         synchronized (lock) {
@@ -155,7 +191,13 @@ public class JsonDataService {
     }
 
     /**
-     * 保存修改后的数据
+     * Save modified data
+     */
+    /**
+     * Executes the save operation.
+     */
+    /**
+     * Executes the save operation.
      */
     public void save() {
         synchronized (lock) {
@@ -164,7 +206,13 @@ public class JsonDataService {
     }
 
     /**
-     * 重新加载数据（如需刷新）
+     * Reload data (if refresh is needed)
+     */
+    /**
+     * Executes the reload operation.
+     */
+    /**
+     * Executes the reload operation.
      */
     public void reload() {
         synchronized (lock) {
@@ -173,7 +221,19 @@ public class JsonDataService {
     }
 
     /**
-     * 生成自增 ID
+     * Generate auto-increment ID
+     */
+    /**
+     * Executes the generateId operation.
+     * @param prefix the prefix argument
+     * @param list the list argument
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the generateId operation.
+     * @param prefix the prefix argument
+     * @param list the list argument
+     * @return the resulting object or status
      */
     public String generateId(String prefix, java.util.List<?> list) {
         synchronized (lock) {
@@ -207,6 +267,24 @@ public class JsonDataService {
 
     /**
      * Append an audit log entry and persist.
+     */
+    /**
+     * Executes the addLog operation.
+     * @param action the action argument
+     * @param type the type argument
+     * @param actor the actor argument
+     * @param actorId the actorId argument
+     * @param details the details argument
+     * @param ip the ip argument
+     */
+    /**
+     * Executes the addLog operation.
+     * @param action the action argument
+     * @param type the type argument
+     * @param actor the actor argument
+     * @param actorId the actorId argument
+     * @param details the details argument
+     * @param ip the ip argument
      */
     public void addLog(String action, String type, String actor, String actorId, String details, String ip) {
         synchronized (lock) {

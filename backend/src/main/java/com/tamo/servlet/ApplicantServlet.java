@@ -26,6 +26,10 @@ import java.util.Map;
     maxFileSize = 10 * 1024 * 1024,       // 10 MB max per file
     maxRequestSize = 15 * 1024 * 1024     // 15 MB max total request
 )
+/**
+ * Implementation of ApplicantServlet.
+ * Provides necessary operations and logic for the system.
+ */
 public class ApplicantServlet extends HttpServlet {
 
     private ApplicantService service;
@@ -33,6 +37,12 @@ public class ApplicantServlet extends HttpServlet {
     private static final Path UPLOAD_DIR = Paths.get("src", "main", "webapp", "static", "uploads", "organiser");
 
     @Override
+    /**
+     * Executes the init operation.
+     */
+    /**
+     * Executes the init operation.
+     */
     public void init() throws ServletException {
         this.dataService = JsonDataService.getInstance();
         this.service = new ApplicantService(dataService);
@@ -47,6 +57,11 @@ public class ApplicantServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doGet operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         String userId = getUserId(req);
@@ -101,6 +116,11 @@ public class ApplicantServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doPost operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         String userId = getUserId(req);
@@ -195,6 +215,11 @@ public class ApplicantServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doPut operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         String userId = getUserId(req);
@@ -229,6 +254,11 @@ public class ApplicantServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doDelete operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         String userId = getUserId(req);

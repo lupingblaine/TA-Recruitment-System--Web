@@ -12,6 +12,10 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Implementation of EmailService.
+ * Provides necessary operations and logic for the system.
+ */
 public class EmailService {
 
     private static final String SMTP_HOST = "smtp.qq.com";
@@ -25,6 +29,14 @@ public class EmailService {
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
     private String imagesBasePath;
 
+    /**
+     * Executes the setImagesBasePath operation.
+     * @param path the path argument
+     */
+    /**
+     * Executes the setImagesBasePath operation.
+     * @param path the path argument
+     */
     public void setImagesBasePath(String path) {
         this.imagesBasePath = path;
     }
@@ -45,7 +57,27 @@ public class EmailService {
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, new TrustManager[]{new X509TrustManager() {
                 public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                /**
+                 * Executes the checkClientTrusted operation.
+                 * @param certs the certs argument
+                 * @param authType the authType argument
+                 */
+                /**
+                 * Executes the checkClientTrusted operation.
+                 * @param certs the certs argument
+                 * @param authType the authType argument
+                 */
                 public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                /**
+                 * Executes the checkServerTrusted operation.
+                 * @param certs the certs argument
+                 * @param authType the authType argument
+                 */
+                /**
+                 * Executes the checkServerTrusted operation.
+                 * @param certs the certs argument
+                 * @param authType the authType argument
+                 */
                 public void checkServerTrusted(X509Certificate[] certs, String authType) {}
             }}, new SecureRandom());
             props.put("mail.smtp.ssl.socketFactory", sslContext.getSocketFactory());
@@ -55,12 +87,24 @@ public class EmailService {
 
         mailSession = Session.getInstance(props, new Authenticator() {
             @Override
+            /**
+             * Executes the getPasswordAuthentication operation.
+             * @return the resulting object or status
+             */
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(SENDER_EMAIL, SENDER_PASSWORD);
             }
         });
     }
 
+    /**
+     * Executes the getInstance operation.
+     * @return the resulting object or status
+     */
+    /**
+     * Executes the getInstance operation.
+     * @return the resulting object or status
+     */
     public static synchronized EmailService getInstance() {
         if (instance == null) {
             instance = new EmailService();
@@ -70,6 +114,18 @@ public class EmailService {
 
     /**
      * 异步发送邮件，不阻塞主线程
+     */
+    /**
+     * Executes the sendAsync operation.
+     * @param toEmail the toEmail argument
+     * @param subject the subject argument
+     * @param htmlContent the htmlContent argument
+     */
+    /**
+     * Executes the sendAsync operation.
+     * @param toEmail the toEmail argument
+     * @param subject the subject argument
+     * @param htmlContent the htmlContent argument
      */
     public void sendAsync(String toEmail, String subject, String htmlContent) {
         executor.submit(() -> {
@@ -117,8 +173,24 @@ public class EmailService {
         multipart.addBodyPart(imagePart);
     }
 
-    // ─── 状态变更通知 TA ───
+    // ─── Status Change Notifications to TA ───
 
+    /**
+     * Executes the notifyStatusChange operation.
+     * @param toEmail the toEmail argument
+     * @param applicantName the applicantName argument
+     * @param moduleCode the moduleCode argument
+     * @param oldStatus the oldStatus argument
+     * @param newStatus the newStatus argument
+     */
+    /**
+     * Executes the notifyStatusChange operation.
+     * @param toEmail the toEmail argument
+     * @param applicantName the applicantName argument
+     * @param moduleCode the moduleCode argument
+     * @param oldStatus the oldStatus argument
+     * @param newStatus the newStatus argument
+     */
     public void notifyStatusChange(String toEmail, String applicantName, String moduleCode, String oldStatus, String newStatus) {
         String subject = "【TA&MO】Your application status has been updated";
         String statusLabel = getStatusLabel(newStatus);
@@ -140,8 +212,24 @@ public class EmailService {
         sendAsync(toEmail, subject, html);
     }
 
-    // ─── TA 申请通知老师 ───
+    // ─── TA Application Notification to Teachers ───
 
+    /**
+     * Executes the notifyNewApplication operation.
+     * @param toEmail the toEmail argument
+     * @param organiserName the organiserName argument
+     * @param applicantName the applicantName argument
+     * @param moduleCode the moduleCode argument
+     * @param jobTitle the jobTitle argument
+     */
+    /**
+     * Executes the notifyNewApplication operation.
+     * @param toEmail the toEmail argument
+     * @param organiserName the organiserName argument
+     * @param applicantName the applicantName argument
+     * @param moduleCode the moduleCode argument
+     * @param jobTitle the jobTitle argument
+     */
     public void notifyNewApplication(String toEmail, String organiserName, String applicantName, String moduleCode, String jobTitle) {
         String subject = "【TA&MO】New TA Application Received - " + moduleCode;
 

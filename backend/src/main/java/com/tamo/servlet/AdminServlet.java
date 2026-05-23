@@ -13,12 +13,22 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Implementation of AdminServlet.
+ * Provides necessary operations and logic for the system.
+ */
 public class AdminServlet extends HttpServlet {
 
     private AdminService service;
     private JsonDataService dataService;
 
     @Override
+    /**
+     * Executes the init operation.
+     */
+    /**
+     * Executes the init operation.
+     */
     public void init() throws ServletException {
         this.dataService = JsonDataService.getInstance();
         this.service = new AdminService(dataService);
@@ -33,6 +43,11 @@ public class AdminServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doGet operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
 
@@ -81,6 +96,11 @@ public class AdminServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doPost operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         JsonObject body = JsonUtil.readRequestBodyAsJson(req);
@@ -166,6 +186,11 @@ public class AdminServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doPut operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         String adminId = getUserId(req);
@@ -232,6 +257,11 @@ public class AdminServlet extends HttpServlet {
     }
 
     @Override
+    /**
+     * Executes the doDelete operation.
+     * @param req the req argument
+     * @param resp the resp argument
+     */
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
         String adminId = getUserId(req);

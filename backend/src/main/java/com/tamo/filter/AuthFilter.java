@@ -8,6 +8,10 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+/**
+ * Implementation of AuthFilter.
+ * Provides necessary operations and logic for the system.
+ */
 public class AuthFilter implements Filter {
 
     @Override
@@ -48,8 +52,22 @@ public class AuthFilter implements Filter {
     }
 
     @Override
+    /**
+     * Executes the init operation.
+     * @param filterConfig the filterConfig argument
+     */
+    /**
+     * Executes the init operation.
+     * @param filterConfig the filterConfig argument
+     */
     public void init(FilterConfig filterConfig) {}
 
     @Override
+    /**
+     * Executes the destroy operation.
+     */
+    /**
+     * Executes the destroy operation.
+     */
     public void destroy() {}
 }
