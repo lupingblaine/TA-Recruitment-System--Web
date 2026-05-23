@@ -32,3 +32,9 @@ replay_pid*
 *.zip
 *.tar.gz
 *.rar
+
+# User explicitly ignored
+pdf-style.css
+test-email.html
+deploy.sh
+screenshot/
