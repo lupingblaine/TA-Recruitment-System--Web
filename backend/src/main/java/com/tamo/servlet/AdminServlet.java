@@ -1,7 +1,5 @@
 package com.tamo.servlet;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.tamo.model.Module;
 import com.tamo.service.AdminService;
@@ -189,10 +187,12 @@ public class AdminServlet extends HttpServlet {
 
         } else if (path.matches("modules/[\\w]+")) {
             String moduleId = path.split("/")[1];
-            Module module = service.updateModule(moduleId, body);
-            if (module == null) {
-                JsonUtil.writeError(resp, 404, "Module not found");
+            Map<String, Object> result = service.updateModule(moduleId, body);
+            if (result.containsKey("error")) {
+                int code = (int) result.get("code_http");
+                JsonUtil.writeError(resp, code, (String) result.get("error"));
             } else {
+                Module module = (Module) result.get("module");
                 JsonUtil.writeJson(resp, module);
                 dataService.addLog("Module Updated", "info", actor, adminId,
                         "Updated module " + moduleId + " (" + module.getCode() + ")", ip);

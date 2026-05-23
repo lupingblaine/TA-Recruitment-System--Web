@@ -295,14 +295,24 @@ public class AdminService {
             return result;
         }
 
+        String department = body.has("department") ? body.get("department").getAsString() : "";
+        String term = body.has("term") ? body.get("term").getAsString() : "";
+
+        String validationError = validateModuleProperties(data, department, term);
+        if (validationError != null) {
+            result.put("error", validationError);
+            result.put("code_http", 400);
+            return result;
+        }
+
         Module module = new Module();
         module.setId(dataService.generateId("m", data.getModules()));
         module.setCode(code);
         module.setName(name);
-        module.setDepartment(body.has("department") ? body.get("department").getAsString() : "");
+        module.setDepartment(department);
         module.setOrganiserId(body.has("organiserId") ? body.get("organiserId").getAsString() : "");
         module.setOrganiserName(body.has("organiserName") ? body.get("organiserName").getAsString() : "");
-        module.setTerm(body.has("term") ? body.get("term").getAsString() : "");
+        module.setTerm(term);
         module.setStatus("active");
 
         data.getModules().add(module);
@@ -312,21 +322,60 @@ public class AdminService {
         return result;
     }
 
-    public Module updateModule(String moduleId, JsonObject body) {
+    public Map<String, Object> updateModule(String moduleId, JsonObject body) {
         DataStore data = dataService.getData();
+        Map<String, Object> result = new HashMap<>();
+
         Module module = data.getModules().stream().filter(m -> m.getId().equals(moduleId)).findFirst().orElse(null);
-        if (module == null) return null;
+        if (module == null) {
+            result.put("error", "Module not found");
+            result.put("code_http", 404);
+            return result;
+        }
+
+        String department = body.has("department") ? body.get("department").getAsString() : null;
+        String term = body.has("term") ? body.get("term").getAsString() : null;
+
+        String validationError = validateModuleProperties(data, department, term);
+        if (validationError != null) {
+            result.put("error", validationError);
+            result.put("code_http", 400);
+            return result;
+        }
 
         if (body.has("code")) module.setCode(body.get("code").getAsString());
         if (body.has("name")) module.setName(body.get("name").getAsString());
-        if (body.has("department")) module.setDepartment(body.get("department").getAsString());
+        if (department != null) module.setDepartment(department);
         if (body.has("organiserId")) module.setOrganiserId(body.get("organiserId").getAsString());
         if (body.has("organiserName")) module.setOrganiserName(body.get("organiserName").getAsString());
-        if (body.has("term")) module.setTerm(body.get("term").getAsString());
+        if (term != null) module.setTerm(term);
         if (body.has("status")) module.setStatus(body.get("status").getAsString());
 
         dataService.save();
-        return module;
+        result.put("module", module);
+        return result;
+    }
+
+    /**
+     * Ensure the module's department/term references match an existing entry
+     * managed via the Properties page. Blank values are allowed (optional fields).
+     */
+    private String validateModuleProperties(DataStore data, String department, String term) {
+        if (department != null && !department.isBlank()) {
+            boolean deptExists = data.getDepartments().stream()
+                    .anyMatch(d -> d.getName() != null && d.getName().equalsIgnoreCase(department));
+            if (!deptExists) {
+                return "Department \"" + department + "\" does not exist. Please pick one from Properties.";
+            }
+        }
+        if (term != null && !term.isBlank()) {
+            boolean termExists = data.getTerms().stream()
+                    .anyMatch(t -> t.getName() != null && t.getName().equalsIgnoreCase(term));
+            if (!termExists) {
+                return "Term \"" + term + "\" does not exist. Please pick one from Properties.";
+            }
+        }
+        return null;
     }
 
     public Map<String, Object> deleteModule(String moduleId) {

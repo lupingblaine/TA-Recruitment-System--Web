@@ -2,7 +2,7 @@
 
 > Target length: **9 min 30 sec – 10 min 00 sec**
 > Speaking pace: ~140 WPM (slow & clear for marking).
-> Total narration words: ~1350.
+> Total narration words: ~750 (short, simple English for voice-over).
 > Recording tip: 提前在浏览器登好 3 个标签页（Applicant / Organiser / Admin），录制时直接切换 tab，避免每次重新登录浪费时间。
 > Recording tip: 在录前用 admin 把 `data.json` 备份一份；演示完误删等错误处理后可以恢复。
 
@@ -26,7 +26,7 @@
 **画面操作**：停留在登录页 `http://localhost:8080/tamo/auth/login.jsp`，背景动画在播放。
 
 **Narration (English):**
-> "Hi everyone. Today I'm going to introduce **TA&MO**, a full-stack Teaching Assistant recruitment and management platform our team built for the EBU 6304 Software Engineering project. TA&MO connects three groups of users — applicants, organisers, and administrators — into a single workflow that turns a messy hiring process into a clean, trackable pipeline. The whole system runs on Java Servlets with embedded Tomcat, served through eighteen JSP pages and forty-two REST endpoints. Let's see it in action."
+> "Hello. This is **TA&MO**, our TA recruitment system for EBU 6304. It supports three roles: applicants, organisers, and admins. The app uses Java, JSP pages, and REST APIs. Let me show you how it works."
 
 ---
 
@@ -39,7 +39,7 @@
 4. 改回正确账号 `alex.j@university.edu / demo123`，role = Applicant，登录成功。
 
 **Narration (English):**
-> "We start at the public landing page. The site uses a modern Tailwind interface with animated visuals to give a polished first impression. Clicking *Log In* opens the authentication page, where I can pick one of the three roles. Before I sign in, let me show you the error handling: if I type the wrong credentials, the back-end returns a 401, the cat animation plays a fail state, and an inline red banner explains the issue without ever crashing the page. Now I'll log in correctly as the applicant **Alex Johnson** — and you can see the role-aware redirect drops me straight onto the applicant dashboard."
+> "This is the landing page. I click **Log In** and choose a role. First I use a wrong password. The page shows a clear error — it does not crash. Now I log in as **Alex Johnson**, an applicant. The system opens the applicant dashboard."
 
 ---
 
@@ -50,7 +50,7 @@
 **画面操作**：停留 5s 展示统计卡片（Total Apps / Pending / Profile Completion）、最近申请、推荐岗位。
 
 **Narration:**
-> "This is the applicant dashboard. At a glance Alex sees how many applications he has, how many are still pending, his profile completion percentage, and the recommended jobs surfaced for his department. Every number is computed live by the `/api/applicant/dashboard` endpoint."
+> "This is Alex's dashboard. He can see his application count, pending items, profile progress, and suggested jobs."
 
 ### 3.2 Browse & Search Jobs (1:30 – 2:00)
 
@@ -61,7 +61,7 @@
 4. 点击其中一张 job 卡片 → 进入 Job Detail 页。
 
 **Narration:**
-> "Moving to *Browse Jobs*, applicants can full-text search across role titles and module codes. The search input is debounced, so the API isn't hammered on every keystroke. The status drop-down filters between active and closed postings. I'll click into a *Data Structures* TA role to see the full description, requirements, weekly hours, and the deadline."
+> "On **Jobs**, Alex can search and filter by status. I open a Data Structures job to see the details and deadline."
 
 ### 3.3 Apply (with error) (2:00 – 2:30)
 
@@ -70,7 +70,7 @@
 2. 立即再点一次 Apply → **出现 "You have already applied" 错误提示**（错误处理）。
 
 **Narration:**
-> "Submitting an application takes one click, and the back-end immediately writes the record into `data.json` through our thread-safe `JsonDataService`. Now watch this — if Alex accidentally clicks *Apply* again on the same posting, the server detects the duplicate and rejects it with a clear message. That kind of guard rail matters when hundreds of TAs are competing for the same module."
+> "Alex applies with one click. If he applies again to the same job, the system blocks it and shows a message. This stops duplicate applications."
 
 ### 3.4 My Applications & Status Tracking (2:30 – 2:50)
 
@@ -79,7 +79,7 @@
 2. 点其中一个进入详情，展示 timeline。
 
 **Narration:**
-> "Under *My Applications*, every submission is tracked across six pipeline stages, each with a colour-coded badge. Opening one shows the full timeline so the applicant always knows where they stand — no more emailing the professor to ask 'did you receive my CV?'."
+> "In **My Applications**, each status has a badge. Alex opens one item to see the timeline step by step."
 
 ### 3.5 Profile & CV Upload (2:50 – 3:20)
 
@@ -90,14 +90,14 @@
 4. 点新文档旁边的删除按钮，确认弹窗 → 删除。
 
 **Narration:**
-> "The profile page is the applicant's living CV. Personal info, GPA, coursework, and prior experience can all be edited inline and saved without a page reload. In the documents section I can upload a CV — it's stored as Base-64 in our JSON store, so no external file server is required — and I can also remove a document with a confirmation prompt that prevents accidental deletion."
+> "On **Profile**, Alex updates his GPA and skills, then uploads a CV. He can delete a file after a confirmation step."
 
 ### 3.6 Messages (3:20 – 3:30)
 
 **画面操作**：菜单 **Messages**，展示与 organiser 的对话记录。(快速展示 8 秒)
 
 **Narration:**
-> "Finally, the built-in messaging inbox lets applicants and organisers communicate without leaving the platform. Now let me log out and switch to the organiser view."
+> "**Messages** lets Alex talk to organisers in the app. Next I switch to the organiser role."
 
 ---
 
@@ -111,7 +111,7 @@
 **画面操作**：展示数据卡片（My Open Jobs / Pending Reviews / Upcoming Interviews）。
 
 **Narration:**
-> "I'm now Dr. Alan Turing, an organiser. His dashboard summarises his open postings, pending application reviews, and upcoming interviews — exactly the four numbers a busy professor cares about on a Monday morning."
+> "I log in as **Dr. Alan Turing**. His dashboard shows open jobs, pending reviews, and upcoming interviews."
 
 ### 4.2 Create Job — with validation error (3:45 – 4:25)
 
@@ -122,7 +122,7 @@
 4. 列表里出现新岗位。
 
 **Narration:**
-> "From *Manage Jobs* a professor can post, edit, or close a TA position. Notice the front-end validation — if I leave a required field empty, the form blocks submission and highlights what's missing, so we never POST half-formed data to the API. Now I'll fill the form properly: title, module, term, weekly hours, description, and deadline. Save, and the job appears in the table immediately, ready for applications."
+> "On **Manage Jobs**, Alan creates a new posting. If a required field is empty, the form shows an error. I fill all fields and save. The new job appears in the list."
 
 ### 4.3 Recruitment Pipeline (Kanban) (4:25 – 5:25)
 
@@ -133,7 +133,7 @@
 4. **故意把一张已经在 Offer 列的卡拖回 Applied** → 出现 toast "Cannot move candidate backwards once they are in a later stage."（错误处理）
 
 **Narration:**
-> "Here's the heart of the organiser experience: a six-column Kanban board representing the recruitment pipeline. I can drag any candidate card to a new stage and the change is persisted instantly. When I move a candidate into the *Interview* column, a scheduling modal pops up asking for date, time, and location — so an interview record is created in the same gesture. And here's an important business rule: candidates can never be moved *backwards* in the pipeline. Watch what happens when I try — the system blocks the move and shows a clear toast. This protects audit integrity."
+> "The **Pipeline** is a Kanban board with six stages. I drag cards to move candidates. Moving to **Interview** opens a scheduling window. I also try to drag backwards — the system blocks it and shows a warning."
 
 ### 4.4 Candidate Detail & Accept / Reject (5:25 – 5:50)
 
@@ -142,7 +142,7 @@
 2. 点 **Accept** 或 **Reject** 按钮 → 状态更新。
 
 **Narration:**
-> "Clicking a candidate card slides out a side panel with their CV, GPA, coursework breakdown, and motivation. From here Dr. Turing can accept or reject with one click — much faster than emailing back and forth."
+> "Clicking a card shows CV, GPA, and motivation. Alan can accept or reject from here."
 
 ### 4.5 Interviews List (5:50 – 6:15)
 
@@ -151,7 +151,7 @@
 2. 编辑其中一条面试时间 → 保存。
 
 **Narration:**
-> "All scheduled interviews live in the *Interviews* page, sorted by date. I can edit, reschedule, or cancel any interview, and the corresponding application timeline is updated automatically. Now let's see the platform from the most powerful seat — the administrator."
+> "The **Interviews** page lists all meetings. Alan can edit the time. Now I switch to the admin role."
 
 ---
 
@@ -164,7 +164,7 @@
 **画面操作**：展示统计卡 + 两张 Chart.js 图表（Application Trend area chart, Status Breakdown bar chart）+ 系统状态告警条。
 
 **Narration:**
-> "The admin dashboard is a system-wide control tower. Three stat cards show total applicants, active postings, and the offer rate. Below them, two live Chart.js graphs visualise the application trend over time and the distribution across pipeline stages. The red status bar at the top monitors back-end health — if `data.json` ever becomes unwritable, we'd see it here first."
+> "The admin dashboard shows totals, charts, and system status. Admins get a full view of the platform."
 
 ### 5.2 User Management (6:50 – 7:30)
 
@@ -176,7 +176,7 @@
 5. 点删除按钮 → **弹出二次确认 modal**（错误处理：防误删） → 取消。
 
 **Narration:**
-> "Under *User Management*, the admin can search, filter by role, create, edit, suspend, or delete any account. Critical destructive actions like deletion are guarded by a second confirmation modal — a single misclick can't wipe a real user. Notice that suspended users immediately lose login access on their next attempt."
+> "In **Users**, the admin can search, filter, add, edit, or suspend accounts. Delete needs a second confirmation, so mistakes are harder."
 
 ### 5.3 Module Management (7:30 – 7:50)
 
@@ -186,7 +186,7 @@
 3. 编辑或删除一个旧 module（演示编辑即可）。
 
 **Narration:**
-> "*Module Management* is the source of truth for every course code that a TA job can reference. The admin can add new modules, edit names, or retire obsolete ones — and these changes propagate to organisers' job-creation drop-downs in real time."
+> "**Modules** stores course codes. The admin can add or edit a module. Organisers see the updates when they create jobs."
 
 ### 5.4 Properties — Terms & Departments (7:50 – 8:10)
 
@@ -196,7 +196,7 @@
 3. Departments tab 添加 department `Materials Science`。
 
 **Narration:**
-> "*Properties* groups two key reference tables — academic terms and university departments. Centralising them here keeps job postings consistent across the whole platform."
+> "**Properties** manages terms and departments in one place."
 
 ### 5.5 Workload Management (8:10 – 8:40)
 
@@ -205,7 +205,7 @@
 2. 点 Alex 行的 **Reassign** → 用 `transfer` 或 `reopen` 把其中一个 offer（如 CS101 6h）转给 Diana 或撤销 → 保存后总工时降到 20 以下，状态从 Overloaded 变回 Optimal。
 
 **Narration:**
-> "*Workload Management* solves a classic university pain point: overworking some TAs while others sit idle. Each row shows how many hours a TA is currently committed to versus their cap, with a utilisation bar that goes red when they're overloaded. The admin can rebalance assignments with the *Reassign* action, and the affected TAs see the change in their dashboards instantly."
+> "**Workload** shows hours per TA. Alex has 22 hours but the limit is 20, so he is **overloaded** — shown in red. The admin can use **Reassign** to move or cancel one offer and fix the balance."
 
 ### 5.6 System Logs (8:40 – 9:00)
 
@@ -214,7 +214,7 @@
 2. 用 level filter 选 `ERROR` / `INFO` / `WARN`，再用关键字搜索某用户名。
 
 **Narration:**
-> "Every meaningful action — logins, application submissions, status changes, deletions — is recorded in the *System Logs*. Admins can filter by severity level or search by user, which is essential for both auditing and debugging."
+> "**Logs** record logins, applications, and status changes. The admin can filter by type or search by user."
 
 ### 5.7 Messages & Data Editor (9:00 – 9:15)
 
@@ -223,7 +223,7 @@
 2. 菜单 **Data Editor** —— 显示原始 JSON 编辑界面（如时间允许，演示读、不修改）。
 
 **Narration:**
-> "Admins also share the same in-app messaging inbox, plus a raw *Data Editor* for advanced JSON inspection — useful during initial deployment or schema migrations."
+> "Admins also have **Messages** and a **Data Editor** to view the JSON data."
 
 ---
 
@@ -232,9 +232,7 @@
 **画面操作**：切到 README 文件或 IDE，简短停留在架构图 / 项目结构上 5–8 秒；最后回到登录页。
 
 **Narration:**
-> "Behind every screen you just saw is a clean three-layer architecture: JSP pages, Java Servlet REST endpoints protected by a session-based `AuthFilter`, and a single thread-safe JSON data store. Forty-two endpoints, eighteen pages, three roles, and zero external database dependencies — TA&MO is lightweight enough to run on a laptop, yet structured enough to scale into a real university deployment.
-
-> Thank you for watching. **TA&MO** — recruiting the right TA, the right way. From Group 100, EBU 6304 Software Engineering."
+> "The system uses JSP for the UI, Java Servlets for the API, and JSON for storage. Thank you for watching. This is **TA&MO** from Group 100, EBU 6304 Software Engineering."
 
 ---
 

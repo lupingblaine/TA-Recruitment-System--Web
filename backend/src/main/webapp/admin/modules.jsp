@@ -56,8 +56,20 @@
         <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Name</label><input id="mName" class="input" placeholder="Data Structures"></div>
       </div>
       <div class="grid grid-cols-2 gap-4">
-        <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Department</label><input id="mDept" class="input" placeholder="Computer Science"></div>
-        <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Term</label><input id="mTerm" class="input" placeholder="Fall 2026"></div>
+        <div>
+          <label class="block text-sm font-medium text-zinc-700 mb-1.5">Department</label>
+          <select id="mDept" class="input">
+            <option value="">Select department...</option>
+          </select>
+          <p id="mDeptHint" class="hidden text-xs text-amber-600 mt-1.5">No departments yet. Add one in Properties first.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-zinc-700 mb-1.5">Term</label>
+          <select id="mTerm" class="input">
+            <option value="">Select term...</option>
+          </select>
+          <p id="mTermHint" class="hidden text-xs text-amber-600 mt-1.5">No terms yet. Add one in Properties first.</p>
+        </div>
       </div>
       <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Organiser ID</label><input id="mOrganiser" class="input" placeholder="User ID of the MO"></div>
       <div id="modError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3"></div>
@@ -72,6 +84,8 @@
 <jsp:include page="/common/layout-bottom.jsp"/>
 <script>
 let allModules = [];
+let allTerms = [];
+let allDepartments = [];
 let searchTimer;
 const expandedModules = new Set();
 
@@ -84,6 +98,65 @@ async function loadModules() {
     allModules = data.modules || data || [];
     renderModules(allModules);
   } catch (e) { console.error('加载模块列表失败', e); }
+}
+
+async function loadProperties() {
+  try {
+    const [termsData, deptsData] = await Promise.all([adminApi.getTerms(), adminApi.getDepartments()]);
+    allTerms = termsData.terms || termsData || [];
+    allDepartments = deptsData.departments || deptsData || [];
+  } catch (e) {
+    console.error('加载 terms/departments 失败', e);
+    allTerms = [];
+    allDepartments = [];
+  }
+}
+
+function populatePropertyDropdowns(selectedDept, selectedTerm) {
+  const deptSel = document.getElementById('mDept');
+  const termSel = document.getElementById('mTerm');
+  const deptHint = document.getElementById('mDeptHint');
+  const termHint = document.getElementById('mTermHint');
+
+  if (allDepartments.length === 0) {
+    deptSel.innerHTML = '<option value="">No departments available</option>';
+    deptSel.disabled = true;
+    deptHint.classList.remove('hidden');
+  } else {
+    deptSel.disabled = false;
+    deptHint.classList.add('hidden');
+    const selDept = selectedDept || '';
+    const includesSelected = selDept && allDepartments.some(d => d.name === selDept);
+    const opts = ['<option value="">Select department...</option>']
+      .concat(allDepartments.map(d => {
+        const isSel = d.name === selDept ? ' selected' : '';
+        return '<option value="' + escapeHtml(d.name) + '"' + isSel + '>' + escapeHtml(d.name) + '</option>';
+      }));
+    if (selDept && !includesSelected) {
+      opts.push('<option value="' + escapeHtml(selDept) + '" selected>' + escapeHtml(selDept) + ' (legacy)</option>');
+    }
+    deptSel.innerHTML = opts.join('');
+  }
+
+  if (allTerms.length === 0) {
+    termSel.innerHTML = '<option value="">No terms available</option>';
+    termSel.disabled = true;
+    termHint.classList.remove('hidden');
+  } else {
+    termSel.disabled = false;
+    termHint.classList.add('hidden');
+    const selTerm = selectedTerm || '';
+    const includesSelected = selTerm && allTerms.some(t => t.name === selTerm);
+    const opts = ['<option value="">Select term...</option>']
+      .concat(allTerms.map(t => {
+        const isSel = t.name === selTerm ? ' selected' : '';
+        return '<option value="' + escapeHtml(t.name) + '"' + isSel + '>' + escapeHtml(t.name) + '</option>';
+      }));
+    if (selTerm && !includesSelected) {
+      opts.push('<option value="' + escapeHtml(selTerm) + '" selected>' + escapeHtml(selTerm) + ' (legacy)</option>');
+    }
+    termSel.innerHTML = opts.join('');
+  }
 }
 
 function escapeHtml(str) {
@@ -200,15 +273,18 @@ function toggleModuleJobs(moduleId) {
   renderModules(allModules);
 }
 
-function openModuleModal() {
+async function openModuleModal() {
   document.getElementById('editModId').value = '';
   document.getElementById('modModalTitle').textContent = 'Add Module';
   document.getElementById('modSaveBtn').textContent = 'Create';
-  ['mCode','mName','mDept','mTerm','mOrganiser'].forEach(id => document.getElementById(id).value = '');
+  ['mCode','mName','mOrganiser'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('modError').classList.add('hidden');
+  await loadProperties();
+  populatePropertyDropdowns('', '');
   document.getElementById('moduleModal').classList.add('show');
 }
 
-function editModule(id) {
+async function editModule(id) {
   const m = allModules.find(x => x.id === id);
   if (!m) return;
   document.getElementById('editModId').value = id;
@@ -216,9 +292,10 @@ function editModule(id) {
   document.getElementById('modSaveBtn').textContent = 'Update';
   document.getElementById('mCode').value = m.code || '';
   document.getElementById('mName').value = m.name || '';
-  document.getElementById('mDept').value = m.department || '';
-  document.getElementById('mTerm').value = m.term || '';
   document.getElementById('mOrganiser').value = m.organiserId || '';
+  document.getElementById('modError').classList.add('hidden');
+  await loadProperties();
+  populatePropertyDropdowns(m.department || '', m.term || '');
   document.getElementById('moduleModal').classList.add('show');
 }
 
@@ -228,11 +305,23 @@ async function saveModule() {
   const errDiv = document.getElementById('modError');
   errDiv.classList.add('hidden');
   const id = document.getElementById('editModId').value;
+  const dept = document.getElementById('mDept').value.trim();
+  const term = document.getElementById('mTerm').value.trim();
+  if (dept && allDepartments.length > 0 && !allDepartments.some(d => d.name === dept)) {
+    errDiv.textContent = 'Please pick a department from the list.';
+    errDiv.classList.remove('hidden');
+    return;
+  }
+  if (term && allTerms.length > 0 && !allTerms.some(t => t.name === term)) {
+    errDiv.textContent = 'Please pick a term from the list.';
+    errDiv.classList.remove('hidden');
+    return;
+  }
   const payload = {
     code: document.getElementById('mCode').value.trim(),
     name: document.getElementById('mName').value.trim(),
-    department: document.getElementById('mDept').value.trim(),
-    term: document.getElementById('mTerm').value.trim(),
+    department: dept,
+    term: term,
     organiserId: document.getElementById('mOrganiser').value.trim(),
   };
   try {
@@ -250,5 +339,8 @@ async function deleteModule(id) {
   catch (e) { showToast(e.message, 'error'); }
 }
 
-loadModules();
+(async function init() {
+  await loadProperties();
+  await loadModules();
+})();
 </script>
