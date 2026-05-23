@@ -1,3 +1,5 @@
+[English](README.md) | [简体中文](README_zh.md)
+
 # TA&MO — TA Recruitment & Management System
 
 <div align="center">
@@ -10,6 +12,12 @@
 <br>
 
 > University-oriented Teaching Assistant recruitment and management platform built with **Java Servlet/JSP** + **Embedded Tomcat**.
+
+> [!NOTE]
+> **📖 Looking for the User Manual?**
+> A comprehensive, illustrated user guide covering all 25 interface features is available in this repository. 
+> - 📄 [Read it online in Markdown](User_Manual.md)
+> - 📥 [Download the High-Res PDF Version](User_Manual.pdf)
 
 ---
 
@@ -199,7 +207,7 @@ git checkout dev
 
 ### 2. Configuration Settings
 
-The system is configured out of the box to run on localhost. You can modify the following default behaviors if needed:
+The system is configured out of the box to run on your local machine, but the production version is hosted remotely. You can modify the following default behaviors if needed:
 
 - **Server Port**: The embedded Tomcat server defaults to **Port 8080**. If this port is occupied, you can change it by editing `tomcat.setPort(8080);` in `backend/src/main/java/com/tamo/Main.java`.
 - **Database**: The application utilizes a JSON file as persistent storage. The file is located at `backend/src/main/resources/data.json`.
@@ -227,9 +235,9 @@ We use a Maven plugin to compile and boot the Embedded Tomcat server in a single
 
 Once the server has successfully started (you will see the "TA&MO Backend Started" message in the terminal), open your browser and navigate to:
 
-- **Landing Page**: [http://localhost:8080/tamo](http://localhost:8080/tamo)
-- **Login Page**: [http://localhost:8080/tamo/auth/login.jsp](http://localhost:8080/tamo/auth/login.jsp)
-- **Registration**: [http://localhost:8080/tamo/auth/signup.jsp](http://localhost:8080/tamo/auth/signup.jsp)
+- **Landing Page**: [http://47.93.90.208:8080/tamo](http://47.93.90.208:8080/tamo)
+- **Login Page**: [http://47.93.90.208:8080/tamo/auth/login.jsp](http://47.93.90.208:8080/tamo/auth/login.jsp)
+- **Registration**: [http://47.93.90.208:8080/tamo/auth/signup.jsp](http://47.93.90.208:8080/tamo/auth/signup.jsp)
 
 *To stop the server, simply press `Ctrl + C` in the terminal.*
 

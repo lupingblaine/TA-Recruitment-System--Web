@@ -1,0 +1,114 @@
+/* Elegant PDF Styling for md-to-pdf */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #333333;
+    padding: 20px 40px;
+    font-size: 11pt;
+}
+
+h1 {
+    font-size: 32pt;
+    font-weight: 700;
+    color: #111111;
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    border-bottom: none;
+}
+
+h2 {
+    font-size: 20pt;
+    font-weight: 600;
+    color: #1a202c;
+    border-bottom: 2px solid #edf2f7;
+    padding-bottom: 10px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    page-break-before: always;
+}
+
+/* Ensure the first H2 (Table of Contents) doesn't unnecessarily page break if we don't want it, 
+   but actually Table of Contents on its own page is nice. */
+
+h3 {
+    font-size: 14pt;
+    font-weight: 600;
+    color: #2d3748;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+a {
+    color: #3182ce;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin: 20px 0;
+    display: block;
+}
+
+ul, ol {
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 30px 0;
+}
+
+blockquote {
+    border-left: 4px solid #4299e1;
+    background-color: #ebf8ff;
+    margin: 20px 0;
+    padding: 15px 20px;
+    color: #2b6cb0;
+    border-radius: 0 8px 8px 0;
+    font-weight: 500;
+}
+
+code {
+    font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    background-color: #f7fafc;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #e53e3e;
+}
+
+pre {
+    background-color: #f7fafc;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+}
+
+/* Center the logo div properly */
+div[align="center"] {
+    margin: 40px 0;
+    text-align: center;
+}
+
+div[align="center"] img {
+    margin: 0 auto 20px auto;
+    box-shadow: none; /* No shadow for logo */
+    border-radius: 0;
+}
