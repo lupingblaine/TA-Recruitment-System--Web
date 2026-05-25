@@ -200,7 +200,7 @@ public class AuthServlet extends HttpServlet {
     }
 
     /**
-     * 构建不含密码的用户信息
+     * Build user info without password
      */
     private JsonObject buildSafeUser(User user) {
         JsonObject obj = new JsonObject();

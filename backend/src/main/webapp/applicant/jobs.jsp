@@ -76,7 +76,7 @@ async function loadJobs() {
     }).join('');
     lucide.createIcons();
   } catch (e) {
-    console.error('加载职位列表失败', e);
+    console.error('Failed to load jobs', e);
     document.getElementById('jobsGrid').innerHTML = '<div class="col-span-full text-center text-red-500 py-12">Failed to load jobs</div>';
   }
 }

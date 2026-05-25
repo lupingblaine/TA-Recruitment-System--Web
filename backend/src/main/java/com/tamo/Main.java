@@ -32,9 +32,9 @@ public class Main {
 
         tomcat.start();
         System.out.println("========================================");
-        System.out.println("  TA&MO 后端已启动: http://localhost:8080/tamo");
-        System.out.println("  落地页: http://localhost:8080/tamo/index.jsp");
-        System.out.println("  登录页: http://localhost:8080/tamo/auth/login.jsp");
+        System.out.println("  TA&MO Backend started: http://localhost:8080/tamo");
+        System.out.println("  Landing Page: http://localhost:8080/tamo/index.jsp");
+        System.out.println("  Login Page: http://localhost:8080/tamo/auth/login.jsp");
         System.out.println("========================================");
         tomcat.getServer().await();
     }

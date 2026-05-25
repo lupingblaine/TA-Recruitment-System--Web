@@ -97,7 +97,7 @@
           myModules = data.modules || data || [];
           renderModuleOptions();
         } catch (e) {
-          console.error('加载我负责的模块失败', e);
+          console.error('Failed to load my modules', e);
           myModules = [];
           renderModuleOptions();
         }
@@ -172,7 +172,7 @@
           }).join('');
           lucide.createIcons();
         } catch (e) {
-          console.error('加载职位列表失败', e);
+          console.error('Failed to load jobs', e);
         }
       }
 

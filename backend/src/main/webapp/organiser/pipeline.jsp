@@ -168,7 +168,7 @@
 
           renderKanban();
         } catch (e) {
-          console.error('加载管道失败', e);
+          console.error('Failed to load pipeline', e);
           document.getElementById('kanban').innerHTML = '<div class="text-center text-red-500 py-12 w-full">Failed to load pipeline</div>';
         }
       }

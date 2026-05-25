@@ -135,7 +135,7 @@
           }).join('');
           lucide.createIcons();
         } catch (e) {
-          console.error('加载面试列表失败', e);
+          console.error('Failed to load interviews', e);
           document.getElementById('interviewsList').innerHTML = '<div class="text-center text-red-500 py-12">Failed to load interviews</div>';
         }
       }

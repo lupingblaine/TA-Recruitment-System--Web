@@ -234,7 +234,8 @@ public class ApplicantService {
     }
 
     /**
-     * 获取职位列表，支持搜索、部门/类型筛选及状态筛选（active / closed）
+     * Get job list, support search, department/type filtering and status filtering (active / closed)
+
      */
     /**
      * Executes the getJobs operation.
@@ -276,7 +277,8 @@ public class ApplicantService {
     }
 
     /**
-     * 获取单个职位详情（任何状态都可查看）
+     * Get single job details (viewable in any status)
+
      */
     /**
      * Executes the getJobById operation.
@@ -294,9 +296,10 @@ public class ApplicantService {
     }
 
     /**
-     * 提交申请，返回结果封装在 Map 中：
-     * - "error" + "code" 表示失败
-     * - "application" 表示成功
+     * Submit application, result returned in Map:
+     * - "error" + "code" for failure
+     * - "application" for success
+
      */
     /**
      * Executes the applyForJob operation.
@@ -405,10 +408,11 @@ public class ApplicantService {
     }
 
     /**
-     * 获取申请详情，返回 Map:
-     * - "notFound" = true : 申请不存在
-     * - "forbidden" = true : 无权访问
-     * - "data" : 数据
+     * Get application details, result returned in Map:
+     * - "notFound" = true : application does not exist
+     * - "forbidden" = true : access denied
+     * - "data" : application data
+
      */
     /**
      * Executes the getApplicationDetail operation.
@@ -540,7 +544,8 @@ public class ApplicantService {
     }
 
     /**
-     * 更新个人资料，返回错误信息或 null（成功）
+     * Update profile, return error message or null (success)
+
      */
     /**
      * Executes the updateProfile operation.
@@ -615,9 +620,10 @@ public class ApplicantService {
     );
 
     /**
-     * 上传文档（模拟），返回 Map:
-     * - "error" + "code" 表示失败
-     * - "document" 表示成功
+     * Upload document (simulated), result returned in Map:
+     * - "error" + "code" for failure
+     * - "document" for success
+
      */
     /**
      * Executes the uploadDocument operation.
@@ -678,9 +684,10 @@ public class ApplicantService {
     }
 
     /**
-     * 删除文档，返回 Map:
-     * - "error" + "code" 表示失败
-     * - "success" = true 表示成功
+     * Delete document, result returned in Map:
+     * - "error" + "code" for failure
+     * - "success" = true for success
+
      */
     /**
      * Executes the deleteDocument operation.
@@ -718,7 +725,8 @@ public class ApplicantService {
     }
 
     /**
-     * 与前端约定：jobTitle、moduleCode、appliedDate；并保留 role、module 供旧调用方使用。
+     * Agreed with frontend: jobTitle, moduleCode, appliedDate; role, module kept for backward compatibility.
+
      */
     private void enrichApplicationForApplicantApi(JsonObject obj, Job job, String jobId, String appliedAt) {
         if (job != null) {

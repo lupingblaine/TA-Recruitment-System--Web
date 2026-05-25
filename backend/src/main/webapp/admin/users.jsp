@@ -86,7 +86,7 @@ async function loadUsers() {
     const data = await adminApi.getUsers(Object.keys(params).length ? params : undefined);
     allUsers = data.users || data || [];
     renderUsers(allUsers);
-  } catch (e) { console.error('加载用户列表失败', e); }
+  } catch (e) { console.error('Failed to load users', e); }
 }
 
 function filterUsers() {

@@ -31,7 +31,8 @@ public class AuthService {
     }
 
     /**
-     * 根据邮箱和密码查找用户（不验证角色和状态）
+     * Find user by email and password (without role validation)
+
      */
     /**
      * Executes the findByEmailAndPassword operation.
@@ -56,7 +57,8 @@ public class AuthService {
     }
 
     /**
-     * 执行登录并更新最后登录时间
+     * Execute login and update last login time
+
      */
     /**
      * Executes the recordLogin operation.
@@ -72,7 +74,8 @@ public class AuthService {
     }
 
     /**
-     * 用户注册
+     * User registration
+
      */
     /**
      * Executes the signup operation.
@@ -135,7 +138,8 @@ public class AuthService {
     }
 
     /**
-     * 根据 ID 获取用户
+     * Get user by ID
+
      */
     /**
      * Executes the getUserById operation.
@@ -158,7 +162,8 @@ public class AuthService {
     }
 
     /**
-     * 验证邮箱格式
+     * Validate email format
+
      */
     /**
      * Executes the isValidEmail operation.
@@ -175,7 +180,8 @@ public class AuthService {
     }
 
     /**
-     * 验证角色值
+     * Validate role value
+
      */
     /**
      * Executes the isValidRole operation.

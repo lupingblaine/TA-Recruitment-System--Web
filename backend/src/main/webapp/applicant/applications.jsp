@@ -102,7 +102,7 @@ async function loadApplications() {
     }).join('');
     lucide.createIcons();
   } catch (e) {
-    console.error('加载申请列表失败', e);
+    console.error('Failed to load applications', e);
     document.getElementById('appList').innerHTML = '<div class="text-center text-red-500 py-12">Failed to load applications</div>';
   }
 }

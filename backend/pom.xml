@@ -45,7 +45,7 @@
             <version>2.0.1</version>
         </dependency>
 
-        <!-- 嵌入式 Tomcat -->
+        <!-- Embedded Tomcat -->
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>

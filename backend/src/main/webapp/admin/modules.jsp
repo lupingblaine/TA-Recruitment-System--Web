@@ -97,7 +97,7 @@ async function loadModules() {
     const data = await adminApi.getModules(kw || undefined);
     allModules = data.modules || data || [];
     renderModules(allModules);
-  } catch (e) { console.error('加载模块列表失败', e); }
+  } catch (e) { console.error('Failed to load modules', e); }
 }
 
 async function loadProperties() {
@@ -106,7 +106,7 @@ async function loadProperties() {
     allTerms = termsData.terms || termsData || [];
     allDepartments = deptsData.departments || deptsData || [];
   } catch (e) {
-    console.error('加载 terms/departments 失败', e);
+    console.error('Failed to load terms/departments', e);
     allTerms = [];
     allDepartments = [];
   }

@@ -166,7 +166,7 @@
           profileData = data.profile || data;
           render(profileData);
         } catch (e) {
-          console.error('加载资料失败', e);
+          console.error('Failed to load profile', e);
         }
       }
 

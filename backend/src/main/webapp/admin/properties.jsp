@@ -102,7 +102,7 @@ async function loadProperties() {
           '<div class="flex items-center gap-4"><span class="font-medium text-zinc-900">' + d.name + '</span>' +
           '<span class="badge badge-success">Active</span></div></div>'
       ).join('');
-  } catch (e) { console.error('加载属性失败', e); }
+  } catch (e) { console.error('Failed to load properties', e); }
 }
 
 async function addTerm() {

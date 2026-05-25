@@ -140,7 +140,7 @@ async function loadWorkload() {
     renderSummary();
     renderTAs(allWorkload);
   } catch (e) {
-    console.error('加载工作量失败', e);
+    console.error('Failed to load workload', e);
     document.getElementById('workloadList').innerHTML =
       '<div class="text-center py-12 text-red-600">Failed to load workload. Please refresh.</div>';
   }

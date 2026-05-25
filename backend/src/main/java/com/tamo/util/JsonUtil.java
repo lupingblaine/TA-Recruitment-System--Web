@@ -31,7 +31,8 @@ public class JsonUtil {
     }
 
     /**
-     * 从请求体读取 JSON 并转换为指定类型
+     * Read JSON from request body and convert to specified type
+
      */
     /**
      * Executes the readRequestBody operation.
@@ -58,7 +59,8 @@ public class JsonUtil {
     }
 
     /**
-     * 从请求体读取原始 JSON 对象
+     * Read raw JSON object from request body
+
      */
     /**
      * Executes the readRequestBodyAsJson operation.
@@ -83,7 +85,8 @@ public class JsonUtil {
     }
 
     /**
-     * 向响应写入 JSON
+     * Write JSON to response
+
      */
     /**
      * Executes the writeJson operation.
@@ -105,7 +108,8 @@ public class JsonUtil {
     }
 
     /**
-     * 向响应写入错误信息
+     * Write error message to response
+
      */
     /**
      * Executes the writeError operation.
@@ -127,7 +131,8 @@ public class JsonUtil {
     }
 
     /**
-     * 向响应写入成功信息
+     * Write success message to response
+
      */
     /**
      * Executes the writeSuccess operation.
@@ -147,7 +152,8 @@ public class JsonUtil {
     }
 
     /**
-     * 获取路径信息，去掉前导斜杠
+     * Get path info, remove leading slash
+
      */
     /**
      * Executes the getPathInfo operation.

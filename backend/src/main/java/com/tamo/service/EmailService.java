@@ -113,7 +113,8 @@ public class EmailService {
     }
 
     /**
-     * 异步发送邮件，不阻塞主线程
+     * Send email asynchronously without blocking the main thread
+
      */
     /**
      * Executes the sendAsync operation.

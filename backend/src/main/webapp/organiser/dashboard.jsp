@@ -117,7 +117,7 @@
               '</div>';
           }).join('');
         } catch (e) {
-          console.error('加载通知失败', e);
+          console.error('Failed to load notifications', e);
           document.getElementById('organiserNotifications').innerHTML = '<div class="p-6 text-center text-red-500">Unable to load notifications</div>';
         }
       }
@@ -127,7 +127,7 @@
           await organiserApi.markNotificationRead(id);
           await loadOrganiserNotifications();
         } catch (e) {
-          console.error('标记通知已读失败', e);
+          console.error('Failed to mark notification read', e);
         }
       }
 
@@ -136,7 +136,7 @@
           await organiserApi.markAllNotificationsRead();
           await loadOrganiserNotifications();
         } catch (e) {
-          console.error('标记所有通知已读失败', e);
+          console.error('Failed to mark all notifications read', e);
         }
       }
 
@@ -203,7 +203,7 @@
 
           await loadOrganiserNotifications();
         } catch (e) {
-          console.error('加载仪表盘失败', e);
+          console.error('Failed to load dashboard', e);
         }
       }
       loadDashboard();
