@@ -198,6 +198,9 @@ public class Profile {
     }
 
     public static class Document {
+        private String storageKey;
+        public String getStorageKey(){return storageKey;}
+        public void setStorageKey(String value){storageKey=value;}
         /**
          * The id of the entity.
          */
@@ -408,4 +411,7 @@ public class Profile {
      * @param currentWeeklyHours the currentweeklyhours to set
      */
     public void setCurrentWeeklyHours(int currentWeeklyHours) { this.currentWeeklyHours = currentWeeklyHours; }
+    private com.google.gson.JsonElement qualifications;
+    public com.google.gson.JsonObject getQualifications() {return qualifications==null||qualifications.isJsonNull()?null:qualifications.getAsJsonObject();}
+    public void setQualifications(com.google.gson.JsonObject value) {qualifications=value;}
 }

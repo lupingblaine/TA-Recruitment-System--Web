@@ -66,22 +66,7 @@
               </div>
             </div>
 
-            <!-- Role Selector -->
-            <div>
-              <label class="block text-sm font-bold text-zinc-900 text-center mb-3">Register As</label>
-              <div class="segmented-control">
-                <input type="radio" id="role-applicant" name="role" value="APPLICANT" checked onchange="selectedRole='applicant'; if(riveAnim) riveAnim.setRoleColor('applicant');">
-                <label for="role-applicant">Applicant</label>
-
-                <input type="radio" id="role-organiser" name="role" value="ORGANISER" onchange="selectedRole='organiser'; if(riveAnim) riveAnim.setRoleColor('organiser');">
-                <label for="role-organiser">Organiser</label>
-
-                <input type="radio" id="role-admin" name="role" value="ADMIN" onchange="selectedRole='admin'; if(riveAnim) riveAnim.setRoleColor('admin');">
-                <label for="role-admin">Admin</label>
-                
-                <div class="segmented-highlight"></div>
-              </div>
-            </div>
+            <p class="text-sm text-zinc-500 text-center">Create an applicant account. Organiser and administrator accounts are provided by an administrator.</p>
             
             <div id="errorMsg" class="hidden text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl px-6 py-3 text-center"></div>
 

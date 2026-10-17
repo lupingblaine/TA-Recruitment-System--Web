@@ -1,0 +1,20 @@
+name: tamo-local
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: tamo
+      POSTGRES_USER: tamo
+      POSTGRES_PASSWORD: ${TAMO_DB_PASSWORD:-tamo_local_only}
+    ports:
+      - "127.0.0.1:${TAMO_DB_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tamo -d tamo"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+volumes:
+  postgres_data:

@@ -1,0 +1,218 @@
+package com.tamo.service;
+
+import com.google.gson.*;
+import com.tamo.model.*;
+import com.tamo.util.JsonUtil;
+import org.junit.jupiter.api.*;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class SectionAssignmentServiceTest {
+    DataStore ds; JsonDataService data; SectionAssignmentService service; Application app; CourseSection section;
+    @BeforeEach void setup() {
+        ds=TestDataFactory.createTestDataStore();data=mock(JsonDataService.class);when(data.getData()).thenReturn(ds);service=new SectionAssignmentService(data);
+        for(Application original:ds.getApplications()){ReviewRecord selected=new ReviewRecord();selected.setId("fixture_approval_"+original.getId());selected.setApplicationId(original.getId());selected.setActorId("u010");selected.setAction("approve");selected.setNote("Synthetic selection approval");selected.setCreatedAt("2026-01-01T00:00:00Z");ds.getReviewRecords().add(selected);}
+        app=ds.getApplications().get(0);app.setStatus("offer");
+        app.setAvailabilitySnapshot(JsonUtil.getGson().fromJson(JsonUtil.getGson().toJson(ds.getWeeklyAvailabilities().get(0)),WeeklyAvailability.class));
+        WeeklyAvailability.Slot slot=new WeeklyAvailability.Slot();slot.setDayOfWeek(1);slot.setStartTime("00:00");slot.setEndTime("24:00");
+        app.getAvailabilitySnapshot().setAvailableSlots(List.of(slot));app.getAvailabilitySnapshot().setConflictSlots(List.of());
+        section=section("section_one","m001","10:00","12:00");ds.getCourseSections().add(section);
+    }
+    CourseSection section(String id,String module,String start,String end) {
+        CourseSection s=new CourseSection();s.setId(id);s.setPeriodId("period_test");s.setModuleId(module);s.setName(id);s.setStatus("active");s.setType("lab");s.setTimeZone("America/Los_Angeles");s.setTaPositions(1);s.setHoursPerWeek(8.5);
+        CourseSection.MeetingTime m=new CourseSection.MeetingTime();m.setDayOfWeek(1);m.setStartTime(start);m.setEndTime(end);s.setMeetingTimes(List.of(m));return s;
+    }
+    JsonObject body(Application a,CourseSection s) { JsonObject b=new JsonObject();b.addProperty("applicationId",a.getId());b.addProperty("sectionId",s.getId());return b; }
+    SectionAssignment assign() { return service.assign("u005","organiser",body(app,section)); }
+    JsonObject reason() { JsonObject b=new JsonObject();b.addProperty("reason","Course staffing changed");return b; }
+    void fails(int status,Runnable action) { assertEquals(status,assertThrows(SectionAssignmentService.Problem.class,action::run).status); }
+    @Test void assignsOfferAndFreezesSectionAndHours() {
+        SectionAssignment a=assign();assertEquals("active",a.getStatus());assertEquals(app.getPeriodId(),a.getPeriodId());assertEquals(8.5,service.weeklyHours(app.getApplicantId(),app.getPeriodId()));
+        section.setHoursPerWeek(20);assertEquals(8.5,a.getSectionSnapshot().getHoursPerWeek());verify(data).save();
+    }
+    @Test void onlyOffersAndCurrentOwnersCanAssign() {
+        app.setStatus("shortlisted");fails(409,this::assign);app.setStatus("offer");
+        fails(403,()->service.assign("u006","organiser",body(app,section)));fails(403,()->service.assign("u001","applicant",body(app,section)));
+        ds.getJobs().get(0).setOrganiserId("u006");fails(403,this::assign);assertTrue(ds.getSectionAssignments().isEmpty());
+    }
+    @Test void adminCanManageAllCourses() { assertEquals("active",service.assign("u010","admin",body(app,section)).getStatus()); }
+    @Test void applicationMustBelongToSectionCourse() {section.setModuleId("m002");fails(403,()->service.assign("u010","admin",body(app,section)));}
+    @Test void zeroCapacityAndArchivedAreRejected() {section.setTaPositions(0);fails(409,this::assign);section.setTaPositions(1);section.setStatus("archived");fails(409,this::assign);}
+    @Test void duplicateAndFullCapacityAreRejected() {
+        assign();fails(409,this::assign);
+        Application other=copy(app);other.setId("other");other.setApplicantId("u002");other.getAvailabilitySnapshot().setApplicantId("u002");ds.getApplications().add(other);ReviewRecord approval=new ReviewRecord();approval.setId("approval_"+other.getId());approval.setApplicationId(other.getId());approval.setActorId("u010");approval.setAction("approve");approval.setNote("Synthetic selection approval");approval.setCreatedAt("2026-01-01T00:00:00Z");ds.getReviewRecords().add(approval);
+        fails(409,()->service.assign("u005","organiser",body(other,section)));assertEquals(1,ds.getSectionAssignments().size());
+    }
+    @Test void sameStudentAcrossTwoApplicationsCannotTakeSameSectionTwice() {
+        section.setTaPositions(2);assign();Application other=copy(app);other.setId("other");other.setJobId("j002");ds.getApplications().add(other);ReviewRecord approval=new ReviewRecord();approval.setId("approval_"+other.getId());approval.setApplicationId(other.getId());approval.setActorId("u010");approval.setAction("approve");approval.setNote("Synthetic selection approval");approval.setCreatedAt("2026-01-01T00:00:00Z");ds.getReviewRecords().add(approval);
+        fails(409,()->service.assign("u005","organiser",body(other,section)));
+    }
+    Application copy(Application a) { return JsonUtil.getGson().fromJson(JsonUtil.getGson().toJson(a),Application.class); }
+    @Test void missingAvailabilityRequiresExplicitBooleanAndNote() {
+        app.setAvailabilitySnapshot(null);JsonObject b=body(app,section);fails(409,()->service.assign("u005","organiser",b));
+        b.addProperty("confirmPending","true");b.addProperty("manualConfirmationNote","Confirmed with applicant");fails(409,()->service.assign("u005","organiser",b));
+        b.addProperty("confirmPending",true);b.addProperty("manualConfirmationNote","short");fails(409,()->service.assign("u005","organiser",b));
+        b.addProperty("manualConfirmationNote","Confirmed with applicant");assertEquals("Confirmed with applicant",service.assign("u005","organiser",b).getManualConfirmationNote());
+    }
+    @Test void knownConflictCannotBeOverridden() {
+        app.getAvailabilitySnapshot().setNoAvailability(true);JsonObject b=body(app,section);b.addProperty("confirmPending",true);b.addProperty("manualConfirmationNote","Confirmed with applicant");
+        fails(409,()->service.assign("u005","organiser",b));
+    }
+    @Test void overlapAcrossCoursesIsBlockedButAdjacentTimesAreAllowedAndHoursAggregate() {
+        assign();Application other=ds.getApplications().get(1);other.setStatus("offer");other.setAvailabilitySnapshot(copy(app).getAvailabilitySnapshot());
+        CourseSection second=section("second","m002","11:00","13:00");ds.getCourseSections().add(second);
+        fails(409,()->service.assign("u006","organiser",body(other,second)));
+        second.getMeetingTimes().get(0).setStartTime("12:00");service.assign("u006","organiser",body(other,second));
+        assertEquals(17,service.weeklyHours("u001","period_test"));
+    }
+    @Test void capacityAndConflictsAreSeparatePerPeriod() {
+        assign();Application other=copy(app);other.setId("other");other.setPeriodId("period_second");other.getAvailabilitySnapshot().setPeriodId("period_second");ds.getApplications().add(other);ReviewRecord approval=new ReviewRecord();approval.setId("approval_"+other.getId());approval.setApplicationId(other.getId());approval.setActorId("u010");approval.setAction("approve");approval.setNote("Synthetic selection approval");approval.setCreatedAt("2026-01-01T00:00:00Z");ds.getReviewRecords().add(approval);
+        ApplicationPeriod p=new ApplicationPeriod();p.setId("period_second");ds.getApplicationPeriods().add(p);
+        fails(409,()->service.assign("u005","organiser",body(other,section)));
+        CourseSection copy=section("section_second","m001","10:00","12:00");copy.setPeriodId("period_second");ds.getCourseSections().add(copy);
+        service.assign("u005","organiser",body(other,copy));assertEquals(1,service.occupied(copy.getId(),"period_second"));assertEquals(8.5,service.weeklyHours("u001","period_second"));
+    }
+    @Test void cancellationRetainsHistoryReleasesCapacityAndAllowsReassignment() {
+        SectionAssignment a=assign();fails(400,()->service.cancel("u005","organiser",a.getId(),new JsonObject()));
+        fails(403,()->service.cancel("u006","organiser",a.getId(),reason()));fails(403,()->service.cancel("u001","applicant",a.getId(),reason()));
+        service.cancel("u005","organiser",a.getId(),reason());assertEquals("cancelled",a.getStatus());assertNotNull(a.getCancelledAt());assertEquals(0,service.weeklyHours("u001","period_test"));
+        fails(409,()->service.cancel("u005","organiser",a.getId(),reason()));assertNotEquals(a.getId(),assign().getId());assertEquals(2,ds.getSectionAssignments().size());
+    }
+    @Test void studentsSeeOnlyOwnRowsAndNoStaffConfirmationNote() {
+        SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineBody());a.setManualConfirmationNote("Private staff confirmation");
+        JsonObject own=service.list("u001","applicant");assertEquals(1,own.getAsJsonArray("assignments").size());
+        assertFalse(own.getAsJsonArray("assignments").get(0).getAsJsonObject().has("manualConfirmationNote"));assertFalse(own.has("candidates"));
+        assertTrue(service.list("u002","applicant").getAsJsonArray("assignments").isEmpty());assertTrue(service.list("u006","organiser").getAsJsonArray("assignments").isEmpty());
+    }
+    @Test void sectionEditsArchiveAndApplicationStatusChangesRequireCancellation() {
+        SectionAssignment a=assign();CourseSectionService sections=new CourseSectionService(data);
+        assertEquals(409,assertThrows(CourseSectionService.Problem.class,()->sections.update("u005","organiser",section.getId(),new JsonObject())).status);
+        assertThrows(CourseSectionService.Problem.class,()->sections.archive("u005","organiser",section.getId(),true));
+        assertEquals(409,new OrganiserService(data).updateCandidateStatus("u005",app.getId(),"rejected").get("code"));assertEquals("offer",app.getStatus());
+        service.cancel("u005","organiser",a.getId(),reason());assertEquals("archived",sections.archive("u005","organiser",section.getId(),true).getStatus());
+    }
+    @Test void adminEditorAndDeletePathsPreserveHistoryBeforeMutation() {
+        assign();AdminService admin=new AdminService(data);JsonObject change=new JsonObject();change.addProperty("status","rejected");
+        assertEquals(409,admin.updateCollectionItem("applications",app.getId(),change).get("code"));assertEquals("offer",app.getStatus());
+        for(String[] ref:new String[][]{{"applications",app.getId()},{"users",app.getApplicantId()},{"jobs",app.getJobId()},{"modules",section.getModuleId()}})
+            assertEquals(409,admin.deleteFromCollection(ref[0],ref[1]).get("code"));
+        assertEquals(409,new OrganiserService(data).deleteJob("u005",app.getJobId()).get("code"));assertTrue(ds.getApplications().contains(app));
+    }
+    @Test void ownershipTransferMovesManagementToNewOwnerButKeepsStudentVisibility() {
+        SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineBody());ds.getModules().get(0).setOrganiserId("u006");
+        assertTrue(service.list("u005","organiser").getAsJsonArray("assignments").isEmpty());fails(403,()->service.cancel("u005","organiser",a.getId(),reason()));
+        assertEquals(1,service.list("u001","applicant").getAsJsonArray("assignments").size());service.cancel("u006","organiser",a.getId(),reason());
+    }
+    @Test void malformedRequestsHaveNoSideEffects() { fails(400,()->service.assign("u005","organiser",null));JsonObject b=body(app,section);b.addProperty("applicationId",42);fails(400,()->service.assign("u005","organiser",b));assertTrue(ds.getSectionAssignments().isEmpty()); }
+    JsonObject decision(String value,String reason) {JsonObject b=new JsonObject();b.addProperty("decision",value);if(reason!=null)b.addProperty("reason",reason);return b;}
+    @Test void draftIsHiddenAndPublicationNotifiesExactlyOnce() {
+        SectionAssignment a=assign();int before=ds.getNotifications().size();
+        assertEquals("draft",a.getPublicationStatus());assertTrue(service.list("u001","applicant").getAsJsonArray("assignments").isEmpty());
+        assertEquals(1,service.occupied(section.getId(),"period_test"));assertEquals(0,service.acceptedWeeklyHours("u001","period_test"));
+        fails(403,()->service.publish("u006","organiser",a.getId(),deadlineBody()));fails(403,()->service.publish("u001","applicant",a.getId(),deadlineBody()));
+        service.publish("u005","organiser",a.getId(),deadlineBody());assertEquals("published",a.getPublicationStatus());assertNotNull(a.getPublishedAt());
+        assertEquals(before+1,ds.getNotifications().size());Notification n=ds.getNotifications().get(before);assertEquals("u001",n.getUserId());assertEquals(a.getId(),n.getRelatedId());assertEquals("assignment_published",n.getType());
+        fails(409,()->service.publish("u005","organiser",a.getId(),deadlineBody()));assertEquals(before+1,ds.getNotifications().size());
+    }
+    @Test void onlyOwnerCanReplyToPublishedPendingAssignment() {
+        SectionAssignment a=assign();fails(404,()->service.respond("u001","applicant",a.getId(),decision("accept",null)));
+        service.publish("u005","organiser",a.getId(),deadlineBody());fails(404,()->service.respond("u002","applicant",a.getId(),decision("accept",null)));
+        fails(403,()->service.respond("u005","organiser",a.getId(),decision("accept",null)));assertEquals("pending",a.getResponseStatus());
+    }
+    @Test void acceptanceRecordsTimeAndCountsOnlyAcceptedHours() {
+        SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineBody());int before=ds.getNotifications().size();
+        service.respond("u001","applicant",a.getId(),decision("accept",null));assertEquals("accepted",a.getResponseStatus());assertNotNull(a.getRespondedAt());assertEquals("active",a.getStatus());
+        assertEquals(8.5,service.acceptedWeeklyHours("u001","period_test"));assertEquals(1,service.occupied(section.getId(),"period_test"));
+        assertEquals(before+1,ds.getNotifications().size());assertEquals("u005",ds.getNotifications().get(before).getUserId());
+        fails(409,()->service.respond("u001","applicant",a.getId(),decision("accept",null)));fails(409,()->service.respond("u001","applicant",a.getId(),decision("decline","Changed mind")));assertEquals(before+1,ds.getNotifications().size());
+    }
+    @Test void declineRequiresReasonReleasesPositionAndKeepsResponseOnReassignment() {
+        SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineBody());
+        fails(400,()->service.respond("u001","applicant",a.getId(),decision("decline","  ")));assertEquals("active",a.getStatus());assertEquals("pending",a.getResponseStatus());
+        service.respond("u001","applicant",a.getId(),decision("decline","Schedule changed"));
+        assertEquals("declined",a.getResponseStatus());assertEquals("cancelled",a.getStatus());assertEquals("u001",a.getCancelledBy());assertEquals("Schedule changed",a.getResponseReason());
+        assertEquals(0,service.occupied(section.getId(),"period_test"));assertEquals(0,service.weeklyHours("u001","period_test"));assertEquals(0,service.acceptedWeeklyHours("u001","period_test"));
+        SectionAssignment next=assign();assertNotEquals(a.getId(),next.getId());assertEquals("draft",next.getPublicationStatus());assertEquals("pending",next.getResponseStatus());
+        assertEquals(1,service.list("u001","applicant").getAsJsonArray("assignments").size());
+    }
+    @Test void invalidResponseHasNoPartialMutationOrNotification() {
+        SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineBody());int before=ds.getNotifications().size();
+        fails(400,()->service.respond("u001","applicant",a.getId(),decision("other",null)));
+        fails(400,()->service.respond("u001","applicant",a.getId(),decision("decline","x".repeat(1001))));
+        fails(400,()->service.respond("u001","applicant",a.getId(),null));assertNull(a.getRespondedAt());assertEquals("pending",a.getResponseStatus());assertEquals(before,ds.getNotifications().size());
+    }
+    @Test void cancelledPublishedOfferCannotBeRepliedToOrRepublishedAndNotifiesStudent() {
+        SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineBody());int before=ds.getNotifications().size();
+        service.cancel("u005","organiser",a.getId(),reason());assertEquals(before+1,ds.getNotifications().size());assertEquals("assignment_cancelled",ds.getNotifications().get(before).getType());
+        fails(409,()->service.respond("u001","applicant",a.getId(),decision("accept",null)));fails(409,()->service.publish("u005","organiser",a.getId(),deadlineBody()));
+    }
+    @Test void cancellingAcceptedOfferRetainsAcceptanceButRemovesAcceptedWorkload() {
+        SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineBody());service.respond("u001","applicant",a.getId(),decision("accept",null));String acceptedAt=a.getRespondedAt();
+        service.cancel("u005","organiser",a.getId(),reason());assertEquals("accepted",a.getResponseStatus());assertEquals(acceptedAt,a.getRespondedAt());assertEquals(0,service.acceptedWeeklyHours("u001","period_test"));
+    }
+    @Test void draftsDoNotLeakThroughStudentTotalsAndStaffSeesReservedAndAcceptedSeparately() {
+        SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineBody());
+        CourseSection other=section("another","m001","12:00","13:00");ds.getCourseSections().add(other);service.assign("u005","organiser",body(app,other));
+        JsonObject row=service.list("u001","applicant").getAsJsonArray("assignments").get(0).getAsJsonObject();assertEquals(8.5,row.get("weeklyHoursTotal").getAsDouble());assertFalse(row.has("publishedBy"));assertEquals(17,service.weeklyHours("u001","period_test"));
+        service.respond("u001","applicant",a.getId(),decision("accept",null));assertEquals(8.5,service.acceptedWeeklyHours("u001","period_test"));
+    }
+    @Test void replyNotifiesCurrentCourseOwnerAfterTransfer() {
+        SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineBody());ds.getModules().get(0).setOrganiserId("u006");int before=ds.getNotifications().size();
+        service.respond("u001","applicant",a.getId(),decision("decline","Unable to attend"));assertEquals("u006",ds.getNotifications().get(before).getUserId());
+    }
+    @Test void draftCancellationIsSilentAndCannotBePublished() {
+        SectionAssignment a=assign();int before=ds.getNotifications().size();service.cancel("u005","organiser",a.getId(),reason());assertEquals(before,ds.getNotifications().size());fails(409,()->service.publish("u005","organiser",a.getId(),deadlineBody()));
+    }
+    private com.google.gson.JsonObject deadlineBody() {
+        com.google.gson.JsonObject b=new com.google.gson.JsonObject();b.addProperty("responseDeadline",java.time.Instant.now().plusSeconds(86400).toString());return b;
+    }
+    private void at(String instant) {service=new SectionAssignmentService(data,java.time.Clock.fixed(java.time.Instant.parse(instant),java.time.ZoneOffset.UTC));}
+    private JsonObject deadlineAt(String instant) {JsonObject b=new JsonObject();b.addProperty("responseDeadline",instant);return b;}
+    @Test void publishingRequiresAnExplicitFutureDeadlineWithoutPartialChanges() {
+        at("2026-10-16T12:00:00Z");SectionAssignment a=assign();int notes=ds.getNotifications().size();
+        fails(400,()->service.publish("u005","organiser",a.getId(),new JsonObject()));
+        for(String bad:List.of("not a date","2026-10-16T12:00:00","2026-10-16T12:00:00Z","2026-10-15T12:00:00Z")) fails(400,()->service.publish("u005","organiser",a.getId(),deadlineAt(bad)));
+        assertEquals("draft",a.getPublicationStatus());assertNull(a.getResponseDeadline());assertEquals(notes,ds.getNotifications().size());
+        service.publish("u005","organiser",a.getId(),deadlineAt("2026-10-16T06:00:00-07:00"));assertEquals("2026-10-16T13:00:00Z",a.getResponseDeadline());
+    }
+    @Test void expiryIsExactAtDeadlineIdempotentAndReleasesCapacity() {
+        at("2026-10-16T12:00:00Z");SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineAt("2026-10-16T13:00:00Z"));int notes=ds.getNotifications().size();
+        at("2026-10-16T12:59:59.999Z");assertEquals(0,service.expireDueAssignments());assertEquals("active",a.getStatus());
+        at("2026-10-16T13:00:00Z");assertEquals(1,service.expireDueAssignments());assertEquals("expired",a.getResponseStatus());assertEquals("cancelled",a.getStatus());assertEquals("system",a.getCancelledBy());assertNotNull(a.getExpiredAt());assertNull(a.getRespondedAt());
+        assertEquals(0,service.occupied(section.getId(),app.getPeriodId()));assertEquals(0,service.weeklyHours(app.getApplicantId(),app.getPeriodId()));
+        assertEquals(notes+2,ds.getNotifications().size());assertEquals(0,service.expireDueAssignments());assertEquals(notes+2,ds.getNotifications().size());
+        assertEquals("draft",assign().getPublicationStatus());
+    }
+    @Test void lateRepliesAreRejectedEvenBeforeMaintenanceRuns() {
+        at("2026-10-16T12:00:00Z");SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineAt("2026-10-16T13:00:00Z"));
+        at("2026-10-16T13:00:00Z");fails(409,()->service.respond("u001","applicant",a.getId(),decision("accept",null)));
+        fails(409,()->service.respond("u001","applicant",a.getId(),decision("decline","Late reply")));assertEquals("pending",a.getResponseStatus());assertNull(a.getRespondedAt());
+        service.expireDueAssignments();fails(409,()->service.respond("u001","applicant",a.getId(),decision("accept",null)));fails(409,()->service.publish("u005","organiser",a.getId(),deadlineBody()));
+    }
+    @Test void acceptedRepliesBeforeDeadlineNeverExpire() {
+        at("2026-10-16T12:00:00Z");SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineAt("2026-10-16T13:00:00Z"));
+        at("2026-10-16T12:59:59.999Z");service.respond("u001","applicant",a.getId(),decision("accept",null));
+        at("2026-10-17T12:00:00Z");assertEquals(0,service.expireDueAssignments());assertEquals("accepted",a.getResponseStatus());assertEquals("active",a.getStatus());assertEquals(8.5,service.acceptedWeeklyHours("u001","period_test"));
+    }
+    @Test void declinedCancelledAndDraftRowsDoNotExpireOrNotifyAgain() {
+        at("2026-10-16T12:00:00Z");SectionAssignment a=assign();a.setResponseDeadline("2026-10-15T12:00:00Z");assertEquals(0,service.expireDueAssignments());
+        service.publish("u005","organiser",a.getId(),deadlineAt("2026-10-16T13:00:00Z"));service.respond("u001","applicant",a.getId(),decision("decline","Other plans"));
+        int notes=ds.getNotifications().size();at("2026-10-17T12:00:00Z");assertEquals(0,service.expireDueAssignments());assertEquals(notes,ds.getNotifications().size());assertEquals("declined",a.getResponseStatus());
+    }
+    @Test void expiryNotifiesStudentAndCurrentOwnerAndIsVisibleAsHistory() {
+        at("2026-10-16T12:00:00Z");SectionAssignment a=assign();service.publish("u005","organiser",a.getId(),deadlineAt("2026-10-16T13:00:00Z"));ds.getModules().get(0).setOrganiserId("u006");int notes=ds.getNotifications().size();
+        at("2026-10-16T14:00:00Z");service.expireDueAssignments();assertEquals(Set.of("u001","u006"),new HashSet<>(ds.getNotifications().subList(notes,ds.getNotifications().size()).stream().map(Notification::getUserId).toList()));
+        JsonObject row=service.list("u001","applicant").getAsJsonArray("assignments").get(0).getAsJsonObject();assertEquals("expired",row.get("responseStatus").getAsString());assertTrue(row.has("expiredAt"));assertTrue(row.has("responseDeadline"));assertEquals(0,row.get("weeklyHoursTotal").getAsDouble());
+    }
+    @Test void reportsUseAcceptedLedgerAndHideDraftHoursFromStudents() {
+        SectionAssignment a=assign();AssignmentReportingService reporting=new AssignmentReportingService(ds);
+        assertEquals(0,reporting.workload("u001","period_test",false).get("current").getAsDouble());assertEquals(0,reporting.workload("u001","period_test",false).get("reservedHours").getAsDouble());
+        assertEquals(8.5,reporting.workload("u001","period_test",true).get("reservedHours").getAsDouble());
+        service.publish("u005","organiser",a.getId(),deadlineBody());assertEquals(0,reporting.workload("u001","period_test",false).get("current").getAsDouble());
+        service.respond("u001","applicant",a.getId(),decision("accept",null));assertEquals(8.5,reporting.workload("u001","period_test",false).get("current").getAsDouble());
+        assertEquals(0,reporting.workload("u001","other_period",false).get("current").getAsDouble());
+        service.cancel("u005","organiser",a.getId(),reason());assertEquals(0,reporting.workload("u001","period_test",false).get("current").getAsDouble());
+    }
+ @Test void offerStatusAloneDoesNotBypassSelectionApproval(){ds.getReviewRecords().clear();fails(409,this::assign);assertTrue(ds.getSectionAssignments().isEmpty());}
+}

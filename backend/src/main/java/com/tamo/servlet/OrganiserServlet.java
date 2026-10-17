@@ -62,7 +62,7 @@ public class OrganiserServlet extends HttpServlet {
 
         } else if ("pipeline".equals(path)) {
             String module = req.getParameter("module");
-            JsonUtil.writeJson(resp, service.getPipeline(userId, module));
+            JsonUtil.writeJson(resp, service.getPipeline(userId, module, req.getParameter("periodId")));
 
         } else if (path.matches("applications/[\\w]+")) {
             String appId = path.split("/")[1];

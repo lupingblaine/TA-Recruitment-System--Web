@@ -1,0 +1,7 @@
+﻿Course ID,Course Name,Section Type,Section Schedule (Days/Time),Positions Needed,Required Skills,Preferred Skills
+BIO 93,DNA to Organisms,Lecture,Mon/Wed 09:00 - 10:20,2,"Genetics, Lab Tech","Python, Active Teaching"
+BIO 93,DNA to Organisms,Discussion 1,Tue 11:00 - 12:50,1,Genetics,Public Speaking
+BIO 93,DNA to Organisms,Discussion 2,Thu 14:00 - 15:50,1,Genetics,Public Speaking
+BIO 98,Biochemistry,Lecture,Tue/Thu 10:00 - 11:20,3,Biochemistry,Mass Spectrometry
+BIO E109,Human Physiology,Lab Section A,Wed 13:00 - 16:50,2,"Physiology, Lab Tech",Human Anatomy
+BIO INF1,Bioinformatics,Lab Section 1,Fri 09:00 - 11:50,1,"Python, R, Linux","Git, Slurm"

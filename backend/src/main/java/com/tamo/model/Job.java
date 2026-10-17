@@ -72,6 +72,11 @@ public class Job {
      * The workDates of the entity.
      */
     private List<String> workDates;
+    // Null retains historical course-wide scope; explicit selections belong to one cycle.
+    private List<String> sectionIds;
+    public List<String> getSectionIds() { return sectionIds; }
+    public void setSectionIds(List<String> value) { sectionIds = value; }
+
 
     /**
      * Gets the id.
@@ -253,4 +258,10 @@ public class Job {
      * @param workDates the workdates to set
      */
     public void setWorkDates(List<String> workDates) { this.workDates = workDates; }
+    private com.google.gson.JsonElement matchingCriteria;
+    public com.google.gson.JsonObject getMatchingCriteria(){return matchingCriteria==null||matchingCriteria.isJsonNull()?null:matchingCriteria.getAsJsonObject();}
+    public void setMatchingCriteria(com.google.gson.JsonObject value){matchingCriteria=value;}
+    private com.google.gson.JsonElement periodCriteria;
+    public com.google.gson.JsonObject getPeriodCriteria(){return periodCriteria==null||periodCriteria.isJsonNull()?null:periodCriteria.getAsJsonObject();}
+    public void setPeriodCriteria(com.google.gson.JsonObject value){periodCriteria=value;}
 }

@@ -76,8 +76,8 @@
           <div class="card">
             <div class="p-6 flex items-center justify-between gap-4">
               <div>
-                <p class="text-sm font-medium text-zinc-500">Admin Notifications</p>
-                <h3 class="text-lg font-semibold text-zinc-900">Receive messages from AD</h3>
+                <p class="text-sm font-medium text-zinc-500">Notifications</p>
+                <h3 class="text-lg font-semibold text-zinc-900">Recruitment updates</h3>
               </div>
               <button type="button" onclick="markAllNotificationsRead()"
                 class="btn btn-ghost text-sm text-zinc-600 hover:text-zinc-900">
@@ -99,7 +99,7 @@
           const notifications = await organiserApi.getNotifications();
           const container = document.getElementById('organiserNotifications');
           if (!notifications || notifications.length === 0) {
-            container.innerHTML = '<div class="p-6 text-center text-zinc-400">No notifications from AD</div>';
+            container.innerHTML = '<div class="p-6 text-center text-zinc-400">No notifications yet</div>';
             return;
           }
 
@@ -108,8 +108,9 @@
             return '<div class="p-6 hover:bg-zinc-50 transition-colors ' + readClass + '">' +
               '<div class="flex items-start justify-between gap-4">' +
               '<div>' +
-              '<p class="text-sm font-semibold text-zinc-900">' + (notif.title || 'Notification') + '</p>' +
-              '<p class="text-sm text-zinc-500 mt-1">' + (notif.message || '') + '</p>' +
+              '<p class="text-sm font-semibold text-zinc-900">' + notificationText(notif.title || 'Notification') + '</p>' +
+              '<p class="text-sm text-zinc-500 mt-1">' + notificationText(notif.message || '') + '</p>' +
+              ((notif.type || '').startsWith('assignment_') ? '<a class="text-sm text-blue-600 underline" href="' + getNotificationLink(notif) + '">Review assignment</a>' : '') +
               '</div>' +
               '<button type="button" onclick="markNotificationRead(\'' + notif.id + '\')" class="text-xs text-blue-600 hover:underline">Mark read</button>' +
               '</div>' +
@@ -161,7 +162,8 @@
               .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
               .slice(0, 5);
 
-            actDiv.innerHTML = sortedInterviews.map(iv => {
+            actDiv.innerHTML = sortedInterviews.map(original => {
+              const iv=escapeDisplay(original);
               const isCancelled = iv.status === 'cancelled';
               const isCompleted = iv.status === 'completed';
               const statusLabel = isCancelled ? 'Cancelled' : isCompleted ? 'Completed' : 'Upcoming';
@@ -185,7 +187,8 @@
           if (jobs.length === 0) {
             posDiv.innerHTML = '<div class="p-6 text-center text-zinc-400">No active postings</div>';
           } else {
-            posDiv.innerHTML = jobs.map(j => {
+            posDiv.innerHTML = jobs.map(original => {
+              const j=escapeDisplay(original);
               const pct = Math.min(100, ((j.applicationCount || 0) / 100) * 100);
               return '<div class="p-6">' +
                 '<div class="flex justify-between items-start mb-2">' +

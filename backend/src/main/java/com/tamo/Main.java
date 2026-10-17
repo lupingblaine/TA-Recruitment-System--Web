@@ -11,7 +11,7 @@ import java.io.File;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        // In embedded Tomcat, Listener's getRealPath may be null, must initialize data layer before startup
+        // Initialize PostgreSQL and import legacy data before starting the web server.
         String classesDir = new File("target/classes").getAbsolutePath();
         JsonDataService.ensureInitialized(classesDir);
 

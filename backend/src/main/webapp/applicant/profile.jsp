@@ -17,6 +17,7 @@
       </div>
 
       <div class="grid gap-8" id="profileContent">
+        <div class="card p-6"><h2 class="text-xl font-semibold mb-2">Weekly Availability</h2><p class="text-sm text-zinc-500 mb-4">Save your working times, known conflicts and restrictions separately for each application period.</p><a href="availability.jsp" class="btn btn-outline">Manage weekly availability</a></div>
         <!-- Personal Information -->
         <div class="card fade-in">
           <div class="p-6 border-b border-zinc-100 flex justify-between items-center">
@@ -202,8 +203,9 @@
           '<div class="border border-zinc-200 rounded-xl p-4 flex justify-between items-center bg-zinc-50 mb-3">' +
           '<div class="flex items-center gap-4">' +
           '<div class="h-10 w-10 bg-red-100 text-red-600 rounded-lg flex items-center justify-center"><i data-lucide="file-text" class="h-5 w-5"></i></div>' +
-          '<div><p class="font-medium text-zinc-900">' + (d.name || 'Untitled') + '</p><p class="text-sm text-zinc-500">' + (d.size || '') + '</p></div>' +
+          '<div><p class="font-medium text-zinc-900">' + notificationText(d.name || 'Untitled') + '</p><p class="text-sm text-zinc-500">' + (d.size || '') + '</p></div>' +
           '</div>' +
+          '<a class="btn btn-outline" href="'+CTX+'/api/documents/'+encodeURIComponent(d.id)+'">Download</a>'+
           '<button onclick="deleteDoc(\'' + d.id + '\')" class="btn btn-ghost text-red-500 hover:text-red-600 text-sm">Delete</button>' +
           '</div>'
         ).join('') : '<p class="text-zinc-400 text-sm">No documents uploaded</p>';

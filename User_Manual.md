@@ -1,3 +1,9 @@
+> Sponsor-aligned forms and CSV import/export are implemented. See [CSV workflow guide](SPONSOR_CSV_GUIDE_zh.md).
+
+> For the current proposal workflow, permissions, and backup verification, see [handoff notes](PROPOSAL_HANDOFF_zh.md). CSV import/export is covered in the guide above.
+
+> The local version now uses PostgreSQL. See [database setup, backup, and restore](DATABASE_zh.md). Local URL: `http://localhost:8080/tamo/`.
+
 [English](User_Manual.md) | [简体中文](User_Manual_zh.md)
 
 # TA&MO User Manual
@@ -231,7 +237,7 @@ Oversee registration and role assignments.
 - 🔹 **Account Actions**: Suspend or delete malicious users.
 
 ### Edit persistent data directly
-Bypass business logic to execute raw CRUD operations on the JSON datastore.
+Bypass business logic to manage PostgreSQL records through the existing collection API; database constraints still apply.
 
 ![Data Editor](screenshot/24_admin_data_editor.png)
 **UI Breakdown:**

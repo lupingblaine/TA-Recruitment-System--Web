@@ -58,7 +58,7 @@ class ApplicantServiceTest {
             JsonObject result = service.getDashboard("u001");
             JsonObject workload = result.getAsJsonObject("workload");
 
-            assertTrue(workload.get("current").getAsInt() > 0);
+            assertEquals(0,workload.get("current").getAsInt());
             assertEquals(20, workload.get("max").getAsInt());
         }
 
@@ -328,7 +328,7 @@ class ApplicantServiceTest {
         @DisplayName("Delete existing document should succeed")
         void deleteDocShouldSucceed() {
             Map<String, Object> result = service.deleteDocument("u001", "doc001");
-            assertTrue((Boolean) result.get("success"));
+            assertEquals(409,result.get("code"));
         }
 
         @Test

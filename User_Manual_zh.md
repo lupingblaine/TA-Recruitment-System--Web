@@ -1,3 +1,25 @@
+> 当前版本：**Version 1（v1.0）**。本版本的完整改动说明见 [Version 1 版本说明](VERSION_1_zh.md)。
+
+> Sponsor 新版字段、技能多选与 CSV 已实现，使用步骤见 [Sponsor 表单与 CSV 说明](SPONSOR_CSV_GUIDE_zh.md)。
+
+> 当前 Proposal 流程与角色权限，以 [功能交接与验收](PROPOSAL_HANDOFF_zh.md) 为准（CSV 见上方新说明）。
+
+> 新功能：[回复截止时间、倒计时与自动释放名额](REPLY_DEADLINES_zh.md)。
+
+> 新功能：[录用安排发布、学生接受/拒绝和站内通知](OFFER_RESPONSES_zh.md)。
+
+> 新功能：[TA 正式分配与 My Assignments](TA_ASSIGNMENTS_zh.md)。
+
+> 新功能：[Section 时间匹配与筛选](SECTION_MATCHING_zh.md)（Organiser 审核申请）。
+
+> 新增：管理员和 Organiser 可在 **Course Sections** 维护上课时段及 TA 需求。详见 [课程 Section 说明](COURSE_SECTIONS_zh.md)。
+
+> 新增：学生可在 **Weekly Availability** 按申请周期填写时间安排，提交申请时保存快照。详见 [每周可用时间说明](WEEKLY_AVAILABILITY_zh.md)。
+
+> 新增：管理员可在 **Application Periods** 管理申请周期。操作步骤和规则见 [申请周期管理说明](APPLICATION_PERIODS_zh.md)。
+
+> 本地版本已迁移至 PostgreSQL。启动、数据备份与恢复见 [数据库使用说明](DATABASE_zh.md)。本地访问地址为 `http://localhost:8080/tamo/`。
+
 [English](User_Manual.md) | [简体中文](User_Manual_zh.md)
 
 # TA&MO 用户手册
@@ -141,6 +163,13 @@ TA&MO 平台是一个强大的、基于角色的助教招聘与管理系统。�
 - 🔹 **创建新职位**: 触发创建新岗位的表单。
 - 🔹 **职位列表**: 对各条目执行切换可见状态或编辑详情等操作。
 
+**创建职位时设置时间（更新）：**
+先在 **Course Sections** 中为课程和申请周期创建 Lecture、Lab 或 Discussion，并设置每周上课时间。同一个 Section 每周上多天课时，点击 **Add meeting time** 增加时间段。
+
+在 **TA Positions → Create Posting** 中选择 **Course**，再在 **Sections & Weekly Schedule** 勾选该职位覆盖的 Section，可同时选择 Lecture 和 Lab，但必须属于同一个申请周期。系统自动显示各 Section 的全部上课时间，统一使用 UCI 时区。旧的 **Work Schedule / Day of Week / Generate** 已移除。
+
+Section 选择表示职位的招聘范围；具体哪位 TA 承担哪些 Section，仍需审核后分配。已有申请的职位不能修改 Section 范围，应新建职位。历史职位未绑定 Section 时保留原来的课程范围；历史日期不再作为排课依据。
+
 ### 推进候选人流水线
 使用 Kanban（看板）工具管理招聘阶段。
 
@@ -231,7 +260,7 @@ TA&MO 平台是一个强大的、基于角色的助教招聘与管理系统。�
 - 🔹 **账号操作**: 具备暂停或删除恶意用户的能力。
 
 ### 直接编辑持久化数据
-绕过所有业务逻辑，直接对底层 JSON 数据存储执行 CRUD 原生操作。
+绕过所有业务逻辑，通过现有集合接口管理 PostgreSQL 中的数据；数据库仍会执行唯一性和关联约束检查。
 
 ![数据编辑器](screenshot/24_admin_data_editor.png)
 **UI 功能分解:**

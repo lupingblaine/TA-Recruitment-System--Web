@@ -79,7 +79,7 @@ public class AdminServlet extends HttpServlet {
             case "workload" -> {
                 String keyword = req.getParameter("keyword");
                 String status = req.getParameter("status");
-                JsonUtil.writeJson(resp, service.getWorkload(keyword, status));
+                JsonUtil.writeJson(resp, service.getWorkload(keyword, status,req.getParameter("periodId")));
             }
 
             case "data-editor/collections" -> JsonUtil.writeJson(resp, service.getCollectionNames());

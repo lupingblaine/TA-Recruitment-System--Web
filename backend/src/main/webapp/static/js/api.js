@@ -22,7 +22,11 @@ const authApi = {
 };
 
 const applicantApi = {
-  getDashboard: () => request('/applicant/dashboard'),
+  getDashboard: (periodId) => request('/applicant/dashboard'+(periodId?'?periodId='+encodeURIComponent(periodId):'')),
+  getApplicationPeriod: () => request('/applicant/application-period'),
+  getAvailabilityPeriods: () => request('/applicant/availability-periods'),
+  getAvailability: (periodId) => request('/applicant/availability/' + encodeURIComponent(periodId)),
+  saveAvailability: (periodId, data) => request('/applicant/availability/' + encodeURIComponent(periodId), { method:'PUT', body:JSON.stringify(data) }),
   getNotifications: () => request('/applicant/notifications'),
   markNotificationRead: (id) => request('/applicant/notifications/' + id + '/read', { method: 'PUT' }),
   markAllNotificationsRead: () => request('/applicant/notifications/read-all', { method: 'PUT' }),
@@ -31,9 +35,9 @@ const applicantApi = {
     return request('/applicant/jobs' + q);
   },
   getJobById: (id) => request('/applicant/jobs/' + id),
-  applyForJob: (jobId, coverLetter, documentIds) =>
-    request('/applicant/jobs/' + jobId + '/apply', { method: 'POST', body: JSON.stringify({ coverLetter, documentIds }) }),
-  getApplications: () => request('/applicant/applications'),
+  applyForJob: (jobId, coverLetter, documentIds, periodId) =>
+    request('/applicant/jobs/' + jobId + '/apply', { method: 'POST', body: JSON.stringify({ coverLetter, documentIds, periodId }) }),
+  getApplications: (periodId) => request('/applicant/applications' + (periodId ? '?periodId=' + encodeURIComponent(periodId) : '')),
   getApplicationById: (id) => request('/applicant/applications/' + id),
   withdrawApplication: (id) => request('/applicant/applications/' + id, { method: 'DELETE' }),
   getProfile: () => request('/applicant/profile'),
@@ -50,8 +54,12 @@ const organiserApi = {
   createJob: (data) => request('/organiser/jobs', { method: 'POST', body: JSON.stringify(data) }),
   updateJob: (id, data) => request('/organiser/jobs/' + id, { method: 'PUT', body: JSON.stringify(data) }),
   deleteJob: (id) => request('/organiser/jobs/' + id, { method: 'DELETE' }),
-  getPipeline: (module) => {
-    const q = module && module !== 'All' ? '?module=' + module : '';
+  getApplicationPeriods: () => request('/organiser/application-periods'),
+  getPipeline: (module, periodId) => {
+    const params = new URLSearchParams();
+    if (module && module !== 'All') params.set('module', module);
+    if (periodId) params.set('periodId', periodId);
+    const q = params.size ? '?' + params.toString() : '';
     return request('/organiser/pipeline' + q);
   },
   updateCandidateStatus: (appId, status) =>
@@ -69,6 +77,11 @@ const organiserApi = {
 };
 
 const adminApi = {
+  getApplicationPeriods: () => request('/admin/application-periods'),
+  createApplicationPeriod: (data) => request('/admin/application-periods', { method: 'POST', body: JSON.stringify(data) }),
+  updateApplicationPeriod: (id, data) => request('/admin/application-periods/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+  changeApplicationPeriodStatus: (id, action) => request('/admin/application-periods/' + id + '/' + action, { method: 'POST' }),
+  getPeriodApplications: (id) => request('/admin/application-periods/' + id + '/applications'),
   getDashboard: () => request('/admin/dashboard'),
   getUsers: (params) => {
     const q = params ? '?' + new URLSearchParams(params).toString() : '';

@@ -1,0 +1,13 @@
+package com.tamo.service;
+import com.google.gson.*;
+import com.tamo.model.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+class CriteriaMatchingServiceTest{
+ JsonObject criteria(){return CriteriaMatchingService.validate(JsonParser.parseString("{\"requiredSkills\":[\"Python\"],\"preferredSkills\":[\"Microscopy\"],\"subjectInterests\":[\"Biology\"],\"studentLevels\":[\"masters\"],\"trainingRequired\":true,\"teachingExperiencePreferred\":true}").getAsJsonObject());}
+ @Test void explainsRequiredAndPreferredAndIsDeterministic(){Job j=new Job();j.setMatchingCriteria(criteria());Application a=new Application();a.setQualificationSnapshot(JsonParser.parseString("{\"skills\":[\"python\"],\"interests\":[\"BIOLOGY\"],\"studentLevel\":\"masters\",\"trainingStatus\":\"completed\",\"teachingExperience\":\"TA last year\"}").getAsJsonObject());var service=new CriteriaMatchingService();JsonObject r=service.evaluate(a,j);assertEquals("meets_required",r.get("status").getAsString());assertEquals(1,r.getAsJsonArray("unmatchedPreferred").size());assertEquals(r,service.evaluate(a,j));assertTrue(r.get("score").getAsInt()<100);}
+ @Test void neverUsesLiveProfileOrInventsHistoricalScore(){Job j=new Job();j.setMatchingCriteria(criteria());Application a=new Application();JsonObject r=new CriteriaMatchingService().evaluate(a,j);assertEquals("needs_confirmation",r.get("status").getAsString());assertTrue(r.get("score").isJsonNull());}
+ @Test void missingRequiredIsAReviewHintRatherThanSelection(){Job j=new Job();j.setMatchingCriteria(criteria());Application a=new Application();a.setStatus("applied");a.setQualificationSnapshot(JsonParser.parseString("{\"skills\":[],\"interests\":[],\"studentLevel\":\"phd\",\"trainingStatus\":\"not_started\"}").getAsJsonObject());JsonObject r=new CriteriaMatchingService().evaluate(a,j);assertEquals("missing_required",r.get("status").getAsString());assertEquals(3,r.getAsJsonArray("missingRequired").size());assertEquals("applied",a.getStatus());}
+ @Test void rejectsInvalidPolicyAndDeduplicatesTerms(){JsonObject c=criteria();c.getAsJsonArray("studentLevels").add("unknown");assertThrows(QualificationService.Problem.class,()->CriteriaMatchingService.validate(c));}
+ @Test void cycleCriteriaNeverLeakIntoAnotherCycle(){Job j=new Job();JsonObject all=new JsonObject();all.add("cycle_a",criteria());j.setPeriodCriteria(all);Application a=new Application();a.setPeriodId("cycle_b");a.setQualificationSnapshot(new JsonObject());assertEquals("needs_confirmation",new CriteriaMatchingService().evaluate(a,j).get("status").getAsString());a.setPeriodId("cycle_a");assertEquals("missing_required",new CriteriaMatchingService().evaluate(a,j).get("status").getAsString());}
+}

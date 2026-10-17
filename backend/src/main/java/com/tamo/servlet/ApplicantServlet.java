@@ -34,7 +34,6 @@ public class ApplicantServlet extends HttpServlet {
 
     private ApplicantService service;
     private JsonDataService dataService;
-    private static final Path UPLOAD_DIR = Paths.get("src", "main", "webapp", "static", "uploads", "organiser");
 
     @Override
     /**
@@ -66,8 +65,16 @@ public class ApplicantServlet extends HttpServlet {
         String path = JsonUtil.getPathInfo(req);
         String userId = getUserId(req);
 
-        if ("dashboard".equals(path)) {
-            JsonUtil.writeJson(resp, service.getDashboard(userId));
+        if("qualification-options".equals(path)){JsonUtil.writeJson(resp,com.tamo.service.SkillCatalogService.options(dataService.getData()));
+        } else if ("availability-periods".equals(path)) {
+            JsonUtil.writeJson(resp, new com.tamo.service.AvailabilityService(dataService).periods());
+        } else if (path.matches("availability/[\\w]+")) {
+            try { JsonUtil.writeJson(resp, new com.tamo.service.AvailabilityService(dataService).get(userId, path.split("/")[1])); }
+            catch (com.tamo.service.AvailabilityService.Problem e) { JsonUtil.writeError(resp, e.status, e.getMessage()); }
+        } else if ("application-period".equals(path)) {
+            JsonUtil.writeJson(resp, new com.tamo.service.ApplicationPeriodService(dataService).current());
+        } else if ("dashboard".equals(path)) {
+            JsonUtil.writeJson(resp, service.getDashboard(userId,req.getParameter("periodId")));
 
         } else if ("jobs".equals(path)) {
             String keyword = req.getParameter("keyword");
@@ -82,11 +89,14 @@ public class ApplicantServlet extends HttpServlet {
             if (job == null) {
                 JsonUtil.writeError(resp, 404, "Job not found");
             } else {
-                JsonUtil.writeJson(resp, job);
+                JsonObject detail=JsonUtil.getGson().toJsonTree(job).getAsJsonObject();
+                detail.add("sections", JsonUtil.getGson().toJsonTree(dataService.getData().getCourseSections().stream()
+                    .filter(s->java.util.Objects.equals(s.getModuleId(),job.getModuleId()) && "active".equals(s.getStatus()) && com.tamo.service.JobSectionService.includes(job,s)).toList()));
+                JsonUtil.writeJson(resp, detail);
             }
 
         } else if ("applications".equals(path)) {
-            JsonUtil.writeJson(resp, service.getMyApplications(userId));
+            JsonUtil.writeJson(resp, service.getMyApplications(userId, req.getParameter("periodId")));
 
         } else if (path.matches("applications/[\\w]+")) {
             String appId = path.split("/")[1];
@@ -99,6 +109,8 @@ public class ApplicantServlet extends HttpServlet {
                 JsonUtil.writeJson(resp, result.get("data"));
             }
 
+        } else if ("qualifications".equals(path)) {
+            try{JsonUtil.writeJson(resp,new com.tamo.service.QualificationService(dataService).get(userId));}catch(com.tamo.service.QualificationService.Problem e){JsonUtil.writeError(resp,e.status,e.getMessage());}
         } else if ("profile".equals(path)) {
             JsonObject profile = service.getProfile(userId);
             if (profile == null) {
@@ -134,7 +146,8 @@ public class ApplicantServlet extends HttpServlet {
                 body.getAsJsonArray("documentIds").forEach(e -> documentIds.add(e.getAsString()));
             }
 
-            Map<String, Object> result = service.applyForJob(userId, jobId, coverLetter, documentIds);
+            Map<String, Object> result = service.applyForJob(userId, jobId, coverLetter, documentIds,
+                    body.has("periodId") && !body.get("periodId").isJsonNull() ? body.get("periodId").getAsString() : null);
             if (result.containsKey("error")) {
                 int code = (int) result.get("code");
                 JsonUtil.writeError(resp, code, (String) result.get("error"));
@@ -146,68 +159,19 @@ public class ApplicantServlet extends HttpServlet {
             }
 
         } else if ("profile/documents".equals(path)) {
-            // Real file upload via multipart/form-data
-            String fileName = null;
-            String fileType = "cv";
-            long fileSize = 0;
-
+            if(req.getContentType()==null||!req.getContentType().toLowerCase(java.util.Locale.ROOT).startsWith("multipart/form-data")){JsonUtil.writeError(resp,415,"Upload an actual file using multipart/form-data.");return;}
             try {
-                Part filePart = req.getPart("file");
-                if (filePart != null) {
-                    fileName = filePart.getSubmittedFileName();
-                    if (fileName == null || fileName.isBlank()) {
-                        // Fallback: JSON body for backward compatibility
-                        JsonObject body = JsonUtil.readRequestBodyAsJson(req);
-                        fileName = body.has("fileName") ? body.get("fileName").getAsString() : null;
-                        fileType = body.has("fileType") ? body.get("fileType").getAsString() : "cv";
-                        String sizeStr = body.has("fileSize") ? body.get("fileSize").getAsString() : "0 MB";
-                        Map<String, Object> result = service.uploadDocument(userId, fileName, fileType, sizeStr);
-                        if (result.containsKey("error")) {
-                            JsonUtil.writeError(resp, (int) result.get("code"), (String) result.get("error"));
-                        } else {
-                            resp.setStatus(201);
-                            JsonUtil.writeJson(resp, result.get("document"));
-                        }
-                        return;
-                    }
-
-                    fileSize = filePart.getSize();
-                    // Ensure upload directory exists
-                    Files.createDirectories(UPLOAD_DIR);
-                    Path targetPath = UPLOAD_DIR.resolve(fileName);
-                    try (InputStream is = filePart.getInputStream()) {
-                        Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
-
-                    // Determine file type from extension
-                    String ext = "";
-                    int dotIdx = fileName.lastIndexOf('.');
-                    if (dotIdx >= 0) ext = fileName.substring(dotIdx + 1).toLowerCase();
-                    fileType = ext.isEmpty() ? "file" : ext;
-
-                    // Format file size for display
-                    String sizeStr;
-                    if (fileSize < 1024) sizeStr = fileSize + " B";
-                    else if (fileSize < 1024 * 1024) sizeStr = String.format("%.1f KB", fileSize / 1024.0);
-                    else sizeStr = String.format("%.1f MB", fileSize / (1024.0 * 1024.0));
-
-                    Map<String, Object> result = service.uploadDocument(userId, fileName, fileType, sizeStr);
-                    if (result.containsKey("error")) {
-                        // Clean up file if metadata save fails
-                        Files.deleteIfExists(targetPath);
-                        JsonUtil.writeError(resp, (int) result.get("code"), (String) result.get("error"));
-                    } else {
-                        resp.setStatus(201);
-                        JsonUtil.writeJson(resp, result.get("document"));
-                        dataService.addLog("Document Uploaded", "info", getUserName(req), userId,
-                                "Uploaded document: " + fileName + " (" + sizeStr + ")", req.getRemoteAddr());
-                    }
-                } else {
-                    JsonUtil.writeError(resp, 400, "No file uploaded");
-                }
-            } catch (Exception e) {
-                JsonUtil.writeError(resp, 500, "Upload failed: " + e.getMessage());
-            }
+                Part part=req.getPart("file");String name=part==null?null:part.getSubmittedFileName();
+                if(name==null||name.isBlank()||name.contains("/")||name.contains("\\")||name.contains("\r")||name.contains("\n")||name.length()>200){JsonUtil.writeError(resp,400,"Use a valid file name without directory paths.");return;}
+                String ext=name.substring(name.lastIndexOf('.')+1).toLowerCase(java.util.Locale.ROOT);
+                if(!java.util.Set.of("pdf","doc","docx","txt","png","jpg","jpeg").contains(ext)||part.getSize()==0||part.getSize()>10*1024*1024){JsonUtil.writeError(resp,400,"Upload a supported non-empty file up to 10 MB.");return;}
+                Files.createDirectories(com.tamo.service.PrivateDocuments.ROOT);String key=java.util.UUID.randomUUID().toString()+"."+ext;Path target=com.tamo.service.PrivateDocuments.ROOT.resolve(key);
+                try(InputStream input=part.getInputStream()){Files.copy(input,target);}
+                Map<String,Object> result=service.uploadDocument(userId,name,ext,part.getSize()+" bytes");
+                if(result.containsKey("error")){Files.deleteIfExists(target);JsonUtil.writeError(resp,(int)result.get("code"),(String)result.get("error"));return;}
+                com.tamo.model.Profile.Document doc=(com.tamo.model.Profile.Document)result.get("document");doc.setStorageKey(key);dataService.save();resp.setStatus(201);JsonUtil.writeJson(resp,doc);
+                dataService.addLog("Document Uploaded","info",getUserName(req),userId,"Uploaded private document "+doc.getId(),req.getRemoteAddr());
+            }catch(IllegalStateException e){JsonUtil.writeError(resp,400,"File exceeds the upload limit.");}catch(Exception e){getServletContext().log("Private upload failed",e);JsonUtil.writeError(resp,500,"Upload could not be saved.");}
 
         } else {
             JsonUtil.writeError(resp, 404, "Endpoint not found");
@@ -224,7 +188,17 @@ public class ApplicantServlet extends HttpServlet {
         String path = JsonUtil.getPathInfo(req);
         String userId = getUserId(req);
 
-        if ("profile".equals(path)) {
+        if (path.matches("availability/[\\w]+")) {
+            try {
+                var availability = new com.tamo.service.AvailabilityService(dataService).save(userId, path.split("/")[1], JsonUtil.readRequestBodyAsJson(req));
+                dataService.addLog("Availability Updated", "info", getUserName(req), userId,
+                        "Updated weekly availability for period " + availability.getPeriodId(), req.getRemoteAddr());
+                JsonUtil.writeJson(resp, availability);
+            } catch (com.tamo.service.AvailabilityService.Problem e) { JsonUtil.writeError(resp, e.status, e.getMessage()); }
+            catch (com.google.gson.JsonParseException e) { JsonUtil.writeError(resp, 400, "Invalid JSON request."); }
+        } else if ("qualifications".equals(path)) {
+            try{JsonUtil.writeJson(resp,new com.tamo.service.QualificationService(dataService).save(userId,JsonUtil.readRequestBodyAsJson(req)));}catch(com.tamo.service.QualificationService.Problem e){JsonUtil.writeError(resp,e.status,e.getMessage());}
+        } else if ("profile".equals(path)) {
             JsonObject body = JsonUtil.readRequestBodyAsJson(req);
             String error = service.updateProfile(userId, body);
             if (error == null) {

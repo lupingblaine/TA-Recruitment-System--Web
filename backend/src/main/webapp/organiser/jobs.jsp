@@ -30,15 +30,15 @@
               class="input" placeholder="Teaching Assistant - Data Structures"></div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-zinc-700 mb-1.5">Module</label>
+              <label class="block text-sm font-medium text-zinc-700 mb-1.5">Course</label>
               <select id="jModule" class="input" onchange="onModuleChange()">
-                <option value="">Loading your modules...</option>
+                <option value="">Loading your courses...</option>
               </select>
-              <p id="jModuleHint" class="hidden text-xs text-amber-600 mt-1.5">You are not assigned to any module yet. Please ask an admin to assign you as the organiser of a module before posting jobs.</p>
+              <p id="jModuleHint" class="hidden text-xs text-amber-600 mt-1.5">You are not assigned to any course yet. Please ask an admin to assign you as the organiser of a course before posting jobs.</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-zinc-700 mb-1.5">Department</label>
-              <input id="jDept" class="input bg-zinc-50" placeholder="Auto-filled from module" readonly>
+              <input id="jDept" class="input bg-zinc-50" placeholder="Auto-filled from course" readonly>
             </div>
           </div>
           <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Description</label><textarea id="jDesc"
@@ -57,24 +57,12 @@
           </div>
           <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Deadline</label><input id="jDeadline"
               type="date" class="input"></div>
-          <!-- Work Schedule Quick Generator -->
-          <div class="border border-zinc-200 rounded-xl p-4 space-y-3 bg-zinc-50/50">
-            <label class="block text-sm font-bold text-zinc-800">Work Schedule</label>
-            <div class="flex flex-wrap gap-2 items-end">
-              <div class="flex-1 min-w-[120px]"><label class="block text-xs text-zinc-500 mb-1">Start Date</label><input id="wsStart" type="date" class="input text-sm"></div>
-              <div class="w-24"><label class="block text-xs text-zinc-500 mb-1">Weeks</label><input id="wsWeeks" type="number" min="1" max="52" value="12" class="input text-sm"></div>
-              <div class="flex-1 min-w-[140px]">
-                <label class="block text-xs text-zinc-500 mb-1">Day of Week</label>
-                <select id="wsDay" class="input text-sm">
-                  <option value="1">Monday</option><option value="2">Tuesday</option><option value="3" selected>Wednesday</option>
-                  <option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option>
-                </select>
-              </div>
-              <button type="button" onclick="generateWorkDates()" class="btn btn-outline text-sm gap-1 shrink-0"><i data-lucide="calendar-plus" class="h-3.5 w-3.5"></i> Generate</button>
-            </div>
-            <div id="workDatesList" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto"></div>
-            <p class="text-xs text-zinc-400" id="workDatesCount">No dates set</p>
-          </div>
+          <section class="border border-zinc-200 rounded-xl p-4 space-y-3 bg-zinc-50/50" aria-labelledby="postingSectionsHeading">
+            <h3 id="postingSectionsHeading" class="font-bold text-zinc-800">Sections &amp; Weekly Schedule</h3>
+            <p class="text-xs text-zinc-600">Select the Lecture, Lab or Discussion Sections covered by this posting, within one application cycle. All meeting times use America/Los_Angeles. Individual TA assignments are confirmed separately.</p>
+            <div id="postingSections" class="space-y-3" aria-live="polite">Select a course to see its Sections.</div>
+            <a href="course-sections.jsp" class="text-sm text-indigo-600 underline">Manage Course Sections</a>
+          </section>
           <div id="jobError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
           </div>
         </div>
@@ -90,10 +78,12 @@
       const ctx = document.querySelector('meta[name="ctx"]').content;
 
       let myModules = [];
+      let postingPeriods = [];
 
       async function loadMyModules() {
         try {
-          const data = await organiserApi.getMyModules();
+          const [data, periods] = await Promise.all([organiserApi.getMyModules(), organiserApi.getApplicationPeriods()]);
+          postingPeriods = periods || [];
           myModules = data.modules || data || [];
           renderModuleOptions();
         } catch (e) {
@@ -108,26 +98,28 @@
         const hint = document.getElementById('jModuleHint');
         if (!sel) return;
         if (!myModules || myModules.length === 0) {
-          sel.innerHTML = '<option value="">No modules assigned to you</option>';
+          sel.innerHTML = '<option value="">No courses assigned to you</option>';
           sel.disabled = true;
           if (hint) hint.classList.remove('hidden');
           return;
         }
         sel.disabled = false;
         if (hint) hint.classList.add('hidden');
-        const opts = ['<option value="">Select a module...</option>']
-          .concat(myModules.map(m => {
+        const opts = ['<option value="">Select a course...</option>']
+          .concat(myModules.map(original => {
+            const m=escapeDisplay(original);
             const label = (m.code || '') + (m.name ? ' \u2014 ' + m.name : '');
-            const isSel = selectedCode && selectedCode === m.code ? ' selected' : '';
-            return '<option value="' + m.code + '"' + isSel + '>' + label + '</option>';
+            const isSel = selectedCode && selectedCode === original.id ? ' selected' : '';
+            return '<option value="' + m.id + '"' + isSel + '>' + label + '</option>';
           }));
         sel.innerHTML = opts.join('');
       }
 
       function onModuleChange() {
         const code = document.getElementById('jModule').value;
-        const mod = myModules.find(m => m.code === code);
+        const mod = myModules.find(m => m.id === code);
         document.getElementById('jDept').value = mod && mod.department ? mod.department : '';
+        loadPostingSections(mod ? mod.id : '', []);
       }
 
       async function loadJobs() {
@@ -141,7 +133,8 @@
             return;
           }
 
-          container.innerHTML = jobs.map(job => {
+          container.innerHTML = jobs.map(original => {
+            const job=escapeDisplay(original);
             const statusBadge = job.status === 'active' ? 'badge-success' : 'badge-outline';
             return '<div class="card hover:shadow-md transition-shadow fade-in"><div class="p-6">' +
               '<div class="flex flex-col md:flex-row gap-6 justify-between">' +
@@ -180,7 +173,7 @@
 
       function openCreate() {
         if (!myModules || myModules.length === 0) {
-          showToast('You have no modules assigned. Please ask an admin to assign you as the organiser of a module first.', 'error');
+          showToast('You have no courses assigned. Please ask an admin to assign you as the organiser of a course first.', 'error');
           return;
         }
         document.getElementById('editJobId').value = '';
@@ -195,8 +188,8 @@
         document.getElementById('jDeadline').value = '';
         document.getElementById('jDeadline').min = new Date().toISOString().split('T')[0];
         document.getElementById('jobError').classList.add('hidden');
-        currentWorkDates = [];
-        renderWorkDates();
+        legacySectionScope = false;
+        loadPostingSections('', []);
         document.getElementById('jobModal').classList.add('show');
       }
 
@@ -209,7 +202,7 @@
           document.getElementById('modalTitle').textContent = 'Edit Posting';
           document.getElementById('saveBtn').textContent = 'Update';
           document.getElementById('jTitle').value = job.title || '';
-          renderModuleOptions(job.moduleCode || '');
+          renderModuleOptions(job.moduleId || '');
           document.getElementById('jDept').value = job.department || '';
           document.getElementById('jDesc').value = job.description || '';
           document.getElementById('jPositions').value = job.positions || 1;
@@ -217,64 +210,48 @@
           document.getElementById('jDeadline').value = job.deadline || '';
           document.getElementById('jDeadline').min = new Date().toISOString().split('T')[0];
           document.getElementById('jobError').classList.add('hidden');
-          currentWorkDates = Array.isArray(job.workDates) ? [...job.workDates] : [];
-          renderWorkDates();
+          legacySectionScope = !Array.isArray(job.sectionIds);
+          await loadPostingSections(job.moduleId, job.sectionIds || []);
+          document.getElementById('jType').value = job.type || 'Part-time';
           document.getElementById('jobModal').classList.add('show');
         } catch (e) { showToast(e.message, 'error'); }
       }
 
-      let currentWorkDates = [];
-
-      function formatLocalDate(d) {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return y + '-' + m + '-' + day;
-      }
-
-      function generateWorkDates() {
-        const startStr = document.getElementById('wsStart').value;
-        const weeks = parseInt(document.getElementById('wsWeeks').value) || 12;
-        const targetDay = parseInt(document.getElementById('wsDay').value);
-        if (!startStr) { showToast('Please select a start date', 'error'); return; }
-
-        const parts = startStr.split('-');
-        const start = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-        const dayDiff = (targetDay - start.getDay() + 7) % 7;
-        const firstTarget = new Date(start);
-        firstTarget.setDate(start.getDate() + dayDiff);
-
-        const dates = [];
-        for (let i = 0; i < weeks; i++) {
-          const d = new Date(firstTarget.getFullYear(), firstTarget.getMonth(), firstTarget.getDate() + i * 7);
-          dates.push(formatLocalDate(d));
-        }
-        currentWorkDates = dates;
-        renderWorkDates();
-      }
-
-      function removeWorkDate(idx) {
-        currentWorkDates.splice(idx, 1);
-        renderWorkDates();
-      }
-
-      function renderWorkDates() {
-        const el = document.getElementById('workDatesList');
-        const countEl = document.getElementById('workDatesCount');
-        if (currentWorkDates.length === 0) {
-          el.innerHTML = '';
-          countEl.textContent = 'No dates set';
-          return;
-        }
-        const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        el.innerHTML = currentWorkDates.map((d, i) => {
-          const dt = new Date(d + 'T00:00:00');
-          return '<span class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-zinc-200 rounded-lg text-xs text-zinc-700">' +
-            dayNames[dt.getDay()] + ' ' + d +
-            '<button type="button" onclick="removeWorkDate(' + i + ')" class="text-zinc-400 hover:text-red-500">&times;</button></span>';
-        }).join('');
-        countEl.textContent = currentWorkDates.length + ' work date' + (currentWorkDates.length > 1 ? 's' : '');
-        lucide.createIcons();
+      let sectionRequest = 0, sectionsReady = false, legacySectionScope = false;
+      async function loadPostingSections(moduleId, selected) {
+        const request = ++sectionRequest;
+        sectionsReady = false;
+        const container = document.getElementById('postingSections');
+        container.replaceChildren();
+        if (!moduleId) { container.textContent = 'Select a course to see its Sections.'; return; }
+        container.textContent = 'Loading Sections...';
+        try {
+          const response = await fetch(ctx + '/api/organiser/course-sections/modules/' + encodeURIComponent(moduleId) + '/sections');
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || 'Unable to load Sections.');
+          if (request !== sectionRequest) return;
+          container.replaceChildren();
+          const sections = (data.sections || []).filter(s => s.status === 'active' && s.periodId);
+          if (legacySectionScope) {
+            const note = document.createElement('p'); note.className = 'text-sm text-amber-700';
+            note.textContent = 'Historical posting: no Section selection saved. Leave unchecked to retain its existing course-wide scope. A posting with applications needs a new posting to change scope.'; container.append(note);
+          }
+          if (!sections.length) container.append(document.createTextNode('No active Sections available. Create Sections for this course and application cycle first.'));
+          const days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+          sections.forEach(section => {
+            const label = document.createElement('label'); label.className = 'block border rounded-lg p-3 bg-white';
+            const input = document.createElement('input'); input.type = 'checkbox'; input.name = 'postingSection'; input.value = section.id; input.checked = selected.includes(section.id); input.className = 'mr-2';
+            input.dataset.period = section.periodId;
+            label.append(input, document.createTextNode(section.name + ' (' + section.type + ')'));
+            const times = document.createElement('div'); times.className = 'text-sm text-zinc-600 mt-1';
+            times.textContent = (section.meetingTimes || []).map(m => days[m.dayOfWeek] + ' ' + m.startTime + '–' + m.endTime).join('; ');
+            const cycle = document.createElement('div'); cycle.className = 'text-xs text-zinc-500'; cycle.textContent = 'Cycle: ' + (postingPeriods.find(p => p.id === section.periodId)?.name || section.periodId);
+            label.append(times, cycle); container.append(label);
+          });
+          const missing = selected.filter(id => !sections.some(s => s.id === id));
+          if (missing.length) { const warning=document.createElement('p'); warning.textContent='Some saved Sections are archived or unavailable. Restore them in Course Sections before editing this posting.'; warning.className='text-sm text-red-600'; container.append(warning); return; }
+          sectionsReady = true;
+        } catch(e) { if(request === sectionRequest) container.textContent=e.message; }
       }
 
       function closeModal() { document.getElementById('jobModal').classList.remove('show'); }
@@ -283,25 +260,31 @@
         const errDiv = document.getElementById('jobError');
         errDiv.classList.add('hidden');
         const id = document.getElementById('editJobId').value;
-        const moduleCode = document.getElementById('jModule').value.trim();
-        const mod = myModules.find(m => m.code === moduleCode);
-        if (!moduleCode || !mod) {
-          errDiv.textContent = 'Please select a module you are responsible for.';
+        const moduleId = document.getElementById('jModule').value.trim();
+        const mod = myModules.find(m => m.id === moduleId);
+        if (!moduleId || !mod) {
+          errDiv.textContent = 'Please select a course you are responsible for.';
           errDiv.classList.remove('hidden');
           return;
         }
         const payload = {
           title: document.getElementById('jTitle').value.trim(),
           moduleId: mod.id,
-          moduleCode: moduleCode,
+          moduleCode: mod.code,
           department: document.getElementById('jDept').value.trim(),
           description: document.getElementById('jDesc').value.trim(),
           positions: parseInt(document.getElementById('jPositions').value) || 1,
           hoursPerWeek: parseInt(document.getElementById('jHours').value) || 10,
           type: document.getElementById('jType').value,
           deadline: document.getElementById('jDeadline').value,
-          workDates: currentWorkDates,
+
         };
+        const selected = [...document.querySelectorAll('input[name="postingSection"]:checked')];
+        if (!sectionsReady || (!selected.length && !legacySectionScope) || new Set(selected.map(i => i.dataset.period)).size > 1) {
+          errDiv.textContent = 'Select active Sections from one application cycle. If none are available, create them in Course Sections first.';
+          errDiv.classList.remove('hidden'); return;
+        }
+        if (selected.length) payload.sectionIds = selected.map(i => i.value);
         try {
           if (id) { await organiserApi.updateJob(id, payload); }
           else { await organiserApi.createJob(payload); }

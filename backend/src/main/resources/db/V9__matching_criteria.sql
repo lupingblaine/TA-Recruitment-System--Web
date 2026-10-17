@@ -1,0 +1,1 @@
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS matching_criteria JSONB;

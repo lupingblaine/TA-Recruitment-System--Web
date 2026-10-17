@@ -1,6 +1,7 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ include file="/common/auth-check.jsp" %>
 <jsp:include page="/common/layout-top.jsp"/>
+<jsp:include page="/common/application-period-banner.jsp"/>
 
 <div class="space-y-8">
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -54,7 +55,8 @@ async function loadJobs() {
       return;
     }
 
-    grid.innerHTML = jobs.map((job, i) => {
+    grid.innerHTML = jobs.map((original, i) => {
+      const job=escapeDisplay(original);
       const tags = (job.requirements || []).slice(0, 2);
       return '<div class="card flex flex-col h-full hover:shadow-md transition-shadow fade-in">' +
         '<div class="p-6 flex flex-col h-full">' +

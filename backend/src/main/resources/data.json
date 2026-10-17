@@ -10,7 +10,7 @@
       "department": "Computer Science",
       "avatar": null,
       "status": "active",
-      "lastLogin": "2026-05-23T18:02:10.463321",
+      "lastLogin": "2026-10-12T17:43:19.739975",
       "createdAt": "2026-08-15T10:00:00"
     },
     {
@@ -553,29 +553,6 @@
       "workDates": [
         "2026-09-22",
         "2026-12-12"
-      ],
-      "weeklySchedule": [
-        {
-          "day": "Monday",
-          "startTime": "10:00",
-          "endTime": "12:00",
-          "activity": "Lab Session",
-          "location": "CS Building, Room 405"
-        },
-        {
-          "day": "Wednesday",
-          "startTime": "14:00",
-          "endTime": "15:00",
-          "activity": "Office Hours",
-          "location": "CS Building, Room 312"
-        },
-        {
-          "day": "Friday",
-          "startTime": "09:00",
-          "endTime": "12:00",
-          "activity": "Assignment Grading",
-          "location": "Remote / Flexible"
-        }
       ]
     },
     {
@@ -610,29 +587,6 @@
       "workDates": [
         "2026-09-25",
         "2026-12-18"
-      ],
-      "weeklySchedule": [
-        {
-          "day": "Tuesday",
-          "startTime": "13:00",
-          "endTime": "15:00",
-          "activity": "Tutorial Session",
-          "location": "CS Building, Room 201"
-        },
-        {
-          "day": "Thursday",
-          "startTime": "10:00",
-          "endTime": "12:00",
-          "activity": "Coursework Grading",
-          "location": "Remote / Flexible"
-        },
-        {
-          "day": "Friday",
-          "startTime": "15:00",
-          "endTime": "17:00",
-          "activity": "Group Project Mentoring",
-          "location": "CS Building, Room 105"
-        }
       ]
     },
     {
@@ -667,29 +621,6 @@
       "workDates": [
         "2026-09-23",
         "2026-12-15"
-      ],
-      "weeklySchedule": [
-        {
-          "day": "Monday",
-          "startTime": "14:00",
-          "endTime": "16:00",
-          "activity": "Lab Session (Group A)",
-          "location": "CS Building, Room 102"
-        },
-        {
-          "day": "Wednesday",
-          "startTime": "14:00",
-          "endTime": "16:00",
-          "activity": "Lab Session (Group B)",
-          "location": "CS Building, Room 102"
-        },
-        {
-          "day": "Thursday",
-          "startTime": "16:00",
-          "endTime": "17:00",
-          "activity": "Student Drop-in Hours",
-          "location": "CS Building, Room 312"
-        }
       ]
     },
     {
@@ -724,29 +655,6 @@
       "workDates": [
         "2026-09-26",
         "2026-12-30"
-      ],
-      "weeklySchedule": [
-        {
-          "day": "Monday",
-          "startTime": "09:00",
-          "endTime": "11:00",
-          "activity": "Group Project Mentoring",
-          "location": "CS Building, Room 308"
-        },
-        {
-          "day": "Wednesday",
-          "startTime": "13:00",
-          "endTime": "15:00",
-          "activity": "Deliverable Grading",
-          "location": "Remote / Flexible"
-        },
-        {
-          "day": "Friday",
-          "startTime": "10:00",
-          "endTime": "11:00",
-          "activity": "Office Hours",
-          "location": "CS Building, Room 308"
-        }
       ]
     },
     {
@@ -781,22 +689,6 @@
       "workDates": [
         "2026-09-28",
         "2026-12-22"
-      ],
-      "weeklySchedule": [
-        {
-          "day": "Tuesday",
-          "startTime": "09:00",
-          "endTime": "12:00",
-          "activity": "MATLAB Lab Session",
-          "location": "EE Building, Lab 2"
-        },
-        {
-          "day": "Thursday",
-          "startTime": "14:00",
-          "endTime": "16:00",
-          "activity": "Lab Report Grading",
-          "location": "Remote / Flexible"
-        }
       ]
     },
     {
@@ -826,22 +718,6 @@
       "workDates": [
         "2026-06-01",
         "2026-06-30"
-      ],
-      "weeklySchedule": [
-        {
-          "day": "Monday",
-          "startTime": "10:00",
-          "endTime": "12:00",
-          "activity": "Summer Lab Session",
-          "location": "CS Building, Room 405"
-        },
-        {
-          "day": "Wednesday",
-          "startTime": "10:00",
-          "endTime": "12:00",
-          "activity": "Summer Lab Session",
-          "location": "CS Building, Room 405"
-        }
       ]
     }
   ],
@@ -2024,6 +1900,36 @@
       "actorId": "u001",
       "type": "info",
       "details": "User Alex Johnson logged out",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9036",
+      "timestamp": "2026-10-12T11:21:06.499431",
+      "action": "User Login",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "info",
+      "details": "User Alex Johnson (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9037",
+      "timestamp": "2026-10-12T17:42:01.902879",
+      "action": "User Login",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "info",
+      "details": "User Alex Johnson (applicant) logged in",
+      "ip": "0:0:0:0:0:0:0:1"
+    },
+    {
+      "id": "EVT-9038",
+      "timestamp": "2026-10-12T17:43:19.762416",
+      "action": "User Login",
+      "actor": "Alex Johnson",
+      "actorId": "u001",
+      "type": "info",
+      "details": "User Alex Johnson (applicant) logged in",
       "ip": "0:0:0:0:0:0:0:1"
     }
   ],

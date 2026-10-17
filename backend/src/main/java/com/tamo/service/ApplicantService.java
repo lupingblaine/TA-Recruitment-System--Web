@@ -45,7 +45,8 @@ public class ApplicantService {
      * @param userId the userId argument
      * @return the resulting object or status
      */
-    public JsonObject getDashboard(String userId) {
+    public JsonObject getDashboard(String userId) { return getDashboard(userId,null); }
+    public JsonObject getDashboard(String userId,String periodId) {
         DataStore data = dataService.getData();
         Profile profile = findProfileByUserId(data, userId);
 
@@ -84,69 +85,11 @@ public class ApplicantService {
                 });
         result.add("recentApplications", recentApps);
 
-        // ── Workload: derived from confirmed offers (one TA per offer application) ──
-        {
-            List<Application> offerApps = myApps.stream()
-                    .filter(a -> "offer".equals(a.getStatus()))
-                    .collect(Collectors.toList());
-
-            JsonArray assignmentList = new JsonArray();
-            int totalHours = 0;
-            for (Application a : offerApps) {
-                Job job = findJobById(data, a.getJobId());
-                if (job == null) continue;
-                totalHours += job.getHoursPerWeek();
-                JsonObject wo = new JsonObject();
-                wo.addProperty("applicationId", a.getId());
-                wo.addProperty("jobId", job.getId());
-                wo.addProperty("moduleCode", job.getModuleCode() != null ? job.getModuleCode() : "");
-                wo.addProperty("jobTitle", job.getTitle());
-                wo.addProperty("hoursPerWeek", job.getHoursPerWeek());
-                assignmentList.add(wo);
-            }
-
-            int maxHours = profile != null ? profile.getMaxWeeklyHours() : 20;
-            int remaining = maxHours - totalHours;
-
-            String loadStatus;
-            if (totalHours >= maxHours) loadStatus = "Overloaded";
-            else if (totalHours >= maxHours * 0.8) loadStatus = "Near Capacity";
-            else loadStatus = "Healthy Load";
-
-            JsonObject workload = new JsonObject();
-            workload.addProperty("current", totalHours);
-            workload.addProperty("max", maxHours);
-            workload.addProperty("remaining", Math.max(remaining, 0));
-            workload.addProperty("status", loadStatus);
-            workload.add("assignments", assignmentList);
-            result.add("workload", workload);
-        }
-
-        // ── Offers: jobs with offer status, include workDates for dashboard ──
-        {
-            JsonArray offers = new JsonArray();
-            myApps.stream()
-                    .filter(a -> "offer".equals(a.getStatus()))
-                    .forEach(a -> {
-                        Job job = findJobById(data, a.getJobId());
-                        if (job != null) {
-                            JsonObject o = new JsonObject();
-                            o.addProperty("jobId", job.getId());
-                            o.addProperty("title", job.getTitle());
-                            o.addProperty("moduleCode", job.getModuleCode() != null ? job.getModuleCode() : "");
-                            o.addProperty("department", job.getDepartment() != null ? job.getDepartment() : "");
-                            o.addProperty("hoursPerWeek", job.getHoursPerWeek());
-                            if (job.getWorkDates() != null && !job.getWorkDates().isEmpty()) {
-                                JsonArray dates = new JsonArray();
-                                job.getWorkDates().forEach(dates::add);
-                                o.add("workDates", dates);
-                            }
-                            offers.add(o);
-                        }
-                    });
-            result.add("offers", offers);
-        }
-
+        JsonObject actualWorkload=new AssignmentReportingService(data).workload(userId,periodId,false);
+        result.add("workload",actualWorkload);
+        result.add("offers",actualWorkload.getAsJsonArray("assignments"));
+        result.addProperty("periodId",actualWorkload.get("periodId").getAsString());
+        result.add("periods",JsonUtil.getGson().toJsonTree(data.getApplicationPeriods()));
         // ── Schedule: upcoming interviews for this TA ──
         {
             List<Interview> interviews = (data.getInterviews() != null
@@ -171,19 +114,9 @@ public class ApplicantService {
                 schedule.add(entry);
             });
 
-            // Also add TA duty slots derived from confirmed offers as recurring schedule items
-            myApps.stream()
-                    .filter(a -> "offer".equals(a.getStatus()))
-                    .forEach(a -> {
-                        Job job = findJobById(data, a.getJobId());
-                        if (job == null) return;
-                        JsonObject entry = new JsonObject();
-                        entry.addProperty("type", "duty");
-                        entry.addProperty("moduleCode", job.getModuleCode() != null ? job.getModuleCode() : "");
-                        entry.addProperty("hoursPerWeek", job.getHoursPerWeek());
-                        schedule.add(entry);
-                    });
-
+            for (var accepted:actualWorkload.getAsJsonArray("assignments")) {
+                JsonObject entry=accepted.getAsJsonObject().deepCopy();entry.addProperty("type","duty");schedule.add(entry);
+            }
             result.add("schedule", schedule);
         }
 
@@ -318,6 +251,10 @@ public class ApplicantService {
      * @return the resulting object or status
      */
     public Map<String, Object> applyForJob(String userId, String jobId, String coverLetter, List<String> documentIds) {
+        return applyForJob(userId, jobId, coverLetter, documentIds, null);
+    }
+
+    public Map<String, Object> applyForJob(String userId, String jobId, String coverLetter, List<String> documentIds, String expectedPeriodId) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
 
@@ -340,8 +277,28 @@ public class ApplicantService {
             return result;
         }
 
+        com.tamo.model.ApplicationPeriod period = new ApplicationPeriodService(dataService).acceptingPeriod();
+        if (period == null) {
+            result.put("error", "Applications are not currently open. Please check the application period.");
+            result.put("code", 403);
+            return result;
+        }
+
+        if (expectedPeriodId != null && !expectedPeriodId.equals(period.getId())) {
+            result.put("error", "The application period has changed. Refresh this page before applying.");
+            result.put("code", 409);
+            return result;
+        }
+
+        Job selectedJob = getJobById(jobId);
+        if (selectedJob != null && !JobSectionService.acceptsPeriod(data, selectedJob, period.getId())) {
+            result.put("error", "This posting has no active Sections in the current application cycle.");
+            result.put("code", 409); return result;
+        }
+
         boolean alreadyApplied = data.getApplications().stream()
-                .anyMatch(a -> a.getApplicantId().equals(userId) && a.getJobId().equals(jobId));
+                .anyMatch(a -> a.getApplicantId().equals(userId) && a.getJobId().equals(jobId)
+                        && period.getId().equals(a.getPeriodId()));
         if (alreadyApplied) {
             result.put("error", "You have already applied for this position");
             result.put("code", 409);
@@ -349,19 +306,34 @@ public class ApplicantService {
         }
    
 
+        JsonObject qualificationSnapshot;
+        try{qualificationSnapshot=new QualificationService(dataService).snapshot(userId);}
+        catch(QualificationService.Problem e){result.put("error",e.getMessage());result.put("code",e.status);return result;}
+        Profile submittedProfile=findProfileByUserId(data,userId);
+        if(documentIds!=null&&documentIds.stream().anyMatch(id->submittedProfile.getDocuments()==null||submittedProfile.getDocuments().stream().noneMatch(doc->id.equals(doc.getId())))){result.put("error","Selected documents must belong to your profile.");result.put("code",400);return result;}
+        qualificationSnapshot.getAsJsonObject("academicProfile").add("documents",JsonUtil.getGson().toJsonTree(submittedProfile.getDocuments()==null?List.of():submittedProfile.getDocuments().stream().filter(d->documentIds!=null&&documentIds.contains(d.getId())).toList()));
+        com.tamo.model.WeeklyAvailability snapshot;
+        try { snapshot = new AvailabilityService(dataService).submissionSnapshot(userId, period.getId()); }
+        catch (AvailabilityService.Problem e) {
+            result.put("error", e.getMessage()); result.put("code", e.status); return result;
+        }
+
         String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         String today = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
         Application app = new Application();
         app.setId(dataService.generateId("a", data.getApplications()));
         app.setJobId(jobId);
+        app.setPeriodId(period.getId());
+        app.setAvailabilitySnapshot(snapshot);
+        app.setQualificationSnapshot(qualificationSnapshot);
         app.setApplicantId(userId);
         app.setStatus("applied");
         app.setCoverLetter(coverLetter);
         app.setDocumentIds(documentIds != null ? documentIds : new ArrayList<>());
-        app.setMatchScore((int) (Math.random() * 30) + 70);
+        app.setMatchScore(0);
         app.setRiskFlag(null);
-        app.setAiSummary("Application auto-analyzed by system.");
+        app.setAiSummary("Review the submitted qualifications and explained matching criteria.");
         app.setAppliedAt(now);
         app.setUpdatedAt(now);
 
@@ -393,13 +365,18 @@ public class ApplicantService {
      * @param userId the userId argument
      * @return the resulting object or status
      */
-    public List<JsonObject> getMyApplications(String userId) {
+    public List<JsonObject> getMyApplications(String userId) { return getMyApplications(userId, null); }
+
+    public List<JsonObject> getMyApplications(String userId, String periodId) {
         DataStore data = dataService.getData();
         return data.getApplications().stream()
                 .filter(a -> a.getApplicantId().equals(userId))
+                .filter(a -> periodId == null || periodId.isBlank() || periodId.equals(a.getPeriodId()))
                 .sorted((a, b) -> b.getAppliedAt().compareTo(a.getAppliedAt()))
                 .map(a -> {
                     JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(a);
+                    data.getApplicationPeriods().stream().filter(p -> p.getId().equals(a.getPeriodId())).findFirst()
+                            .ifPresent(p -> obj.addProperty("periodName", p.getName()));
                     Job job = findJobById(data, a.getJobId());
                     enrichApplicationForApplicantApi(obj, job, a.getJobId(), a.getAppliedAt());
                     return obj;
@@ -489,6 +466,9 @@ public class ApplicantService {
             return result;
         }
 
+        if (SectionAssignmentService.hasHistory(data,"applications",appId)) {
+            result.put("error","This application has assignment history and must be retained."); result.put("code",409);return result;
+        }
         data.getApplications().remove(app);
         if (data.getInterviews() != null) {
             data.getInterviews().removeIf(i -> appId.equals(i.getApplicationId()));
@@ -670,7 +650,7 @@ public class ApplicantService {
         }
 
         Profile.Document doc = new Profile.Document();
-        doc.setId(dataService.generateId("doc", profile.getDocuments()));
+        doc.setId("doc_"+java.util.UUID.randomUUID().toString().replace("-",""));
         doc.setName(fileName);
         doc.setType(fileType);
         doc.setSize(fileSize);
@@ -712,6 +692,7 @@ public class ApplicantService {
             return result;
         }
 
+        if(data.getApplications().stream().anyMatch(app->userId.equals(app.getApplicantId())&&app.getDocumentIds()!=null&&app.getDocumentIds().contains(docId))){result.put("error","This document belongs to a submitted application and must be retained.");result.put("code",409);return result;}
         boolean removed = profile.getDocuments().removeIf(d -> d.getId().equals(docId));
         if (!removed) {
             result.put("error", "Document not found");

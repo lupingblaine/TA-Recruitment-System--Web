@@ -1,3 +1,11 @@
+> Current baseline: **Version 1 (v1.0)**. See the [Version 1 release notes (Chinese)](VERSION_1_zh.md) for implemented changes, validation and limitations.
+
+> Sponsor-aligned forms and CSV import/export are implemented. See [CSV workflow guide](SPONSOR_CSV_GUIDE_zh.md).
+
+> For the current proposal workflow, permissions, and backup verification, see [handoff notes](PROPOSAL_HANDOFF_zh.md). CSV import/export is covered in the guide above.
+
+> Application period management is available under **Application Periods** in the admin sidebar. See [workflow and API instructions](APPLICATION_PERIODS_zh.md).
+
 [English](README.md)
 
 # TA&MO — TA Recruitment & Management System
@@ -162,11 +170,11 @@ System Administrators maintain the platform and oversee all activities.
 │  │  JSP Frontend │     │  Servlet Backend API  │  │
 │  │  (18+ pages)  │────▶│  (40+ REST endpoints) │  │ 
 │  │  Tailwind CSS │     │  Session Auth + RBAC  │  │
-│  │  Vanilla JS   │     │  JSON file storage    │  │
+│  │  Vanilla JS   │     │  PostgreSQL storage    │  │
 │  └───────────────┘     └───────────────────────┘  │
 │                              │                    │
 │                        ┌─────▼─────┐              │
-│                        │ data.json │              │
+│                        │ PostgreSQL│              │
 │                        └───────────┘              │
 └───────────────────────────────────────────────────┘
 ```
@@ -194,7 +202,8 @@ Before setting up the project, ensure you have the following installed on your s
    - Verify installation: `java -version` and `javac -version`
 2. **Apache Maven 3.6+**
    - Verify installation: `mvn -version`
-3. **Active Internet Connection**
+3. **Docker Desktop / Docker Engine + Compose** for local PostgreSQL.
+4. **Active Internet Connection**
    - Required to fetch CDN resources (Tailwind CSS, Icons, JS libraries).
 
 ### 1. Clone the Repository
@@ -210,7 +219,7 @@ git checkout dev
 The system is configured out of the box to run on your local machine, but the production version is hosted remotely. You can modify the following default behaviors if needed:
 
 - **Server Port**: The embedded Tomcat server defaults to **Port 8080**. If this port is occupied, you can change it by editing `tomcat.setPort(8080);` in `backend/src/main/java/com/tamo/Main.java`.
-- **Database**: The application utilizes a JSON file as persistent storage. The file is located at `backend/src/main/resources/data.json`.
+- **Database**: The application uses local PostgreSQL 17. Existing `backend/src/main/resources/data.json` is imported once on first startup and preserved as a backup. See [database setup and backups](DATABASE_zh.md).
 - **Context Path**: The application is served under the `/tamo` context path.
 
 ---
@@ -220,6 +229,8 @@ The system is configured out of the box to run on your local machine, but the pr
 We use a Maven plugin to compile and boot the Embedded Tomcat server in a single command. 
 
 ### Start the Application
+
+Start Docker Desktop, then run `docker compose up -d --wait db` from the repository root before the steps below. On macOS/Linux, `./run.sh` from the root starts both the database and application.
 
 1. Navigate to the `backend` directory:
    ```bash
@@ -235,9 +246,9 @@ We use a Maven plugin to compile and boot the Embedded Tomcat server in a single
 
 Once the server has successfully started (you will see the "TA&MO Backend Started" message in the terminal), open your browser and navigate to:
 
-- **Landing Page**: [http://47.93.90.208:8080/tamo](http://47.93.90.208:8080/tamo)
-- **Login Page**: [http://47.93.90.208:8080/tamo/auth/login.jsp](http://47.93.90.208:8080/tamo/auth/login.jsp)
-- **Registration**: [http://47.93.90.208:8080/tamo/auth/signup.jsp](http://47.93.90.208:8080/tamo/auth/signup.jsp)
+- **Landing Page**: [http://localhost:8080/tamo](http://localhost:8080/tamo)
+- **Login Page**: [http://localhost:8080/tamo/auth/login.jsp](http://localhost:8080/tamo/auth/login.jsp)
+- **Registration**: [http://localhost:8080/tamo/auth/signup.jsp](http://localhost:8080/tamo/auth/signup.jsp)
 
 *To stop the server, simply press `Ctrl + C` in the terminal.*
 
@@ -300,7 +311,7 @@ TA&MO_v1.0/
 │   │   └── util/                      # Helper Classes
 │   │
 │   ├── src/main/resources/
-│   │   └── data.json                  # Persistent JSON Database
+│   │   └── data.json                  # One-time import seed (PostgreSQL is authoritative)
 │   │
 │   ├── src/main/webapp/               # Frontend Files
 │   │   ├── WEB-INF/web.xml            # Servlet configurations
@@ -319,15 +330,15 @@ TA&MO_v1.0/
 
 ## User Roles & Test Accounts
 
-You can test the system using the pre-configured accounts below. (Note: Passwords in testing are matched directly to their hashed placeholder strings).
+After the initial import, use the demo accounts below. If an account has been changed, use its current database credentials.
 
 | Role | Name | Email | Password |
 |------|------|-------|----------|
-| Applicant | Alex Johnson | `alex.j@university.edu` | `hashed_password_1` |
-| Applicant | Bob Smith | `bob.s@university.edu` | `hashed_password_2` |
-| Organiser | Alan Turing | `alan@university.edu` | `hashed_password_5` |
-| Organiser | Grace Hopper | `grace@university.edu` | `hashed_password_6` |
-| Admin | System Admin | `admin@university.edu` | `admin_hashed` |
+| Applicant | Alex Johnson | `alex.j@university.edu` | `demo123` |
+| Applicant | Bob Smith | `bob.s@university.edu` | `demo123` |
+| Organiser | Alan Turing | `alan@university.edu` | `demo123` |
+| Organiser | Grace Hopper | `grace@university.edu` | `demo123` |
+| Admin | System Admin | `admin@university.edu` | `admin123` |
 
 ---
 
@@ -356,10 +367,7 @@ lsof -ti :8080 | xargs kill -9
 The frontend relies on CDN links for Tailwind CSS and Lucide icons. Verify your internet connection.
 
 ### Missing Data Changes
-Since the application writes to `src/main/resources/data.json` at runtime, any modifications will persist. If you wish to reset the database to its default factory state, checkout the original file:
-```bash
-git checkout -- backend/src/main/resources/data.json
-```
+PostgreSQL persists changes in a Docker volume. Editing or restoring `data.json` does not reset an initialized database. See [database backup and restore instructions](DATABASE_zh.md).
 
 ---
 

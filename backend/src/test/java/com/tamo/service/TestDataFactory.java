@@ -15,8 +15,24 @@ public final class TestDataFactory {
 
     public static DataStore createTestDataStore() {
         DataStore ds = new DataStore();
+        ApplicationPeriod period = new ApplicationPeriod();
+        period.setId("period_test"); period.setName("Test application period"); period.setTermId("t001");
+        period.setOpensAt("2000-01-01T00:00:00Z"); period.setClosesAt("2100-01-01T00:00:00Z");
+        period.setStatus("open"); period.setCreatedAt("2000-01-01T00:00:00Z"); period.setUpdatedAt("2000-01-01T00:00:00Z");
+        ds.setApplicationPeriods(new ArrayList<>(List.of(period)));
         ds.setUsers(createUsers());
         ds.setProfiles(createProfiles());
+        for(Profile p:ds.getProfiles())p.setQualifications(com.google.gson.JsonParser.parseString("{\"studentLevel\":\"masters\",\"uciStudentId\":\"12345678\",\"uciEmail\":\"synthetic@uci.edu\",\"program\":\"Synthetic program\",\"skills\":[\"Python\"],\"interests\":[\"Biology\"],\"trainingStatus\":\"completed\",\"acknowledged\":true}").getAsJsonObject());
+        for(Profile p:ds.getProfiles()){var q=p.getQualifications();q.addProperty("firstName","Synthetic");q.addProperty("lastName",p.getUserId());q.addProperty("facultyPI","Synthetic PI");q.addProperty("graduateStartYear",2024);q.addProperty("taQuarters",1);q.addProperty("advancedToCandidacy","no");q.addProperty("sexualHarassmentTrainingCompleted",true);q.addProperty("additionalEmployment","None");q.addProperty("documentedAccommodation",false);q.addProperty("ackSchedule",true);q.addProperty("ackEnrollment",true);}
+        List<WeeklyAvailability> schedules = new ArrayList<>();
+        ds.getUsers().stream().filter(u -> "applicant".equals(u.getRole())).forEach(u -> {
+            WeeklyAvailability a = new WeeklyAvailability(); a.setId("availability_" + u.getId());
+            a.setApplicantId(u.getId()); a.setPeriodId("period_test"); a.setTimeZone("America/Los_Angeles");
+            WeeklyAvailability.Slot slot = new WeeklyAvailability.Slot(); slot.setDayOfWeek(1); slot.setStartTime("09:00"); slot.setEndTime("17:00"); slot.setReason("");
+            a.setAvailableSlots(new ArrayList<>(List.of(slot))); a.setConflictSlots(new ArrayList<>());
+            a.setNotes(""); a.setUpdatedAt("2026-10-16T19:00:00Z"); schedules.add(a);
+        });
+        ds.setWeeklyAvailabilities(schedules);
         ds.setModules(createModules());
         ds.setJobs(createJobs());
         ds.setApplications(createApplications());
@@ -192,6 +208,7 @@ public final class TestDataFactory {
         a3.setTimeline(new ArrayList<>());
         apps.add(a3);
 
+        apps.forEach(a -> a.setPeriodId("period_test"));
         return apps;
     }
 

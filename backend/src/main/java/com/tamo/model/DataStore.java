@@ -10,6 +10,21 @@ public class DataStore {
      * The users of the entity.
      */
     private List<User> users;
+    private List<ReviewRecord> reviewRecords=new java.util.ArrayList<>();
+    public List<ReviewRecord> getReviewRecords(){return reviewRecords;}
+    public void setReviewRecords(List<ReviewRecord> value){reviewRecords=value;}
+    private List<SectionAssignment> sectionAssignments = new java.util.ArrayList<>();
+    public List<SectionAssignment> getSectionAssignments() { return sectionAssignments; }
+    public void setSectionAssignments(List<SectionAssignment> value) { sectionAssignments = value; }
+    private List<CourseSection> courseSections = new java.util.ArrayList<>();
+    public List<CourseSection> getCourseSections() { return courseSections; }
+    public void setCourseSections(List<CourseSection> value) { courseSections = value; }
+    private List<WeeklyAvailability> weeklyAvailabilities = new java.util.ArrayList<>();
+    public List<WeeklyAvailability> getWeeklyAvailabilities() { return weeklyAvailabilities; }
+    public void setWeeklyAvailabilities(List<WeeklyAvailability> value) { weeklyAvailabilities = value; }
+    private List<ApplicationPeriod> applicationPeriods = new java.util.ArrayList<>();
+    public List<ApplicationPeriod> getApplicationPeriods() { return applicationPeriods; }
+    public void setApplicationPeriods(List<ApplicationPeriod> value) { applicationPeriods = value; }
     /**
      * The profiles of the entity.
      */

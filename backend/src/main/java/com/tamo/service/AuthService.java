@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class AuthService {
 
-    private static final List<String> VALID_ROLES = Arrays.asList("applicant", "organiser", "admin");
+    private static final List<String> VALID_ROLES = Arrays.asList("applicant", "organiser", "admin","reviewer","decision_maker","viewer");
 
     private final JsonDataService dataService;
 
@@ -49,7 +49,7 @@ public class AuthService {
     public User findByEmailAndPassword(String email, String password) {
         DataStore data = dataService.getData();
         for (User user : data.getUsers()) {
-            if (user.getEmail().equalsIgnoreCase(email) && user.getPassword().equals(password)) {
+            if (user.getEmail().equalsIgnoreCase(email) && PasswordSecurity.verify(password,user.getPassword())) {
                 return user;
             }
         }
@@ -106,7 +106,7 @@ public class AuthService {
         user.setId(dataService.generateId("u", data.getUsers()));
         user.setName(name);
         user.setEmail(email);
-        user.setPassword(password);
+        user.setPassword(PasswordSecurity.hash(password));
         user.setRole(role);
         user.setStatus("active");
         user.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));

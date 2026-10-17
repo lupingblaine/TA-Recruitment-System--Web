@@ -71,6 +71,10 @@
     </div>
 
     <jsp:include page="/common/layout-bottom.jsp" />
+<script src="<%= request.getContextPath() %>/static/js/availability-view.js"></script>
+<script src="<%= request.getContextPath() %>/static/js/section-matching.js"></script>
+<script src="<%= request.getContextPath() %>/static/js/qualification-view.js"></script>
+<script src="<%= request.getContextPath() %>/static/js/criteria-view.js"></script>
     <script>
       const ctx = document.querySelector('meta[name="ctx"]').content;
       const appId = new URLSearchParams(window.location.search).get('id');
@@ -82,7 +86,17 @@
           const data = await organiserApi.getApplicationDetails(appId);
           const app = data.application || data;
           currentApp = app;
-          renderDetail(app);
+          renderDetail(escapeDisplay(app));
+          const qualifications=document.createElement('section');qualifications.className='card p-6';
+          QualificationView.render(qualifications,app.qualificationSnapshot,app.id);document.getElementById('detailPage').appendChild(qualifications);
+          const criteria=document.createElement('section');criteria.className='card p-6';CriteriaView.render(criteria,app.qualificationMatching);document.getElementById('detailPage').appendChild(criteria);
+          const matching = document.createElement('section');
+          SectionMatching.render(matching, app.sectionMatching);
+          document.getElementById('detailPage').appendChild(matching);
+          const section = document.createElement('section'); section.className = 'card p-6 space-y-3';
+          const title = document.createElement('h2'); title.className = 'text-lg font-bold'; title.textContent = 'Weekly availability · submitted snapshot'; section.appendChild(title);
+          const snapshot = document.createElement('div'); AvailabilityView.render(snapshot, app.availabilitySnapshot); section.appendChild(snapshot);
+          document.getElementById('detailPage').appendChild(section);
         } catch (e) {
           document.getElementById('detailPage').innerHTML = '<div class="text-center text-red-500 py-12">Failed to load: ' + (e.message || '') + '</div>';
         }
@@ -110,8 +124,8 @@
                 '</div>' +
                 '</div>' +
                 '<div class="flex items-center gap-2">' +
-                '<button onclick="previewDocument(\'' + encodeURIComponent(doc.name || '') + '\')" class="btn btn-ghost p-2 text-blue-600 hover:bg-blue-50" title="Preview"><i data-lucide="eye" class="h-4 w-4"></i></button>' +
-                '<a href="' + ctx + '/static/uploads/organiser/' + (doc.name || '') + '" download class="btn btn-ghost p-2 text-blue-600 hover:bg-blue-50" title="Download"><i data-lucide="download" class="h-4 w-4"></i></a>' +
+                '<button onclick="previewDocument(\'' + encodeURIComponent(doc.name || '') + '\',\''+encodeURIComponent(doc.id)+'\')" class="btn btn-ghost p-2 text-blue-600 hover:bg-blue-50" title="Preview"><i data-lucide="eye" class="h-4 w-4"></i></button>' +
+                '<a href="' + ctx + '/api/documents/' + encodeURIComponent(doc.id) + '?applicationId='+encodeURIComponent(appId) + '" download class="btn btn-ghost p-2 text-blue-600 hover:bg-blue-50" title="Download"><i data-lucide="download" class="h-4 w-4"></i></a>' +
                 '</div></div>';
             }).join('') + '</div>';
         }
@@ -309,9 +323,10 @@
         }
       }
 
-      function previewDocument(encodedName) {
-        const name = decodeURIComponent(encodedName);
-        const url = ctx + '/static/uploads/organiser/' + name;
+      function previewDocument(encodedName,encodedId) {
+        const rawDoc=(currentApp.documents||[]).find(d=>d.id===decodeURIComponent(encodedId));
+        const name = rawDoc?rawDoc.name:decodeURIComponent(encodedName);
+        const url = ctx + '/api/documents/' + encodedId + '?inline=1&applicationId='+encodeURIComponent(appId);
         const ext = name.split('.').pop().toLowerCase();
         const modal = document.getElementById('previewModal');
         const body = document.getElementById('previewBody');
@@ -328,7 +343,7 @@
           fetch(url).then(r => r.arrayBuffer()).then(buf => {
             return mammoth.convertToHtml({arrayBuffer: buf});
           }).then(result => {
-            body.innerHTML = '<div class="w-full h-full overflow-auto p-6 bg-white rounded-lg prose prose-sm max-w-none">' + result.value + '</div>';
+            body.innerHTML = '<div class="w-full h-full overflow-auto p-6 bg-white rounded-lg prose prose-sm max-w-none">' + sanitizeDocumentHtml(result.value) + '</div>';
           }).catch(() => {
             body.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-zinc-500 bg-zinc-50 rounded-lg">' +
               '<i data-lucide="file-text" class="h-16 w-16 mb-4 text-zinc-300"></i>' +

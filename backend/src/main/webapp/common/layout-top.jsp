@@ -46,7 +46,7 @@
         <div class="h-8 w-8 rounded-full bg-zinc-200 border border-zinc-300 overflow-hidden flex items-center justify-center text-xs font-bold text-zinc-600">
           <%
             String un = (String) session.getAttribute("userName");
-            out.print(un != null ? un.substring(0,1).toUpperCase() : "U");
+            out.print(com.tamo.util.JsonUtil.escapeHtml(un != null && !un.isEmpty() ? un.substring(0,1).toUpperCase() : "U"));
           %>
         </div>
       </div>

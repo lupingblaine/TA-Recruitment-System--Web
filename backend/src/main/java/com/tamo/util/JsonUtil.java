@@ -16,6 +16,10 @@ import java.io.PrintWriter;
  */
 public class JsonUtil {
 
+    public static String escapeHtml(String value) {
+        return value == null ? "" : value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+    }
+
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
     /**
@@ -98,11 +102,16 @@ public class JsonUtil {
      * @param resp the resp argument
      * @param data the data argument
      */
+    private static void redact(com.google.gson.JsonElement value){
+        if(value==null||value.isJsonNull())return;
+        if(value.isJsonObject()){value.getAsJsonObject().remove("password");value.getAsJsonObject().remove("storageKey");for(var child:value.getAsJsonObject().asMap().values())redact(child);}
+        else if(value.isJsonArray())for(var child:value.getAsJsonArray())redact(child);
+    }
     public static void writeJson(HttpServletResponse resp, Object data) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         try (PrintWriter out = resp.getWriter()) {
-            out.print(GSON.toJson(data));
+            com.google.gson.JsonElement tree=GSON.toJsonTree(data).deepCopy();redact(tree);out.print(GSON.toJson(tree));
             out.flush();
         }
     }

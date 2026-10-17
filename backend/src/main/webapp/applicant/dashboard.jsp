@@ -1,8 +1,10 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ include file="/common/auth-check.jsp" %>
 <jsp:include page="/common/layout-top.jsp"/>
+<jsp:include page="/common/application-period-banner.jsp"/>
 
 <div class="space-y-8" id="page">
+  <label class="block">Application cycle<select id="dashboardPeriod" class="input w-auto" onchange="loadDashboard()"></select></label>
   <div>
     <h1 class="text-3xl font-bold tracking-tight text-zinc-900" id="greeting">Welcome back!</h1>
     <p class="text-zinc-500 mt-2 text-lg">Here's what's happening with your TA applications.</p>
@@ -48,7 +50,7 @@
       </div>
 
       <div id="offersSection" class="hidden space-y-4">
-        <h2 class="text-xl font-semibold text-zinc-900 flex items-center gap-2"><i data-lucide="trophy" class="h-5 w-5 text-emerald-500"></i> Your Offers & Work Schedule</h2>
+        <h2 class="text-xl font-semibold text-zinc-900 flex items-center gap-2"><i data-lucide="trophy" class="h-5 w-5 text-emerald-500"></i> Accepted Section Assignments</h2>
         <div class="space-y-4" id="offersList"></div>
       </div>
 
@@ -104,61 +106,23 @@ function padDate(dt) {
   return y + '-' + m + '-' + d;
 }
 
-function expandWorkDates(rawDates) {
-  if (!rawDates || rawDates.length === 0) return [];
-  var sorted = rawDates.slice().sort();
-  if (sorted.length > 2) return sorted;
-  var start = new Date(sorted[0] + 'T00:00:00');
-  var end = new Date(sorted[sorted.length - 1] + 'T00:00:00');
-  var targetDays = {};
-  sorted.forEach(function(d) { targetDays[new Date(d + 'T00:00:00').getDay()] = true; });
-  var allDates = [];
-  var cursor = new Date(start);
-  while (cursor <= end) {
-    if (targetDays[cursor.getDay()]) {
-      allDates.push(padDate(cursor));
-    }
-    cursor.setDate(cursor.getDate() + 1);
-  }
-  return allDates;
-}
-
-var allExpandedWorkDates = [];
-
 function shiftWeek(delta) {
   currentWeekOffset += delta;
   renderSchedule(cachedSchedule);
   lucide.createIcons();
 }
 
-function jumpToNextWorkDay() {
-  var todayStr = padDate(new Date());
-  var nextWork = allExpandedWorkDates.find(function(d) { return d >= todayStr; });
-  if (!nextWork) {
-    if (allExpandedWorkDates.length > 0) nextWork = allExpandedWorkDates[allExpandedWorkDates.length - 1];
-    else return;
-  }
-  var target = new Date(nextWork + 'T00:00:00');
-  var today = new Date();
-  today.setHours(0,0,0,0);
-  var diffDays = Math.round((target - today) / 86400000);
-  var dow = today.getDay();
-  var todayMondayOff = dow === 0 ? 6 : dow - 1;
-  currentWeekOffset = Math.floor((diffDays + todayMondayOff) / 7);
-  renderSchedule(cachedSchedule);
-  lucide.createIcons();
-}
-
 async function loadDashboard() {
   try {
-    const data = await applicantApi.getDashboard();
-    const apps = data.recentApplications || [];
-    const jobs = data.upcomingDeadlines || [];
+    const data = await applicantApi.getDashboard(document.getElementById('dashboardPeriod').value);
+    const periodSelect=document.getElementById('dashboardPeriod'); if(!periodSelect.options.length)(data.periods||[]).forEach(p=>periodSelect.add(new Option(p.name,p.id)));periodSelect.value=data.periodId;
+    const apps = escapeDisplay(data.recentApplications || []);
+    const jobs = escapeDisplay(data.upcomingDeadlines || []);
 
     document.getElementById('statActive').textContent = data.activeApplications ?? 0;
     document.getElementById('statInterviews').textContent = data.interviewCount ?? 0;
     document.getElementById('statProfile').textContent = (data.profileCompletion != null ? data.profileCompletion : 0) + '%';
-    document.getElementById('greeting').textContent = 'Welcome back, ' + (data.profile?.name || '<%= session.getAttribute("userName") %>') + '!';
+    document.getElementById('greeting').textContent = 'Welcome back, ' + (data.profile?.name || <%= com.tamo.util.JsonUtil.getGson().toJson(session.getAttribute("userName")) %>) + '!';
 
     const container = document.getElementById('recentApps');
     if (apps.length === 0) {
@@ -193,6 +157,7 @@ async function loadDashboard() {
     lucide.createIcons();
   } catch (e) {
     console.error('Failed to load dashboard', e);
+    document.getElementById('weeklySchedule').textContent='Dashboard could not be loaded. '+e.message;
   }
 }
 
@@ -204,7 +169,7 @@ function renderWorkload(wl) {
   const barColor = wl.status === 'Overloaded' ? 'bg-red-500' : wl.status === 'Near Capacity' ? 'bg-amber-500' : 'bg-indigo-500';
   const badgeBg = wl.status === 'Overloaded' ? 'bg-red-100 text-red-700 border-red-200' : wl.status === 'Near Capacity' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white/50 text-indigo-700 border-indigo-200';
 
-  const termLabel = (wl.assignments && wl.assignments.length > 0) ? wl.assignments[0].term : 'Current Term';
+  const termLabel = notificationText(document.getElementById('dashboardPeriod').selectedOptions[0]?.textContent||'Selected period');
 
   let html = '<div class="flex items-center justify-between mb-4">' +
     '<div class="flex items-center gap-2"><i data-lucide="trending-up" class="h-5 w-5 text-indigo-600"></i>' +
@@ -212,7 +177,7 @@ function renderWorkload(wl) {
     '<span class="badge ' + badgeBg + '">' + wl.status + '</span></div>';
 
   html += '<div class="space-y-2 mb-4">' +
-    '<div class="flex justify-between text-sm"><span class="text-indigo-800/70">Estimated Commitment</span>' +
+    '<div class="flex justify-between text-sm"><span class="text-indigo-800/70">Accepted commitment</span>' +
     '<span class="font-bold text-indigo-900">' + wl.current + ' / ' + wl.max + ' hrs</span></div>' +
     '<div class="h-2 w-full bg-indigo-200/50 rounded-full overflow-hidden">' +
     '<div class="h-full ' + barColor + ' rounded-full transition-all duration-1000" style="width:' + pct + '%"></div></div></div>';
@@ -222,7 +187,7 @@ function renderWorkload(wl) {
     wl.assignments.forEach(function(a) {
       const aPct = wl.max > 0 ? Math.round(a.hoursPerWeek / wl.max * 100) : 0;
       html += '<div class="flex items-center justify-between text-sm">' +
-        '<span class="text-indigo-900 font-medium">' + a.moduleCode + '</span>' +
+        '<span class="text-indigo-900 font-medium">' + notificationText(a.moduleCode) + '</span>' +
         '<span class="text-indigo-800/70">' + a.hoursPerWeek + ' hrs/wk</span></div>' +
         '<div class="h-1.5 w-full bg-indigo-100 rounded-full overflow-hidden mb-1">' +
         '<div class="h-full bg-indigo-400 rounded-full" style="width:' + aPct + '%"></div></div>';
@@ -230,17 +195,7 @@ function renderWorkload(wl) {
     html += '</div>';
   }
 
-  const canTake = Math.floor(wl.remaining / 8);
-  if (wl.remaining > 0) {
-    html += '<div class="bg-white/60 rounded-lg p-3 text-sm flex gap-3 text-indigo-900">' +
-      '<i data-lucide="info" class="h-5 w-5 shrink-0 text-indigo-500"></i>' +
-      '<p>You can safely take on <strong>' + (canTake > 0 ? canTake : 'no') + ' more standard TA module' + (canTake !== 1 ? 's' : '') +
-      '</strong> (approx 8 hrs/wk each) before reaching the recommended maximum.</p></div>';
-  } else {
-    html += '<div class="bg-red-50 rounded-lg p-3 text-sm flex gap-3 text-red-800">' +
-      '<i data-lucide="alert-triangle" class="h-5 w-5 shrink-0 text-red-500"></i>' +
-      '<p><strong>You have reached or exceeded your maximum weekly hours.</strong> Consider reducing commitments before taking on new modules.</p></div>';
-  }
+  html += '<p class="text-sm">Published reserved hours: '+wl.reservedHours+'. Review actual Section requirements before accepting further work.</p>';
 
   el.innerHTML = html;
 }
@@ -251,8 +206,10 @@ function renderSchedule(schedule, offers) {
   cachedSchedule = schedule;
   if (offers) cachedOffers = offers;
   const el = document.getElementById('weeklySchedule');
-  const interviews = schedule.filter(function(s) { return s.type === 'interview'; });
-  const duties = schedule.filter(function(s) { return s.type === 'duty'; });
+  const safeSchedule=escapeDisplay(schedule);
+  const isCurrentWeek=currentWeekOffset===0;
+  const interviews = safeSchedule.filter(function(s) { return s.type === 'interview'; });
+  const duties = safeSchedule.filter(function(s) { return s.type === 'duty'; });
 
   const today = new Date();
   const dayOfWeek = today.getDay();
@@ -284,43 +241,16 @@ function renderSchedule(schedule, offers) {
   });
 
   duties.forEach(function(d) {
-    if (!d.date) return;
-    var evDate = new Date(d.date + 'T00:00:00');
-    for (let i = 0; i < 7; i++) {
-      if (weekDates[i].toDateString() === evDate.toDateString()) {
-        eventsByDay[i].push({ type: 'duty', data: d });
-        break;
-      }
-    }
+    (d.meetingTimes||[]).forEach(function(m){eventsByDay[m.dayOfWeek-1].push({type:'work',data:{moduleCode:d.moduleCode+' · '+d.title+' '+m.startTime+'–'+m.endTime}});});
   });
-
-  allExpandedWorkDates = [];
-  (cachedOffers || []).forEach(function(offer) {
-    if (!offer.workDates) return;
-    var expanded = expandWorkDates(offer.workDates);
-    allExpandedWorkDates = allExpandedWorkDates.concat(expanded);
-    expanded.forEach(function(dateStr) {
-      var evDate = new Date(dateStr + 'T00:00:00');
-      for (let i = 0; i < 7; i++) {
-        if (weekDates[i].toDateString() === evDate.toDateString()) {
-          eventsByDay[i].push({ type: 'work', data: { moduleCode: offer.moduleCode, title: offer.title, date: dateStr } });
-          break;
-        }
-      }
-    });
-  });
-  allExpandedWorkDates.sort();
-
-  const isCurrentWeek = currentWeekOffset === 0;
   let html = '<div class="flex items-center justify-between mb-4">' +
     '<div class="flex items-center gap-1">' +
-    '<button onclick="shiftWeek(-1)" class="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors"><i data-lucide="chevron-left" class="h-5 w-5 text-zinc-500"></i></button>' +
-    '<button onclick="shiftWeek(1)" class="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors"><i data-lucide="chevron-right" class="h-5 w-5 text-zinc-500"></i></button>' +
+    '<button aria-label="Previous week" onclick="shiftWeek(-1)" class="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors"><i data-lucide="chevron-left" class="h-5 w-5 text-zinc-500"></i></button>' +
+    '<button aria-label="Next week" onclick="shiftWeek(1)" class="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors"><i data-lucide="chevron-right" class="h-5 w-5 text-zinc-500"></i></button>' +
     '</div>' +
     '<span class="font-semibold text-zinc-800">' + monthNames[monday.getMonth()] + ' ' + monday.getFullYear() + '</span>' +
     '<div class="flex gap-2">' +
     (isCurrentWeek ? '' : '<button onclick="currentWeekOffset=0;renderSchedule(cachedSchedule);lucide.createIcons();" class="text-xs px-2 py-1 rounded-md bg-indigo-100 text-indigo-700 hover:bg-indigo-200 font-medium">Today</button>') +
-    (allExpandedWorkDates.length > 0 ? '<button onclick="jumpToNextWorkDay()" class="text-xs px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-medium">Next Work</button>' : '') +
     '</div></div>';
 
   html += '<div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-zinc-500 mb-2">';
@@ -335,7 +265,7 @@ function renderSchedule(schedule, offers) {
     const hasDuty = events.some(function(e) { return e.type === 'duty'; });
     const hasWork = events.some(function(e) { return e.type === 'work'; });
 
-    html += '<div class="relative group">';
+    html += '<div class="relative group" tabindex="0" aria-label="Weekly schedule '+padDate(date)+'">';
     html += '<div class="aspect-square flex flex-col items-center justify-center rounded-lg border transition-all cursor-pointer ' +
       (isToday ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : hasWork ? 'bg-emerald-50 border-emerald-200 hover:border-emerald-400' : 'bg-white border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50/50') + '">';
     html += '<span class="text-sm font-semibold">' + date.getDate() + '</span>';
@@ -349,7 +279,7 @@ function renderSchedule(schedule, offers) {
     html += '</div>';
 
     if (events.length > 0) {
-      html += '<div class="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-20 hidden group-hover:block w-48">' +
+      html += '<div class="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-20 hidden group-hover:block group-focus-within:block w-48">' +
         '<div class="bg-white rounded-lg shadow-lg border border-zinc-200 p-3 text-left">';
       events.forEach(function(ev) {
         if (ev.type === 'duty') {
@@ -440,9 +370,10 @@ function renderNotifications(notifications, unreadCount) {
       '<div class="h-9 w-9 rounded-full ' + color + ' flex items-center justify-center shrink-0">' +
       '<i data-lucide="' + icon + '" class="h-4 w-4"></i></div>' +
       '<div class="flex-1 min-w-0">' +
-      '<p class="text-sm font-medium text-zinc-900">' + n.title + '</p>' +
-      '<p class="text-xs text-zinc-500 mt-0.5 line-clamp-2">' + n.message + '</p>' +
+      '<p class="text-sm font-medium text-zinc-900">' + notificationText(n.title) + '</p>' +
+      '<p class="text-xs text-zinc-500 mt-0.5 line-clamp-2">' + notificationText(n.message) + '</p>' +
       '<p class="text-xs text-zinc-400 mt-1">' + timeAgo + '</p>' +
+      ((n.type || '').startsWith('assignment_') ? '<a class="text-sm text-blue-600 underline" href="' + getNotificationLink(n) + '">Review assignment</a>' : '') +
       '</div>' +
       (n.read ? '' : '<span class="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1"></span>') +
       '</div></div>';
@@ -466,43 +397,9 @@ function formatTimeAgo(dateStr) {
 }
 
 function renderOffers(offers) {
-  const el = document.getElementById('offersSection');
-  if (!el) return;
-  if (!offers || offers.length === 0) {
-    el.classList.add('hidden');
-    return;
-  }
-  el.classList.remove('hidden');
-  const listEl = document.getElementById('offersList');
-  listEl.innerHTML = offers.map(function(o) {
-    var expanded = expandWorkDates(o.workDates || []);
-    const dateCount = expanded.length;
-    const todayISO = padDate(new Date());
-    const nextDate = expanded.find(function(d) { return d >= todayISO; });
-    return '<div class="p-5 border border-emerald-200 rounded-xl bg-emerald-50/50">' +
-      '<div class="flex items-center justify-between mb-3">' +
-      '<div class="flex items-center gap-3">' +
-      '<div class="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center"><i data-lucide="trophy" class="h-5 w-5 text-emerald-600"></i></div>' +
-      '<div><h4 class="font-semibold text-zinc-900">' + (o.title || '') + '</h4>' +
-      '<p class="text-sm text-zinc-500">' + (o.moduleCode || '') + (o.department ? ' · ' + o.department : '') + '</p></div></div>' +
-      '<span class="badge badge-success">Offer</span></div>' +
-      (dateCount > 0 ?
-        '<div class="mt-3 pt-3 border-t border-emerald-100">' +
-        '<p class="text-xs font-medium text-emerald-700 mb-2">' + dateCount + ' scheduled work session' + (dateCount > 1 ? 's' : '') +
-        (nextDate ? ' · Next: ' + nextDate : '') + '</p>' +
-        '<div class="flex flex-wrap gap-1">' +
-        expanded.slice(0, 8).map(function(d) {
-          var dt = new Date(d + 'T00:00:00');
-          var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-          var isPast = d < todayISO;
-          return '<span class="text-xs px-2 py-0.5 rounded-full border ' +
-            (isPast ? 'bg-zinc-100 text-zinc-400 border-zinc-200 line-through' : 'bg-white text-emerald-700 border-emerald-200') + '">' +
-            dayNames[dt.getDay()] + ' ' + d.substring(5) + '</span>';
-        }).join('') +
-        (dateCount > 8 ? '<span class="text-xs text-zinc-400">+' + (dateCount - 8) + ' more</span>' : '') +
-        '</div></div>' : '') +
-      '</div>';
-  }).join('');
+  const el=document.getElementById('offersSection');if(!el)return;el.classList.toggle('hidden',!offers.length);
+  const list=document.getElementById('offersList');list.replaceChildren();
+  offers.forEach(o=>{const card=document.createElement('div');card.className='card p-4';card.textContent=o.moduleCode+' · '+o.title+' · '+o.hoursPerWeek+' hours/week · '+(o.meetingTimes||[]).map(m=>['','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][m.dayOfWeek]+' '+m.startTime+'–'+m.endTime).join(' · ');list.appendChild(card);});
 }
 
 loadDashboard();

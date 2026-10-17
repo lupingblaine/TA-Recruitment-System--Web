@@ -8,7 +8,7 @@
   </main>
 </div>
 
-<script src="${pageContext.request.contextPath}/static/js/api.js?v=20260519"></script>
+<script src="${pageContext.request.contextPath}/static/js/api.js?v=availability-1"></script>
 <script>
   lucide.createIcons();
 
@@ -46,6 +46,7 @@
 
   const _notifRole = '<%= userRole %>';
   function _notifApi() {
+    if (['reviewer','decision_maker','viewer'].includes(_notifRole)) return null;
     if (_notifRole === 'organiser') return organiserApi;
     if (_notifRole === 'admin' && typeof adminApi !== 'undefined') return adminApi;
     return applicantApi;
@@ -62,6 +63,11 @@
     }
   }
 
+  function notificationText(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeDisplay(value){if(typeof value==='string')return notificationText(value);if(Array.isArray(value))return value.map(escapeDisplay);if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,escapeDisplay(v)]));return value;}
+  function sanitizeDocumentHtml(html){const template=document.createElement('template');template.innerHTML=html;const allowed=new Set(['P','BR','B','STRONG','EM','I','UL','OL','LI','H1','H2','H3','H4','TABLE','TR','TD','TH','THEAD','TBODY','BLOCKQUOTE','PRE','CODE','A']);for(const node of [...template.content.querySelectorAll('*')]){if(!allowed.has(node.tagName)){node.replaceWith(document.createTextNode(node.textContent));continue;}for(const attr of [...node.attributes]){if(!(node.tagName==='A'&&attr.name==='href'&&/^https?:\/\//i.test(attr.value)))node.removeAttribute(attr.name);}}return template.innerHTML;}
   function renderHeaderNotifications(notifications) {
     const list = document.getElementById('headerNotifList');
     const badge = document.getElementById('headerUnreadBadge');
@@ -88,8 +94,8 @@
         '<div class="h-8 w-8 rounded-full ' + color + ' flex items-center justify-center shrink-0">' +
         '<i data-lucide="' + icon + '" class="h-4 w-4"></i></div>' +
         '<div class="flex-1 min-w-0">' +
-        '<p class="text-sm font-medium text-zinc-900 truncate">' + n.title + '</p>' +
-        '<p class="text-xs text-zinc-500 truncate">' + n.message.substring(0, 50) + '...</p>' +
+        '<p class="text-sm font-medium text-zinc-900 truncate">' + notificationText(n.title) + '</p>' +
+        '<p class="text-xs text-zinc-500 truncate">' + notificationText((n.message || '').substring(0, 50)) + '...</p>' +
         '</div>' +
         (n.read ? '' : '<span class="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-2"></span>') +
         '</div></a>';
@@ -99,6 +105,7 @@
 
   function getNotificationLink(n) {
     const ctx = document.querySelector('meta[name="ctx"]')?.content || '';
+    if ((n.type || '').startsWith('assignment_')) return ctx + '/' + _notifRole + '/assignments.jsp?assignmentId=' + encodeURIComponent(n.relatedId || '');
     if (_notifRole === 'organiser') {
       return ctx + '/organiser/applications.jsp';
     }

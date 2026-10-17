@@ -1,6 +1,7 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ include file="/common/auth-check.jsp" %>
 <jsp:include page="/common/layout-top.jsp"/>
+<jsp:include page="/common/application-period-banner.jsp"/>
 
 <div class="space-y-8 max-w-5xl mx-auto">
   <div>
@@ -8,12 +9,15 @@
     <p class="text-zinc-500 mt-2">Track the progress of your submitted TA applications.</p>
   </div>
 
+  <div><label for="applicationPeriodFilter" class="text-sm font-medium mr-3">Application period</label><select id="applicationPeriodFilter" class="input w-auto" onchange="loadApplications()"><option value="">All periods</option></select></div>
   <div class="space-y-6" id="appList">
     <div class="text-center text-zinc-400 py-12">Loading...</div>
   </div>
 </div>
 
 <jsp:include page="/common/layout-bottom.jsp"/>
+<script src="<%= request.getContextPath() %>/static/js/availability-view.js"></script>
+<script src="<%= request.getContextPath() %>/static/js/qualification-view.js"></script>
 <script>
 const ctx = document.querySelector('meta[name="ctx"]').content;
 const STEPS = ['applied', 'under_review', 'shortlisted', 'interview', 'hired'];
@@ -36,10 +40,30 @@ function getStepIndex(status) {
   return map[s] !== undefined ? map[s] : 0;
 }
 
+function escapePeriodName(value) { const span = document.createElement('span'); span.textContent = value; return span.innerHTML; }
+
+function viewSubmittedAvailability(index) {
+  const apps = window.submittedApplications || [];
+  const container = document.getElementById('submittedAvailability' + index);
+  container.replaceChildren();
+  QualificationView.render(container,apps[index]?.qualificationSnapshot,apps[index]?.id);
+  const availability=document.createElement("section");
+  container.appendChild(availability);
+  AvailabilityView.render(availability, apps[index]?.availabilitySnapshot);
+}
+
 async function loadApplications() {
   try {
     const data = await applicantApi.getApplications();
-    const apps = data.applications || data || [];
+    const allApps = data.applications || data || [];
+    const filter = document.getElementById('applicationPeriodFilter');
+    const selected = filter.value;
+    filter.replaceChildren(new Option('All periods', ''));
+    const periods = new Map(allApps.filter(a => a.periodId).map(a => [a.periodId, a.periodName || a.periodId]));
+    periods.forEach((name, id) => filter.add(new Option(name, id)));
+    filter.value = selected;
+    const apps = selected ? allApps.filter(a => a.periodId === selected) : allApps;
+    window.submittedApplications = apps;
     const container = document.getElementById('appList');
 
     if (apps.length === 0) {
@@ -47,7 +71,8 @@ async function loadApplications() {
       return;
     }
 
-    container.innerHTML = apps.map(app => {
+    container.innerHTML = apps.map((original, appIndex) => {
+      const app=escapeDisplay(original);
       const isRejected = app.status === 'rejected';
       const currentIdx = isRejected ? STEPS.length - 1 : getStepIndex(app.status);
       const statusBadge = isRejected ? 'badge-danger' : (app.status === 'interview' ? 'badge-warning' : (app.status === 'offer' ? 'badge-success' : 'badge-neutral'));
@@ -95,7 +120,9 @@ async function loadApplications() {
               '<span class="text-sm font-medium text-zinc-500">Applied ' + (app.appliedDate || '') + '</span></div>' +
             '<h3 class="text-xl font-bold text-zinc-900 mt-2">' + (app.role || app.jobId) + '</h3>' +
             '<p class="text-zinc-500">' + (app.moduleCode || '') + '</p>' +
+            '<p class="text-sm text-zinc-500">' + (app.periodName || '') + '</p>' +
           '</div>' +
+          '<details class="text-sm" ontoggle="if(this.open)viewSubmittedAvailability(' + appIndex + ')"><summary class="cursor-pointer">Submitted application snapshot</summary><div id="submittedAvailability' + appIndex + '" class="mt-3"></div></details>' +
           actionsHTML +
         '</div>' +
         '<div class="p-6 sm:p-8 bg-zinc-50/50">' + timelineHTML + '</div></div>';

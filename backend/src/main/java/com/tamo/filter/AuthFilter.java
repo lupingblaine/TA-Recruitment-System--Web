@@ -33,6 +33,12 @@ public class AuthFilter implements Filter {
         }
 
         String role = (String) session.getAttribute("role");
+        try {
+            var ds=com.tamo.service.JsonDataService.getInstance().getData();
+            if(ds!=null&&ds.getUsers()!=null){var user=ds.getUsers().stream().filter(u->java.util.Objects.equals(session.getAttribute("userId"),u.getId())).findFirst().orElse(null);
+                if(user==null||!"active".equals(user.getStatus())){JsonUtil.writeError(resp,403,"Account access is no longer active.");return;}role=user.getRole();session.setAttribute("role",role);
+            }
+        }catch(IllegalStateException unavailable){/* DatabaseTransactionFilter rejects unavailable database requests first. */}
         String path = req.getRequestURI();
 
         if (path.contains("/api/applicant") && !"applicant".equals(role)) {
@@ -48,6 +54,7 @@ public class AuthFilter implements Filter {
             return;
         }
 
+        if(path.contains("/api/messages")&&java.util.Set.of("reviewer","decision_maker","viewer").contains(role)){JsonUtil.writeError(resp,403,"Messaging is not included in this review role.");return;}
         chain.doFilter(request, response);
     }
 

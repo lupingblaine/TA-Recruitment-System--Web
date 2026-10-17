@@ -163,4 +163,10 @@ public class User {
      * @param createdAt the createdat to set
      */
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    private java.util.List<String> permissions;
+    public java.util.List<String> getPermissions(){return permissions;}
+    public void setPermissions(java.util.List<String> value){permissions=value;}
+    private java.util.List<String> courseIds;
+    public java.util.List<String> getCourseIds(){return courseIds;}
+    public void setCourseIds(java.util.List<String> value){courseIds=value;}
 }

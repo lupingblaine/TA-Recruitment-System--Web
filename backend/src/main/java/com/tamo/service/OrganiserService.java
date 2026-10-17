@@ -444,6 +444,18 @@ public class OrganiserService {
             job.setWorkDates(dates);
         }
 
+        if (body.has("sectionIds")) {
+            final String courseId=moduleId;
+            Module selectedCourse=data.getModules().stream().filter(m->Objects.equals(m.getId(),courseId) && Objects.equals(m.getOrganiserId(),organiserId)).findFirst().orElse(null);
+            if(selectedCourse==null || moduleCode!=null && !moduleCode.isBlank() && !Objects.equals(selectedCourse.getCode(),moduleCode)) {
+                result.put("error","Course and Section selections do not match."); result.put("code",400); return result;
+            }
+            job.setModuleCode(selectedCourse.getCode());
+            try { job.setSectionIds(JobSectionService.validate(data, moduleId, body.get("sectionIds"))); }
+            catch (IllegalArgumentException e) { result.put("error",e.getMessage()); result.put("code",400); return result; }
+            job.setWorkDates(new ArrayList<>());
+        }
+
         data.getJobs().add(job);
         dataService.save();
         result.put("job", job);
@@ -487,11 +499,49 @@ public class OrganiserService {
             return result;
         }
 
+        if (body.has("moduleId")) {
+            String requestedCourseId=body.get("moduleId").getAsString();
+            Module requestedCourse=data.getModules().stream().filter(m->Objects.equals(m.getId(),requestedCourseId) && Objects.equals(m.getOrganiserId(),organiserId)).findFirst().orElse(null);
+            if(requestedCourse==null) { result.put("error","You can only post jobs for your own courses."); result.put("code",403); return result; }
+            if(body.has("moduleCode") && !Objects.equals(requestedCourse.getCode(),body.get("moduleCode").getAsString())) {
+                result.put("error","Course selections do not match."); result.put("code",400); return result;
+            }
+        }
+        if ((body.has("moduleId") && !Objects.equals(job.getModuleId(),body.get("moduleId").getAsString()) ||
+             body.has("moduleCode") && !Objects.equals(job.getModuleCode(),body.get("moduleCode").getAsString()))
+                && data.getApplications().stream().anyMatch(a->jobId.equals(a.getJobId()))) {
+            result.put("error","This posting has applications and cannot move to another course. Create a new posting."); result.put("code",409); return result;
+        }
+        if (body.has("moduleCode") && !Objects.equals(job.getModuleCode(),body.get("moduleCode").getAsString()) && SectionAssignmentService.hasHistory(data,"jobs",jobId)) {
+            result.put("error", "A position with assignment history cannot be moved to another course."); result.put("code",409);return result;
+        }
+        if (job.getSectionIds()!=null && !body.has("sectionIds") &&
+                (body.has("moduleId") && !Objects.equals(job.getModuleId(),body.get("moduleId").getAsString()) ||
+                 body.has("moduleCode") && !Objects.equals(job.getModuleCode(),body.get("moduleCode").getAsString()))) {
+            result.put("error","Select Sections again when changing the course."); result.put("code",400); return result;
+        }
+        List<String> selectedSections = job.getSectionIds();
+        if (body.has("sectionIds")) {
+            String targetModule = body.has("moduleId") ? body.get("moduleId").getAsString() : job.getModuleId();
+            com.tamo.model.Module selectedCourse=data.getModules().stream().filter(m->Objects.equals(m.getId(),targetModule)).findFirst().orElse(null);
+            if (selectedCourse==null || body.has("moduleCode") && !Objects.equals(selectedCourse.getCode(),body.get("moduleCode").getAsString())) {
+                result.put("error","Course and Section selections do not match."); result.put("code",400); return result;
+            }
+            if (!isModuleOwnedBy(data, organiserId, targetModule, null)) {
+                result.put("error","You can only post jobs for your own courses."); result.put("code",403); return result;
+            }
+            try { selectedSections=JobSectionService.validate(data,targetModule,body.get("sectionIds")); }
+            catch (IllegalArgumentException e) { result.put("error",e.getMessage()); result.put("code",400); return result; }
+            if (!Objects.equals(new java.util.HashSet<>(selectedSections),job.getSectionIds()==null?null:new java.util.HashSet<>(job.getSectionIds()))
+                    && data.getApplications().stream().anyMatch(a->jobId.equals(a.getJobId()))) {
+                result.put("error","This posting already has applications. Create a new posting to change its Section scope."); result.put("code",409); return result;
+            }
+        }
         if (body.has("title")) job.setTitle(body.get("title").getAsString());
         if (body.has("moduleCode")) {
             String newModuleCode = body.get("moduleCode").getAsString();
             if (newModuleCode != null && !newModuleCode.isBlank()
-                    && !isModuleOwnedBy(data, organiserId, null, newModuleCode)) {
+                    && !isModuleOwnedBy(data, organiserId, body.has("moduleId")?body.get("moduleId").getAsString():null, newModuleCode)) {
                 result.put("error", "You can only post jobs for modules you are responsible for.");
                 result.put("code", 403);
                 return result;
@@ -499,7 +549,7 @@ public class OrganiserService {
             job.setModuleCode(newModuleCode);
             if (newModuleCode != null && !newModuleCode.isBlank()) {
                 Module module = data.getModules().stream()
-                        .filter(m -> newModuleCode.equals(m.getCode()))
+                        .filter(m -> body.has("moduleId")?Objects.equals(body.get("moduleId").getAsString(),m.getId()):newModuleCode.equals(m.getCode()))
                         .findFirst().orElse(null);
                 job.setModuleId(module != null ? module.getId() : newModuleCode);
             }
@@ -531,6 +581,11 @@ public class OrganiserService {
             job.setWorkDates(dates);
         }
 
+        if (body.has("moduleId")) {
+            job.setModuleId(body.get("moduleId").getAsString());
+            data.getModules().stream().filter(m->Objects.equals(m.getId(),job.getModuleId())).findFirst().ifPresent(m->job.setModuleCode(m.getCode()));
+        }
+        if (body.has("sectionIds")) { job.setSectionIds(selectedSections); if(body.has("moduleId")) job.setModuleId(body.get("moduleId").getAsString()); job.setWorkDates(new ArrayList<>()); }
         dataService.save();
         result.put("job", job);
         return result;
@@ -572,6 +627,9 @@ public class OrganiserService {
        
         }
 
+        if (SectionAssignmentService.hasHistory(data, "jobs", jobId)) {
+            result.put("error", "This position has assignment history and must be retained."); result.put("code",409); return result;
+        }
         // When deleting a job, also clean up related applications and interviews to avoid leftover pipeline in TA pages
         Set<String> deletedAppIds = data.getApplications().stream()
                 .filter(a -> a.getJobId().equals(jobId))
@@ -598,7 +656,9 @@ public class OrganiserService {
      * @param moduleFilter the moduleFilter argument
      * @return the resulting object or status
      */
-    public JsonObject getPipeline(String organiserId, String moduleFilter) {
+    public JsonObject getPipeline(String organiserId, String moduleFilter) { return getPipeline(organiserId, moduleFilter, null); }
+
+    public JsonObject getPipeline(String organiserId, String moduleFilter, String periodId) {
         DataStore data = dataService.getData();
         Set<String> myJobIds = data.getJobs().stream()
                 .filter(j -> j.getOrganiserId().equals(organiserId))
@@ -607,6 +667,7 @@ public class OrganiserService {
 
         List<Application> apps = data.getApplications().stream()
                 .filter(a -> myJobIds.contains(a.getJobId()))
+                .filter(a -> periodId == null || periodId.isBlank() || periodId.equals(a.getPeriodId()))
                 .filter(a -> {
                     if (moduleFilter == null || "All".equals(moduleFilter) || moduleFilter.isEmpty()) return true;
                     Job job = findJobById(data, a.getJobId());
@@ -629,8 +690,11 @@ public class OrganiserService {
                 obj.addProperty("avatar", applicant != null ? String.valueOf(applicant.getName().charAt(0)) : "?");
                 obj.addProperty("gpa", profile != null ? String.valueOf(profile.getGpa()) : "N/A");
                 obj.addProperty("date", a.getAppliedAt());
-                obj.addProperty("matchScore", a.getMatchScore());
+                JsonObject qualificationMatch=new CriteriaMatchingService().evaluateAcrossSections(data,a,job);
+                obj.add("qualificationMatching",qualificationMatch);obj.add("submittedQualifications",a.getQualificationSnapshot()==null?new JsonObject():a.getQualificationSnapshot().deepCopy());
+                obj.add("matchScore",qualificationMatch.get("score"));
                 obj.addProperty("riskFlag", a.getRiskFlag());
+                obj.add("sectionMatching", new SectionMatchingService().match(data, a, job, organiserId));
                 obj.addProperty("aiSummary", a.getAiSummary());
                 // If status is interview, add interview information
                 if ("interview".equals(status)) {
@@ -705,6 +769,11 @@ public class OrganiserService {
             return result;
         }
 
+        if (!"offer".equals(newStatus) && SectionAssignmentService.activeForApplication(data, appId)) {
+            result.put("error", "Cancel active TA assignments before changing this application status.");
+            result.put("code", 409); return result;
+        }
+        if("offer".equals(newStatus)&&!ReviewService.approved(data,appId)){result.put("error","Record selection approval in Review Workspace before moving to Offer.");result.put("code",409);return result;}
         String oldStatus = app.getStatus();
         app.setStatus(newStatus);
         app.setUpdatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -745,8 +814,8 @@ public class OrganiserService {
                 }
                 case "offer" -> {
                     notifType = "offer";
-                    title = "Offer Received!";
-                    message = "Congratulations! You have received an offer for " + moduleCode + "!";
+                    title = "Application at Offer Stage";
+                    message = "Your application for " + moduleCode + " is at the offer stage. Review My Assignments once your section assignment is published.";
                 }
                 case "rejected" -> {
                     notifType = "rejection";
@@ -817,6 +886,8 @@ public class OrganiserService {
         Profile profile = findProfileByUserId(data, app.getApplicantId());
 
         JsonObject detail = (JsonObject) JsonUtil.getGson().toJsonTree(app);
+        detail.add("qualificationMatching",new CriteriaMatchingService().evaluateAcrossSections(data,app,job));
+        detail.add("sectionMatching", new SectionMatchingService().match(data, app, job, organiserId));
         if (applicant != null) {
             JsonObject applicantProfile = new JsonObject();
             applicantProfile.addProperty("name", applicant.getName());
@@ -836,7 +907,7 @@ public class OrganiserService {
             detail.add("applicantProfile", applicantProfile);
         }
         if (profile != null) {
-            detail.add("documents", JsonUtil.getGson().toJsonTree(profile.getDocuments()));
+            detail.add("documents", JsonUtil.getGson().toJsonTree(profile.getDocuments().stream().filter(d->app.getDocumentIds()!=null&&app.getDocumentIds().contains(d.getId())).toList()));
         }
 
         Interview interview = data.getInterviews().stream()

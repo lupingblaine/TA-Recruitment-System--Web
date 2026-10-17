@@ -30,6 +30,15 @@
     </filter-mapping>
 
     <filter>
+        <filter-name>DatabaseTransactionFilter</filter-name>
+        <filter-class>com.tamo.filter.DatabaseTransactionFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>DatabaseTransactionFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
         <filter-name>AuthFilter</filter-name>
         <filter-class>com.tamo.filter.AuthFilter</filter-class>
     </filter>
@@ -50,7 +59,43 @@
         <url-pattern>/api/messages/*</url-pattern>
     </filter-mapping>
 
+    <servlet><servlet-name>SectionAssignmentServlet</servlet-name><servlet-class>com.tamo.servlet.SectionAssignmentServlet</servlet-class></servlet>
+    <servlet-mapping><servlet-name>SectionAssignmentServlet</servlet-name><url-pattern>/api/admin/assignments/*</url-pattern></servlet-mapping>
+    <servlet-mapping><servlet-name>SectionAssignmentServlet</servlet-name><url-pattern>/api/organiser/assignments/*</url-pattern></servlet-mapping>
+    <servlet-mapping><servlet-name>SectionAssignmentServlet</servlet-name><url-pattern>/api/applicant/assignments/*</url-pattern></servlet-mapping>
+<servlet><servlet-name>CriteriaServlet</servlet-name><servlet-class>com.tamo.servlet.CriteriaServlet</servlet-class></servlet>
+<servlet-mapping><servlet-name>CriteriaServlet</servlet-name><url-pattern>/api/admin/criteria/*</url-pattern></servlet-mapping>
+<servlet-mapping><servlet-name>CriteriaServlet</servlet-name><url-pattern>/api/organiser/criteria/*</url-pattern></servlet-mapping>
+<servlet><servlet-name>ReviewServlet</servlet-name><servlet-class>com.tamo.servlet.ReviewServlet</servlet-class></servlet>
+<servlet-mapping><servlet-name>ReviewServlet</servlet-name><url-pattern>/api/review/*</url-pattern></servlet-mapping>
+<servlet-mapping><servlet-name>ReviewServlet</servlet-name><url-pattern>/api/admin/review-access/*</url-pattern></servlet-mapping>
+<filter><filter-name>ProtectedUploadFilter</filter-name><filter-class>com.tamo.filter.ProtectedUploadFilter</filter-class></filter><filter-mapping><filter-name>ProtectedUploadFilter</filter-name><url-pattern>/static/uploads/*</url-pattern></filter-mapping>
+<servlet><servlet-name>DocumentServlet</servlet-name><servlet-class>com.tamo.servlet.DocumentServlet</servlet-class></servlet><servlet-mapping><servlet-name>DocumentServlet</servlet-name><url-pattern>/api/documents/*</url-pattern></servlet-mapping>
     <!-- Servlets -->
+    <servlet>
+        <servlet-name>CourseSectionServlet</servlet-name>
+        <servlet-class>com.tamo.servlet.CourseSectionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CourseSectionServlet</servlet-name>
+        <url-pattern>/api/admin/course-sections/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CourseSectionServlet</servlet-name>
+        <url-pattern>/api/organiser/course-sections/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ApplicationPeriodServlet</servlet-name>
+        <servlet-class>com.tamo.servlet.ApplicationPeriodServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ApplicationPeriodServlet</servlet-name>
+        <url-pattern>/api/admin/application-periods/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ApplicationPeriodServlet</servlet-name>
+        <url-pattern>/api/organiser/application-periods/*</url-pattern>
+    </servlet-mapping>
     <servlet>
         <servlet-name>AuthServlet</servlet-name>
         <servlet-class>com.tamo.servlet.AuthServlet</servlet-class>
@@ -96,4 +141,5 @@
         <url-pattern>/api/messages/*</url-pattern>
     </servlet-mapping>
 
+<servlet><servlet-name>SponsorCsvServlet</servlet-name><servlet-class>com.tamo.servlet.SponsorCsvServlet</servlet-class></servlet><servlet-mapping><servlet-name>SponsorCsvServlet</servlet-name><url-pattern>/api/csv/*</url-pattern></servlet-mapping>
 </web-app>

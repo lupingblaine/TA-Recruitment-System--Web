@@ -1,0 +1,7 @@
+﻿First Name,Last Name,Proposed Course & Section,Match Status,Conflict/Eligibility Notes,Selection Status,Responsible User,Export Roster Preview
+Alex,Taylor,BIO 93 - Discussion 1,Matched,Passed all checks (Skills & Schedule OK),Selected,Prof. Smith,Alex Taylor | 91823451 | BIO 93 Disc 1 | Selected
+Sam,Morgan,BIO INF1 - Lab 1,Matched,"Passed all checks (Has Python, R, Linux)",Proposed,Admin Hsieh,Sam Morgan | 73645192 | BIO INF1 Lab 1 | Proposed
+Jordan,Lee,BIO 98 - Lecture,Conflict Detected,Schedule Overlap (Tue 10:00-11:20),Flagged,System Auto-Flag,Jordan Lee | 82736412 | BIO 98 Lecture | Schedule Conflict
+Casey,Chen,BIO E109 - Lab A,Conflict Detected,Partial Overlap (Wed 13:00-15:00),Flagged,System Auto-Flag,Casey Chen | 64519283 | BIO E109 Lab A | Schedule Conflict
+Taylor,Smith,BIO 93 - Lecture,Unqualified,"Missing Skill: Required ""Genetics""",Rejected,Admin Hsieh,Taylor Smith | 42319876 | BIO 93 Lecture | Unqualified
+Morgan,Drew,BIO 93 - Discussion 1,Matched,Passed all checks,Alternate,Admin Hsieh,Morgan Drew | 53421987 | BIO 93 Disc 1 | Alternate

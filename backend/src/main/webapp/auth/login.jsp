@@ -66,6 +66,7 @@
               </div>
             </div>
 
+            <label class="block text-sm">Review staff role (if applicable)<select class="apple-input" onchange="if(this.value)selectedRole=this.value"><option value="">Use role below</option><option value="reviewer">Reviewer</option><option value="decision_maker">Decision-maker</option><option value="viewer">Read-only viewer</option></select></label>
             <!-- Role Selector -->
             <div>
               <label class="block text-sm font-bold text-zinc-900 text-center mb-3">Select Role</label>
@@ -178,7 +179,7 @@
         const role = data.user?.role || selectedRole;
         if(riveAnim) riveAnim.triggerSuccess();
         setTimeout(() => {
-          window.location.href = ctx + '/' + role + '/dashboard.jsp';
+          window.location.href = ctx + (['reviewer','decision_maker','viewer'].includes(role)?'/review/dashboard.jsp':'/' + role + '/dashboard.jsp');
         }, 1000);
       } catch (err) {
         if(riveAnim) riveAnim.triggerFail();

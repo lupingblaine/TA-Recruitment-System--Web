@@ -1,241 +1,131 @@
 package com.tamo.service;
 
 import com.tamo.model.DataStore;
-import com.tamo.util.JsonUtil;
-
 import com.tamo.model.LogEntry;
+import com.tamo.persistence.PostgresStore;
+import com.tamo.util.JsonUtil;
 import jakarta.servlet.ServletContext;
-
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Thread-safe JSON file read/write core service (Singleton pattern)
+ * Compatibility facade for existing services; all persistence now uses PostgreSQL.
+ * The historical class name is retained to avoid changing every service API at once.
  */
 public class JsonDataService {
-
     private static JsonDataService instance;
-    private final String dataFilePath;
-    private String sourceFilePath;
+    private final PostgresStore store;
     private DataStore cache;
+    private String beforeRequest;
     private final Object lock = new Object();
 
-    private JsonDataService(String dataFilePath) {
-        this.dataFilePath = dataFilePath;
-        this.cache = loadFromFile();
-        resolveSourcePath();
-    }
-
-    private void resolveSourcePath() {
+    private JsonDataService(DataStore detached) {store=null;cache=detached;}
+    public static JsonDataService detached(DataStore data){return new JsonDataService(data);}
+    public void replaceImportedData(DataStore changed){cache=changed;save();}
+    private JsonDataService(String basePath) {
+        store = PostgresStore.fromEnvironment();
         try {
-            URL resource = getClass().getClassLoader().getResource("data.json");
-            if (resource != null && "file".equals(resource.getProtocol())) {
-                Path classesPath = Paths.get(resource.toURI());
-                Path projectRoot = classesPath.getParent();
-                while (projectRoot != null && !Files.exists(projectRoot.resolve("pom.xml"))) {
-                    projectRoot = projectRoot.getParent();
-                }
-                if (projectRoot != null) {
-                    Path srcPath = projectRoot.resolve("src/main/resources/data.json");
-                    if (Files.exists(srcPath)) {
-                        this.sourceFilePath = srcPath.toString();
-                    }
-                }
-            }
+            Path classes = Paths.get(basePath).toAbsolutePath();
+            Path root = classes;
+            while (root != null && !Files.exists(root.resolve("pom.xml"))) root = root.getParent();
+            Path seed = root == null ? classes.resolve("data.json") : root.resolve("src/main/resources/data.json");
+            Path backups = root == null ? Paths.get("backups") : root.getParent().resolve("backups");
+            store.initialize(seed, backups);
+            store.begin();
+            try { cache = store.load();
+                boolean changed=false;for(com.tamo.model.User user:cache.getUsers())if(user.getPassword()!=null&&!PasswordSecurity.encoded(user.getPassword())&&!user.getPassword().isBlank()){user.setPassword(PasswordSecurity.hash(user.getPassword()));changed=true;}
+                if(changed)store.save(cache);store.commit();
+                PrivateDocuments.migrateLegacyDirectory();
+            } finally { store.close(); }
+            System.out.println("[Database] PostgreSQL ready (JSON is now an import/backup only).");
         } catch (Exception e) {
-            this.sourceFilePath = null;
+            throw new IllegalStateException("Cannot initialize PostgreSQL. Start it with: docker compose up -d --wait db. "
+                    + "Check TAMO_DB_URL / TAMO_DB_USER / TAMO_DB_PASSWORD.", e);
         }
     }
 
-    /**
-     * Resolve the directory containing data.json. getRealPath may be null in embedded Tomcat, fall back to target/classes.
-     */
-    /**
-     * Executes the resolveClassesPath operation.
-     * @param ctx the ctx argument
-     * @return the resulting object or status
-     */
-    /**
-     * Executes the resolveClassesPath operation.
-     * @param ctx the ctx argument
-     * @return the resulting object or status
-     */
     public static String resolveClassesPath(ServletContext ctx) {
-        if (ctx != null) {
-            String realPath = ctx.getRealPath("/WEB-INF/classes");
-            if (realPath != null) {
-                return realPath;
-            }
-        }
-        File targetClasses = new File("target/classes");
-        if (targetClasses.isDirectory()) {
-            return targetClasses.getAbsolutePath();
-        }
-        try {
-            URL resource = JsonDataService.class.getClassLoader().getResource("data.json");
-            if (resource != null && "file".equals(resource.getProtocol())) {
-                return Paths.get(resource.toURI()).getParent().toString();
-            }
-        } catch (Exception ignored) {
-        }
-        throw new IllegalStateException("Cannot resolve WEB-INF/classes directory for data.json");
+        if (ctx != null && ctx.getRealPath("/WEB-INF/classes") != null) return ctx.getRealPath("/WEB-INF/classes");
+        return new File("target/classes").getAbsolutePath();
     }
 
-    /**
-     * Executes the getInstance operation.
-     * @param basePath the basePath argument
-     * @return the resulting object or status
-     */
-    /**
-     * Executes the getInstance operation.
-     * @param basePath the basePath argument
-     * @return the resulting object or status
-     */
     public static synchronized JsonDataService getInstance(String basePath) {
         if (instance == null) {
-            if (basePath == null || basePath.isBlank()) {
-                throw new IllegalArgumentException("basePath must not be null or blank");
-            }
-            String path = basePath + File.separator + "data.json";
-            instance = new JsonDataService(path);
-            System.out.println("[JsonDataService] data file: " + path);
+            if (basePath == null || basePath.isBlank()) throw new IllegalArgumentException("basePath is required");
+            instance = new JsonDataService(basePath);
         }
         return instance;
     }
 
-    /** Ensure the singleton is initialized (called by Main or Listener on startup). */
-    public static synchronized JsonDataService ensureInitialized(String basePath) {
-        return getInstance(basePath);
-    }
-
-    /**
-     * Executes the getInstance operation.
-     * @return the resulting object or status
-     */
-    /**
-     * Executes the getInstance operation.
-     * @return the resulting object or status
-     */
+    public static synchronized JsonDataService ensureInitialized(String basePath) { return getInstance(basePath); }
     public static synchronized JsonDataService getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("JsonDataService is not initialized. Call getInstance(basePath) first.");
-        }
+        if (instance == null) throw new IllegalStateException("Database has not been initialized");
         return instance;
     }
 
-    /**
-     * Load data from file
+    public Object requestLock() { return lock; }
 
-     */
-    private DataStore loadFromFile() {
+    /** Called under requestLock, before any service reads or mutates the shared model. */
+    public void beginRequest() {
         try {
-            Path path = Paths.get(dataFilePath);
-            if (!Files.exists(path)) {
-                // Try to load from classpath
-                try (InputStream is = getClass().getClassLoader().getResourceAsStream("data.json")) {
-                    if (is != null) {
-                        String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                        DataStore ds = JsonUtil.getGson().fromJson(json, DataStore.class);
-                        // Write to file for subsequent modifications
-                        Files.createDirectories(path.getParent());
-                        Files.writeString(path, json, StandardCharsets.UTF_8);
-                        return ds;
-                    }
-                }
-                System.err.println("Data file does not exist: " + dataFilePath);
-                return new DataStore();
-            }
-            String json = Files.readString(path, StandardCharsets.UTF_8);
-            return JsonUtil.getGson().fromJson(json, DataStore.class);
+            store.begin();
+            cache = store.load();
+            beforeRequest = JsonUtil.getGson().toJson(cache);
         } catch (Exception e) {
-            System.err.println("Failed to load data file: " + e.getMessage());
-            e.printStackTrace();
-            return new DataStore();
+            try { store.close(); } catch (Exception suppressed) { e.addSuppressed(suppressed); }
+            throw new IllegalStateException("Cannot read PostgreSQL", e);
         }
     }
 
-    /**
-     * Save data to file — write to both target/classes and src/main/resources
-     */
-    private void saveToFile() {
-        try {
-            String json = JsonUtil.getGson().toJson(cache);
-            Files.writeString(Paths.get(dataFilePath), json, StandardCharsets.UTF_8);
-            if (sourceFilePath != null) {
-                Files.writeString(Paths.get(sourceFilePath), json, StandardCharsets.UTF_8);
-            }
-        } catch (IOException e) {
-            System.err.println("Failed to save data file: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Get data store (read-only operations can directly get)
-     */
-    /**
-     * Executes the getData operation.
-     * @return the resulting object or status
-     */
-    /**
-     * Executes the getData operation.
-     * @return the resulting object or status
-     */
-    public DataStore getData() {
+    /** Expiry commits separately so a rejected or stale user action cannot roll it back. */
+    public void processAssignmentExpiry() {
         synchronized (lock) {
-            return cache;
+            boolean active=false;
+            try {
+                beginRequest();active=true;
+                new SectionAssignmentService(this).expireDueAssignments();
+                active=false;endRequest(true);
+            } catch (RuntimeException e) {
+                if(active) try {endRequest(false);}catch(RuntimeException suppressed){e.addSuppressed(suppressed);}
+                throw e;
+            }
         }
     }
 
-    /**
-     * Save modified data
-     */
-    /**
-     * Executes the save operation.
-     */
-    /**
-     * Executes the save operation.
-     */
+    public void endRequest(boolean success) {
+        try {
+            if (success) store.commit();
+        } catch (Exception e) {
+            success = false;
+            throw new IllegalStateException("Cannot commit PostgreSQL transaction", e);
+        } finally {
+            try { store.close(); }
+            catch (Exception e) { throw new IllegalStateException("Cannot close PostgreSQL transaction", e); }
+            finally {
+                if (!success && beforeRequest != null) cache = JsonUtil.getGson().fromJson(beforeRequest, DataStore.class);
+                beforeRequest = null;
+            }
+        }
+    }
+
+    public DataStore getData() { synchronized (lock) { return cache; } }
+
     public void save() {
         synchronized (lock) {
-            saveToFile();
+            try { if(store!=null)store.save(cache); }
+            catch (Exception e) { throw new IllegalStateException("Cannot save PostgreSQL data", e); }
         }
     }
 
-    /**
-     * Reload data (if refresh is needed)
-     */
-    /**
-     * Executes the reload operation.
-     */
-    /**
-     * Executes the reload operation.
-     */
     public void reload() {
         synchronized (lock) {
-            this.cache = loadFromFile();
+            try { cache = store.load(); }
+            catch (Exception e) { throw new IllegalStateException("Cannot reload PostgreSQL data", e); }
         }
     }
 
-    /**
-     * Generate auto-increment ID
-     */
-    /**
-     * Executes the generateId operation.
-     * @param prefix the prefix argument
-     * @param list the list argument
-     * @return the resulting object or status
-     */
-    /**
-     * Executes the generateId operation.
-     * @param prefix the prefix argument
-     * @param list the list argument
-     * @return the resulting object or status
-     */
     public String generateId(String prefix, java.util.List<?> list) {
         synchronized (lock) {
             int max = 0;
@@ -303,7 +193,7 @@ public class JsonDataService {
                 cache.setLogs(new java.util.ArrayList<>());
             }
             cache.getLogs().add(entry);
-            saveToFile();
+            save();
         }
     }
 }

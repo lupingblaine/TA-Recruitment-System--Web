@@ -94,7 +94,7 @@ public class AuthServlet extends HttpServlet {
             return;
         }
 
-        if ("suspended".equals(user.getStatus())) {
+        if (!"active".equals(user.getStatus())) {
             JsonUtil.writeError(resp, 403, "Account has been suspended");
             return;
         }
@@ -103,6 +103,7 @@ public class AuthServlet extends HttpServlet {
         authService.recordLogin(user);
 
         HttpSession session = req.getSession(true);
+        req.changeSessionId();
         session.setAttribute("userId", user.getId());
         session.setAttribute("role", user.getRole());
         session.setAttribute("userName", user.getName());
@@ -137,6 +138,11 @@ public class AuthServlet extends HttpServlet {
 
         if (!AuthService.isValidRole(role)) {
             JsonUtil.writeError(resp, 400, "Invalid role value");
+            return;
+        }
+
+        if (!"applicant".equals(role)) {
+            JsonUtil.writeError(resp, 403, "Staff accounts must be created by an administrator.");
             return;
         }
 

@@ -4,34 +4,52 @@
   String ctx = request.getContextPath();
   String role = (String) session.getAttribute("role");
   String userName = (String) session.getAttribute("userName");
-  if (userName == null) userName = "User";
+  if (userName == null || userName.isEmpty()) userName = "User";
 
   String[][] navItems;
   String sectionRoot;
   if ("applicant".equals(role)) {
     sectionRoot = ctx + "/applicant";
     navItems = new String[][] {
+      {"CSV Import / Export", sectionRoot + "/csv.jsp", "file-spreadsheet"},
       {"Dashboard", sectionRoot + "/dashboard.jsp", "layout-dashboard"},
+      {"My Assignments", sectionRoot + "/assignments.jsp", "calendar-check"},
       {"My Applications", sectionRoot + "/applications.jsp", "briefcase"},
       {"Find Jobs", sectionRoot + "/jobs.jsp", "users"},
       {"Messages", sectionRoot + "/messages.jsp", "message-circle"},
       {"Profile", sectionRoot + "/profile.jsp", "user"},
+      {"TA Application Profile", sectionRoot + "/application-profile.jsp", "clipboard-list"},
+      {"Weekly Availability", sectionRoot + "/availability.jsp", "calendar-clock"},
     };
   } else if ("organiser".equals(role)) {
     sectionRoot = ctx + "/organiser";
     navItems = new String[][] {
+      {"CSV Import / Export", sectionRoot + "/csv.jsp", "file-spreadsheet"},
+      {"Review Workspace", ctx+"/review/dashboard.jsp", "clipboard-check"},
       {"Overview", sectionRoot + "/dashboard.jsp", "layout-dashboard"},
       {"TA Positions", sectionRoot + "/jobs.jsp", "briefcase"},
+      {"Matching Criteria", sectionRoot + "/criteria.jsp", "list-checks"},
+      {"Course Sections", sectionRoot + "/course-sections.jsp", "calendar-range"},
+      {"TA Assignments", sectionRoot + "/assignments.jsp", "calendar-check"},
       {"Pipeline", sectionRoot + "/pipeline.jsp", "users"},
       {"Interviews", sectionRoot + "/interviews.jsp", "calendar"},
       {"Messages", sectionRoot + "/messages.jsp", "message-circle"},
     };
+  } else if ("reviewer".equals(role)||"decision_maker".equals(role)||"viewer".equals(role)) {
+    sectionRoot=ctx+"/review";navItems=new String[][]{{"Review Workspace",sectionRoot+"/dashboard.jsp","clipboard-check"}};
   } else {
     sectionRoot = ctx + "/admin";
     navItems = new String[][] {
+      {"CSV Import / Export", sectionRoot + "/csv.jsp", "file-spreadsheet"},
+      {"Review Workspace", ctx+"/review/dashboard.jsp", "clipboard-check"},
+      {"Review Access", sectionRoot+"/review-access.jsp", "shield-check"},
       {"Analytics", sectionRoot + "/dashboard.jsp", "layout-dashboard"},
       {"Workload Intel", sectionRoot + "/workload.jsp", "trending-up"},
       {"Global Modules", sectionRoot + "/modules.jsp", "book-open"},
+      {"Matching Criteria", sectionRoot + "/criteria.jsp", "list-checks"},
+      {"Course Sections", sectionRoot + "/course-sections.jsp", "calendar-range"},
+      {"TA Assignments", sectionRoot + "/assignments.jsp", "calendar-check"},
+      {"Application Periods", sectionRoot + "/application-periods.jsp", "calendar-range"},
       {"Properties", sectionRoot + "/properties.jsp", "sliders"},
       {"Users", sectionRoot + "/users.jsp", "users"},
       {"Data Editor", sectionRoot + "/data-editor.jsp", "database"},
@@ -85,10 +103,10 @@
   <div class="p-4 border-t border-zinc-200/50">
     <div class="flex items-center gap-3 px-3 py-2 mb-2">
       <div class="h-8 w-8 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center text-xs font-bold text-zinc-600">
-        <%= userName.substring(0,1).toUpperCase() %>
+        <%= com.tamo.util.JsonUtil.escapeHtml(userName.substring(0,1).toUpperCase()) %>
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-zinc-900 truncate"><%= userName %></p>
+        <p class="text-sm font-medium text-zinc-900 truncate"><%= com.tamo.util.JsonUtil.escapeHtml(userName) %></p>
         <p class="text-xs text-zinc-500 capitalize"><%= role %></p>
       </div>
     </div>
@@ -128,10 +146,10 @@
   <div class="p-4 mt-auto border-t border-zinc-200/50">
     <div class="flex items-center gap-3 px-3 py-2 mb-2">
       <div class="h-8 w-8 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center text-xs font-bold text-zinc-600">
-        <%= userName.substring(0,1).toUpperCase() %>
+        <%= com.tamo.util.JsonUtil.escapeHtml(userName.substring(0,1).toUpperCase()) %>
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-zinc-900 truncate"><%= userName %></p>
+        <p class="text-sm font-medium text-zinc-900 truncate"><%= com.tamo.util.JsonUtil.escapeHtml(userName) %></p>
         <p class="text-xs text-zinc-500 capitalize"><%= role %></p>
       </div>
     </div>

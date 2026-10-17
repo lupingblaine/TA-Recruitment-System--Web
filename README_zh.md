@@ -1,3 +1,11 @@
+> 当前版本基准：**Version 1（v1.0）**。主要改动、测试结果和已知限制见 [Version 1 版本说明](VERSION_1_zh.md)。
+
+> Sponsor 新版字段、技能多选与 CSV 已实现，使用步骤见 [Sponsor 表单与 CSV 说明](SPONSOR_CSV_GUIDE_zh.md)。
+
+> 当前 Proposal 流程与角色权限，以 [功能交接与验收](PROPOSAL_HANDOFF_zh.md) 为准（CSV 见上方新说明）。
+
+> 新增：管理员可在 **Application Periods** 管理申请周期。操作步骤和规则见 [申请周期管理说明](APPLICATION_PERIODS_zh.md)。
+
 [English](README.md) | [简体中文](README_zh.md)
 
 # TA&MO — 助教招聘与管理系统
@@ -59,11 +67,11 @@ TA&MO 是一个专为大学设计的全栈 Web 应用程序，旨在管理助教
 │  │  JSP 前端     │     │  Servlet 后端 API     │  │
 │  │  (18+ 个页面) │────▶│  (40+ 个 REST 接口)   │  │ 
 │  │  Tailwind CSS │     │  Session 鉴权 + RBAC  │  │
-│  │  Vanilla JS   │     │  JSON 文件持久化存储  │  │
+│  │  Vanilla JS   │     │  PostgreSQL 持久化存储  │  │
 │  └───────────────┘     └───────────────────────┘  │
 │                              │                    │
 │                        ┌─────▼─────┐              │
-│                        │ data.json │              │
+│                        │ PostgreSQL│              │
 │                        └───────────┘              │
 └───────────────────────────────────────────────────┘
 ```
@@ -91,7 +99,8 @@ TA&MO 是一个专为大学设计的全栈 Web 应用程序，旨在管理助教
    - 验证安装: `java -version` 和 `javac -version`
 2. **Apache Maven 3.6+**
    - 验证安装: `mvn -version`
-3. **可用的网络连接**
+3. **Docker Desktop / Docker Engine + Compose**（用于本地 PostgreSQL）
+4. **可用的网络连接**
    - 前端样式库依赖 CDN 下载（Tailwind CSS、Icons 等）。
 
 ### 1. 克隆代码库
@@ -107,7 +116,7 @@ git checkout dev
 系统开箱即用，默认配置在本地运行，但生产环境可以部署到云服务器。如需修改默认行为，可参考以下信息：
 
 - **服务器端口**: 嵌入式 Tomcat 默认运行在 **8080 端口**。如果此端口被占用，你可以在 `backend/src/main/java/com/tamo/Main.java` 文件中修改 `tomcat.setPort(8080);`。
-- **数据库**: 应用使用 JSON 文件作为持久化数据存储，路径为 `backend/src/main/resources/data.json`。
+- **数据库**: 应用使用本地 PostgreSQL 17；首次启动自动导入当前 `backend/src/main/resources/data.json` 并备份，之后仅写数据库。详见 [数据库使用说明](DATABASE_zh.md)。
 - **上下文路径**: 应用服务的 Context Path 为 `/tamo`。
 
 ---
@@ -117,6 +126,8 @@ git checkout dev
 我们使用 Maven 插件通过单条命令即可编译并启动嵌入式的 Tomcat 服务器。
 
 ### 启动应用
+
+先启动 Docker Desktop，在项目根目录运行 `docker compose up -d --wait db`，再执行下面的后端命令。macOS/Linux 也可以直接在项目根目录运行 `./run.sh` 启动数据库和应用。
 
 1. 进入 `backend` 目录:
    ```bash
@@ -132,9 +143,9 @@ git checkout dev
 
 服务器成功启动后（终端将输出 "TA&MO Backend Started"），打开浏览器并访问：
 
-- **系统主页**: [http://47.93.90.208:8080/tamo](http://47.93.90.208:8080/tamo)
-- **登录页面**: [http://47.93.90.208:8080/tamo/auth/login.jsp](http://47.93.90.208:8080/tamo/auth/login.jsp)
-- **注册页面**: [http://47.93.90.208:8080/tamo/auth/signup.jsp](http://47.93.90.208:8080/tamo/auth/signup.jsp)
+- **系统主页**: [http://localhost:8080/tamo](http://localhost:8080/tamo)
+- **登录页面**: [http://localhost:8080/tamo/auth/login.jsp](http://localhost:8080/tamo/auth/login.jsp)
+- **注册页面**: [http://localhost:8080/tamo/auth/signup.jsp](http://localhost:8080/tamo/auth/signup.jsp)
 
 *如需停止服务器，请在终端中按下 `Ctrl + C`。*
 
@@ -196,7 +207,7 @@ TA&MO_v1.0/
 │   │   └── util/                      # 工具辅助类
 │   │
 │   ├── src/main/resources/
-│   │   └── data.json                  # 持久化 JSON 数据库
+│   │   └── data.json                  # 首次导入数据（运行后以 PostgreSQL 为准）
 │   │
 │   ├── src/main/webapp/               # 前端文件
 │   │   ├── WEB-INF/web.xml            # Servlet 路由配置
@@ -215,15 +226,15 @@ TA&MO_v1.0/
 
 ## 用户角色与测试账号
 
-你可以使用以下预设账号直接登录测试系统。（注：测试环境中密码与经过哈希处理的占位字符串直接匹配）。
+首次导入随项目提供的测试数据后，可以使用以下账号；如已修改账号，以数据库中的记录为准。
 
 | 角色 | 姓名 | 邮箱 | 密码 |
 |------|------|-------|----------|
-| Applicant | Alex Johnson | `alex.j@university.edu` | `hashed_password_1` |
-| Applicant | Bob Smith | `bob.s@university.edu` | `hashed_password_2` |
-| Organiser | Alan Turing | `alan@university.edu` | `hashed_password_5` |
-| Organiser | Grace Hopper | `grace@university.edu` | `hashed_password_6` |
-| Admin | System Admin | `admin@university.edu` | `admin_hashed` |
+| Applicant | Alex Johnson | `alex.j@university.edu` | `demo123` |
+| Applicant | Bob Smith | `bob.s@university.edu` | `demo123` |
+| Organiser | Alan Turing | `alan@university.edu` | `demo123` |
+| Organiser | Grace Hopper | `grace@university.edu` | `demo123` |
+| Admin | System Admin | `admin@university.edu` | `admin123` |
 
 ---
 
@@ -252,10 +263,7 @@ lsof -ti :8080 | xargs kill -9
 前端严重依赖 CDN 链接来加载 Tailwind CSS 和 Lucide 图标。请检查你的网络连接。
 
 ### 数据意外丢失或需要重置
-由于系统在运行时会将修改实时写入 `src/main/resources/data.json`，因此任何修改都会被永久保存。如果你希望将数据库重置为初始出厂状态，可以从 Git 检出原文件：
-```bash
-git checkout -- backend/src/main/resources/data.json
-```
+数据保存在 PostgreSQL 的 Docker 数据卷中。修改或恢复 `data.json` 不会重置已初始化的数据库。备份和恢复方法见 [数据库使用说明](DATABASE_zh.md)。
 
 ---
 

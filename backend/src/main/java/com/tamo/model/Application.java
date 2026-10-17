@@ -14,6 +14,12 @@ public class Application {
      * The jobId of the entity.
      */
     private String jobId;
+    private String periodId;
+    private WeeklyAvailability availabilitySnapshot;
+    public WeeklyAvailability getAvailabilitySnapshot() { return availabilitySnapshot; }
+    public void setAvailabilitySnapshot(WeeklyAvailability value) { availabilitySnapshot = value; }
+    public String getPeriodId() { return periodId; }
+    public void setPeriodId(String value) { periodId = value; }
     /**
      * The applicantId of the entity.
      */
@@ -243,4 +249,7 @@ public class Application {
      * @param timeline the timeline to set
      */
     public void setTimeline(List<TimelineEntry> timeline) { this.timeline = timeline; }
+    private com.google.gson.JsonElement qualificationSnapshot;
+    public com.google.gson.JsonObject getQualificationSnapshot() {return qualificationSnapshot==null||qualificationSnapshot.isJsonNull()?null:qualificationSnapshot.getAsJsonObject();}
+    public void setQualificationSnapshot(com.google.gson.JsonObject value) {qualificationSnapshot=value;}
 }
