@@ -18,14 +18,14 @@
     </div>
   </div>
 
+  <p class="text-sm text-zinc-500">Manage accounts and account access on the <a class="underline" href="<%= request.getContextPath() %>/admin/users.jsp">Users page</a>.</p>
+
   <!-- Collection Tabs -->
   <div class="border-b border-zinc-200">
     <nav class="flex gap-1 overflow-x-auto pb-px scrollbar-hide" id="collectionTabs">
-      <button class="tab-btn active" data-collection="users">Users</button>
-      <button class="tab-btn" data-collection="profiles">Profiles</button>
+      <button class="tab-btn active" data-collection="profiles">Profiles</button>
       <button class="tab-btn" data-collection="jobs">Jobs</button>
       <button class="tab-btn" data-collection="applications">Applications</button>
-      <button class="tab-btn" data-collection="interviews">Interviews</button>
       <button class="tab-btn" data-collection="modules">Modules</button>
       <button class="tab-btn" data-collection="notifications">Notifications</button>
       <button class="tab-btn" data-collection="terms">Terms</button>
@@ -45,7 +45,7 @@
     <div class="flex items-center gap-4 text-sm text-zinc-500">
       <span id="recordCount">0 records</span>
       <span class="text-zinc-300">|</span>
-      <span id="currentCollection" class="font-medium text-zinc-700">users</span>
+      <span id="currentCollection" class="font-medium text-zinc-700">profiles</span>
     </div>
   </div>
 
@@ -161,11 +161,9 @@
 <jsp:include page="/common/layout-bottom.jsp"/>
 <script>
 const COLLECTION_SCHEMAS = {
-  users: { fields: ['id','name','email','password','phone','role','department','avatar','status','lastLogin','createdAt'], key: 'id', display: ['id','name','email','role','department','status','lastLogin'] },
   profiles: { fields: ['id','userId','studentId','degree','year','gpa','maxGpa','profileCompletion','skills','coursework','experience','documents','maxWeeklyHours','currentWeeklyHours'], key: 'id', display: ['id','userId','studentId','degree','year','gpa','skills','documents'] },
   jobs: { fields: ['id','moduleId','moduleCode','title','description','professor','department','type','hoursPerWeek','positions','deadline','status','tags','requirements','responsibilities','workDates','organiserId','createdAt'], key: 'id', display: ['id','moduleCode','title','department','type','positions','status','deadline','workDates'] },
   applications: { fields: ['id','jobId','applicantId','status','coverLetter','selectedDocIds','matchScore','riskFlag','aiSummary','appliedAt','updatedAt'], key: 'id', display: ['id','jobId','applicantId','status','matchScore','riskFlag','appliedAt'] },
-  interviews: { fields: ['id','applicationId','candidateId','candidateName','moduleCode','moduleName','date','startTime','endTime','type','location','status','outcome','organiserId'], key: 'id', display: ['id','candidateName','moduleCode','date','startTime','type','status','outcome'] },
   modules: { fields: ['id','code','name','department','organiserId','organiserName','term','status'], key: 'id', display: ['id','code','name','department','organiserName','term','status'] },
   notifications: { fields: ['id','userId','type','title','message','relatedId','createdAt','read'], key: 'id', display: ['id','userId','type','title','read','createdAt'] },
   terms: { fields: ['id','name','startDate','endDate','status'], key: 'id', display: ['id','name','startDate','endDate','status'] },
@@ -175,7 +173,7 @@ const COLLECTION_SCHEMAS = {
   workloadAssignments: { fields: ['id','taUserId','moduleCode','hoursPerWeek','term','status'], key: 'id', display: ['id','taUserId','moduleCode','hoursPerWeek','term','status'] }
 };
 
-let currentCollection = 'users';
+let currentCollection = 'profiles';
 let allData = [];
 let filteredData = [];
 let currentPage = 0;
@@ -290,8 +288,7 @@ function showCreateWarnings() {
     msg = 'A valid moduleId (existing module) and organiserId (existing organiser user) are required.';
   } else if (currentCollection === 'applications') {
     msg = 'A valid jobId (existing job) and applicantId (existing applicant user) are required.';
-  } else if (currentCollection === 'interviews') {
-    msg = 'A valid applicationId and candidateId (existing user) are required.';
+
   } else if (currentCollection === 'workloadAssignments') {
     msg = 'The taUserId must reference an existing user and moduleCode must match an existing module.';
   } else if (currentCollection === 'profiles') {
@@ -334,7 +331,7 @@ function renderModalFields(fields, data) {
     const displayVal = isArray || isObj ? JSON.stringify(val, null, 2) : (val != null ? val : '');
     const isLong = isArray || isObj || String(displayVal).length > 80;
     const idAttr = 'field_' + f;
-    const readonlyAttr = (f === 'id' && editingId) ? 'readonly' : '';
+    const readonlyAttr = (editingId && (f === 'id' || (currentCollection === 'applications' && f === 'status'))) ? 'readonly' : '';
 
     if (isLong) {
       return '<div><label class="block text-sm font-medium text-zinc-700 mb-1.5">' + f +
@@ -422,32 +419,7 @@ async function deleteRecord(id) {
 function getCascadeImpact(id) {
   const impacts = [];
 
-  if (currentCollection === 'users') {
-    const jobs = allCollectionCache.jobs || [];
-    const apps = allCollectionCache.applications || [];
-    const interviews = allCollectionCache.interviews || [];
-    const profiles = allCollectionCache.profiles || [];
-    const notifications = allCollectionCache.notifications || [];
-    const workload = allCollectionCache.workloadAssignments || [];
-    const messages = allCollectionCache.messages || [];
-
-    const relatedJobs = jobs.filter(j => j.organiserId === id);
-    const relatedApps = apps.filter(a => a.applicantId === id);
-    const relatedInterviews = interviews.filter(i => i.candidateId === id || i.organiserId === id);
-    const relatedProfiles = profiles.filter(p => p.userId === id);
-    const relatedNotifs = notifications.filter(n => n.userId === id);
-    const relatedWorkload = workload.filter(w => w.taUserId === id);
-    const relatedMessages = messages.filter(m => m.senderId === id || m.receiverId === id);
-
-    if (relatedJobs.length) impacts.push(relatedJobs.length + ' job(s) created by this user will be deleted');
-    if (relatedApps.length) impacts.push(relatedApps.length + ' application(s) by this user will be deleted');
-    if (relatedInterviews.length) impacts.push(relatedInterviews.length + ' interview(s) involving this user will be deleted');
-    if (relatedProfiles.length) impacts.push(relatedProfiles.length + ' profile(s) will be deleted');
-    if (relatedNotifs.length) impacts.push(relatedNotifs.length + ' notification(s) will be deleted');
-    if (relatedWorkload.length) impacts.push(relatedWorkload.length + ' workload assignment(s) will be deleted');
-    if (relatedMessages.length) impacts.push(relatedMessages.length + ' message(s) sent to or from this user will be deleted');
-
-  } else if (currentCollection === 'modules') {
+  if (currentCollection === 'modules') {
     const item = allData.find(x => x.id === id);
     if (item) {
       const jobs = allCollectionCache.jobs || [];
@@ -458,10 +430,7 @@ function getCascadeImpact(id) {
         const jobIds = relatedJobs.map(j => j.id);
         const relatedApps = apps.filter(a => jobIds.includes(a.jobId));
         if (relatedApps.length) impacts.push(relatedApps.length + ' application(s) for those jobs will be deleted');
-        const interviews = allCollectionCache.interviews || [];
         const appIds = relatedApps.map(a => a.id);
-        const relatedInterviews = interviews.filter(i => appIds.includes(i.applicationId));
-        if (relatedInterviews.length) impacts.push(relatedInterviews.length + ' interview(s) will be deleted');
       }
       const workload = allCollectionCache.workloadAssignments || [];
       const relatedWorkload = workload.filter(w => w.moduleCode === item.code);
@@ -473,16 +442,10 @@ function getCascadeImpact(id) {
     const relatedApps = apps.filter(a => a.jobId === id);
     if (relatedApps.length) {
       impacts.push(relatedApps.length + ' application(s) for this job will be deleted');
-      const interviews = allCollectionCache.interviews || [];
       const appIds = relatedApps.map(a => a.id);
-      const relatedInterviews = interviews.filter(i => appIds.includes(i.applicationId));
-      if (relatedInterviews.length) impacts.push(relatedInterviews.length + ' interview(s) will be deleted');
     }
 
   } else if (currentCollection === 'applications') {
-    const interviews = allCollectionCache.interviews || [];
-    const relatedInterviews = interviews.filter(i => i.applicationId === id);
-    if (relatedInterviews.length) impacts.push(relatedInterviews.length + ' interview(s) for this application will be deleted');
 
   } else if (currentCollection === 'departments') {
     const item = allData.find(x => x.id === id);
@@ -538,7 +501,7 @@ function refreshData() {
 let allCollectionCache = {};
 
 async function preloadRelatedCollections() {
-  const collections = ['users','profiles','modules','jobs','applications','interviews','notifications','terms','departments','logs','messages','workloadAssignments'];
+  const collections = ['users','profiles','modules','jobs','applications','notifications','terms','departments','logs','messages','workloadAssignments'];
   for (const c of collections) {
     try {
       const data = await request('/admin/data-editor/' + c);

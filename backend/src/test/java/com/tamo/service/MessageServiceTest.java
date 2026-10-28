@@ -298,6 +298,7 @@ class MessageServiceTest {
             assertEquals("applicant", info.get("role").getAsString());
             assertTrue(info.has("profile"));
             assertTrue(info.has("applications"));
+            assertEquals(1, info.getAsJsonArray("applications").size());
         }
 
         @Test

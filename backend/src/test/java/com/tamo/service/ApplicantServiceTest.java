@@ -42,7 +42,7 @@ class ApplicantServiceTest {
 
             assertNotNull(result);
             assertTrue(result.has("activeApplications"));
-            assertTrue(result.has("interviewCount"));
+            assertFalse(result.has("interviewCount"));
             assertTrue(result.has("profileCompletion"));
             assertTrue(result.has("recentApplications"));
             assertTrue(result.has("workload"));

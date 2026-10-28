@@ -34,7 +34,7 @@
               <select id="jModule" class="input" onchange="onModuleChange()">
                 <option value="">Loading your courses...</option>
               </select>
-              <p id="jModuleHint" class="hidden text-xs text-amber-600 mt-1.5">You are not assigned to any course yet. Please ask an admin to assign you as the organiser of a course before posting jobs.</p>
+              <p id="jModuleHint" class="hidden text-xs text-amber-600 mt-1.5">You are not assigned to any course yet. Please ask an admin to assign you as the Teacher of a course before posting jobs.</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-zinc-700 mb-1.5">Department</label>
@@ -173,7 +173,7 @@
 
       function openCreate() {
         if (!myModules || myModules.length === 0) {
-          showToast('You have no courses assigned. Please ask an admin to assign you as the organiser of a course first.', 'error');
+          showToast('You have no courses assigned. Please ask an admin to assign you as the Teacher of a course first.', 'error');
           return;
         }
         document.getElementById('editJobId').value = '';

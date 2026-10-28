@@ -41,7 +41,7 @@
     </h1>
 
     <p class="mt-4 text-xl text-zinc-300 max-w-2xl slide-up-element delay-200">
-      A transparent, efficient, and beautifully designed platform for universities to manage TA applications, interviews, and offers in one unified workspace.
+      A transparent, efficient, and beautifully designed platform for universities to manage TA applications, reviews, and assignments in one unified workspace.
     </p>
 
     <div class="mt-14 flex flex-col sm:flex-row items-center gap-4 w-full justify-center slide-up-element delay-300 relative z-20">
@@ -50,7 +50,7 @@
         <i data-lucide="arrow-right" class="h-5 w-5"></i>
       </a>
       <a href="<%= ctx %>/auth/login.jsp" class="flex items-center justify-center gap-2 rounded-full border border-white/20 bg-black/20 backdrop-blur-md px-10 py-5 text-lg font-bold text-white hover:bg-white/10 transition-all w-full sm:w-auto hover:scale-105 active:scale-95">
-        View as Applicant
+        View as applicant
       </a>
     </div>
 
@@ -84,7 +84,7 @@
         <div class="w-full lg:w-1/2 slide-up-element">
           <div class="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm font-bold text-indigo-700 mb-6">
             <i data-lucide="users" class="h-4 w-4"></i>
-            <span>Applicant Profiles</span>
+            <span>applicant Profiles</span>
           </div>
           <h3 class="text-4xl font-bold tracking-tight mb-6 leading-tight">One profile.<br>Unlimited applications.</h3>
           <p class="text-lg text-zinc-600 mb-8 leading-relaxed">Students create a master profile with their transcripts, CVs, and availability. They can apply to dozens of modules with a single click, saving hours of repetitive form-filling.</p>
@@ -118,18 +118,18 @@
         <div class="w-full lg:w-1/2 slide-up-element">
           <div class="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-4 py-1.5 text-sm font-bold text-purple-700 mb-6">
             <i data-lucide="calendar-clock" class="h-4 w-4"></i>
-            <span>Automated Scheduling</span>
+            <span>Schedule Compatibility</span>
           </div>
-          <h3 class="text-4xl font-bold tracking-tight mb-6 leading-tight">No more email ping-pong.</h3>
-          <p class="text-lg text-zinc-600 mb-8 leading-relaxed">Organisers set their availability, and students book their own interview slots. Everything syncs perfectly, eliminating double-bookings and manual calendar invites.</p>
+          <h3 class="text-4xl font-bold tracking-tight mb-6 leading-tight">Compare availability with section times.</h3>
+          <p class="text-lg text-zinc-600 mb-8 leading-relaxed">Students provide weekly availability and course staff maintain section meeting times. Reviewers can check schedule compatibility and record assignments with conflict warnings.</p>
           <ul class="space-y-4">
             <li class="flex items-center gap-3 text-zinc-700 font-medium">
               <div class="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-900"><i data-lucide="check" class="h-4 w-4"></i></div>
-              Self-service Booking
+              Weekly Availability
             </li>
             <li class="flex items-center gap-3 text-zinc-700 font-medium">
               <div class="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-900"><i data-lucide="check" class="h-4 w-4"></i></div>
-              Automated Reminders
+              Section Conflict Checks
             </li>
           </ul>
         </div>
@@ -170,7 +170,7 @@
         const words = [
           "academic workflow.",
           "TA recruitment.",
-          "interview scheduling.",
+          "section assignments.",
           "candidate tracking."
         ];
         window.initSimpleTypewriter('typewriter-text', words);

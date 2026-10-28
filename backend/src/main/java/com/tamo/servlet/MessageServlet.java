@@ -3,6 +3,7 @@ package com.tamo.servlet;
 import com.google.gson.JsonObject;
 import com.tamo.service.JsonDataService;
 import com.tamo.service.MessageService;
+import com.tamo.service.QualificationService;
 import com.tamo.util.JsonUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -76,27 +77,31 @@ public class MessageServlet extends HttpServlet {
         String path = JsonUtil.getPathInfo(req);
         String userId = getUserId(req);
 
-        switch (path) {
-            case "contacts" -> JsonUtil.writeJson(resp, service.getContacts(userId));
-            case "conversations" -> JsonUtil.writeJson(resp, service.getConversations(userId));
-            case "unread-count" -> {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("count", service.getUnreadCount(userId));
-                JsonUtil.writeJson(resp, obj);
-            }
-            default -> {
-                if (path.startsWith("conversations/")) {
-                    String conversationId = path.substring("conversations/".length());
-                    JsonUtil.writeJson(resp, service.getConversationMessages(userId, conversationId));
-                } else if (path.startsWith("user-info/")) {
-                    String targetUserId = path.substring("user-info/".length());
-                    com.google.gson.JsonObject info = service.getUserInfo(userId, targetUserId);
-                    if (info == null) JsonUtil.writeError(resp, 404, "User not found");
-                    else JsonUtil.writeJson(resp, info);
-                } else {
-                    JsonUtil.writeError(resp, 404, "Endpoint not found");
+        try {
+            switch (path) {
+                case "contacts" -> JsonUtil.writeJson(resp, service.getContacts(userId));
+                case "conversations" -> JsonUtil.writeJson(resp, service.getConversations(userId));
+                case "unread-count" -> {
+                    JsonObject obj = new JsonObject();
+                    obj.addProperty("count", service.getUnreadCount(userId));
+                    JsonUtil.writeJson(resp, obj);
+                }
+                default -> {
+                    if (path.startsWith("conversations/")) {
+                        String conversationId = path.substring("conversations/".length());
+                        JsonUtil.writeJson(resp, service.getConversationMessages(userId, conversationId));
+                    } else if (path.startsWith("user-info/")) {
+                        String targetUserId = path.substring("user-info/".length());
+                        com.google.gson.JsonObject info = service.getUserInfo(userId, targetUserId);
+                        if (info == null) JsonUtil.writeError(resp, 404, "User not found");
+                        else JsonUtil.writeJson(resp, info);
+                    } else {
+                        JsonUtil.writeError(resp, 404, "Endpoint not found");
+                    }
                 }
             }
+        } catch (QualificationService.Problem problem) {
+            JsonUtil.writeError(resp, problem.status, problem.getMessage());
         }
     }
 

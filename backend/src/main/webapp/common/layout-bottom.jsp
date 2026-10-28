@@ -9,6 +9,8 @@
 </div>
 
 <script src="${pageContext.request.contextPath}/static/js/api.js?v=availability-1"></script>
+<script>window.TeacherSelectionAssignmentsPath = '${pageContext.request.contextPath}/<%= "admin".equals(userRole) ? "admin" : "organiser" %>/assignments.jsp';</script>
+<script src="${pageContext.request.contextPath}/static/js/teacher-selection.js"></script>
 <script>
   lucide.createIcons();
 
@@ -83,8 +85,8 @@
       return;
     }
 
-    const iconMap = { status_change: 'refresh-cw', interview_scheduled: 'calendar-check', offer: 'trophy', rejection: 'x-circle' };
-    const colorMap = { status_change: 'bg-blue-100 text-blue-600', interview_scheduled: 'bg-amber-100 text-amber-600', offer: 'bg-emerald-100 text-emerald-600', rejection: 'bg-red-100 text-red-600' };
+    const iconMap = { status_change: 'refresh-cw', offer: 'trophy', rejection: 'x-circle' };
+    const colorMap = { status_change: 'bg-blue-100 text-blue-600', offer: 'bg-emerald-100 text-emerald-600', rejection: 'bg-red-100 text-red-600' };
 
     list.innerHTML = notifications.slice(0, 5).map(function(n) {
       const icon = iconMap[n.type] || 'bell';
@@ -109,7 +111,6 @@
     if (_notifRole === 'organiser') {
       return ctx + '/organiser/applications.jsp';
     }
-    if (n.type === 'interview_scheduled') return ctx + '/applicant/dashboard.jsp';
     return ctx + '/applicant/applications.jsp';
   }
 

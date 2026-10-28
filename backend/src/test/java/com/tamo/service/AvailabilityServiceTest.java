@@ -103,9 +103,9 @@ class AvailabilityServiceTest {
         assertThrows(AvailabilityService.Problem.class, () -> service.save("u001", "period_test", request));
     }
 
-    @Test void administrativeUserDeletionRemovesOnlyThatStudentsSchedules() {
-        assertTrue(new AdminService(data).deleteFromCollection("users", "u001").containsKey("success"));
-        assertTrue(ds.getWeeklyAvailabilities().stream().noneMatch(a -> a.getApplicantId().equals("u001")));
+    @Test void rawUserDeletionIsBlockedAndPreservesStudentSchedules() {
+        assertEquals(403, new AdminService(data).deleteFromCollection("users", "u001").get("code"));
+        assertTrue(ds.getWeeklyAvailabilities().stream().anyMatch(a -> a.getApplicantId().equals("u001")));
         assertTrue(ds.getWeeklyAvailabilities().stream().anyMatch(a -> a.getApplicantId().equals("u002")));
     }
 }

@@ -1,3 +1,7 @@
+> Interview management has been removed. See [removal and compatibility notes](docs/interview-retirement.md); historical Version 1 documents and PDFs may describe the former workflow.
+
+> Current access policy: the primary role labels are **applicant**, **Teacher**, and **admin**. Teacher retains the internal `organiser` role key and routes. Reviewer, Decision-maker, and Viewer are explicitly advanced review roles; existing accounts and grants are preserved. Full CSV Import / Export, templates, previews, and the shared CSV API require an active **admin** account. Teacher has no CSV page or menu.
+
 > Current baseline: **Version 1 (v1.0)**. See the [Version 1 release notes (Chinese)](VERSION_1_zh.md) for implemented changes, validation and limitations.
 
 > Sponsor-aligned forms and CSV import/export are implemented. See [CSV workflow guide](SPONSOR_CSV_GUIDE_zh.md).
@@ -23,7 +27,7 @@
 
 > [!NOTE]
 > **📖 Looking for the User Manual?**
-> A comprehensive, illustrated user guide covering all 25 interface features is available in this repository. 
+> A comprehensive, illustrated user guide covering all 25 interface features is available in this repository.
 > - 📄 [Read it online in Markdown](User_Manual.md)
 > - 📥 [Download the High-Res PDF Version](User_Manual.pdf)
 
@@ -53,7 +57,7 @@ TA&MO is a full-stack web application designed for managing the Teaching Assista
 | Role | Key Features |
 |------|-------------|
 | **Applicant (TA)** | Browse & apply for TA positions, track application status, manage profile & CV documents, chat system |
-| **Organiser (Professor)** | Manage TA job postings, review applications via Kanban pipeline, schedule & manage interviews |
+| **Teacher (Professor)** | Manage TA job postings, review applications via Kanban pipeline, record approved Section assignments |
 | **Admin** | Analytics dashboard, user & module management, workload monitoring, system logs, data editor, configuration |
 
 ---
@@ -65,15 +69,15 @@ TA&MO offers distinct interfaces and features based on your logged-in role. Belo
 ### 1. Authentication
 To get started, users must either log in to an existing account or sign up.
 - **Login**: Navigate to `/auth/login.jsp`. Enter your email and password. The system uses an interactive animated character that reacts to your input fields.
-- **Sign Up**: Navigate to `/auth/signup.jsp` to create a new account as an Applicant. 
+- **Sign Up**: Navigate to `/auth/signup.jsp` to create a new account as an Applicant.
 
 <details>
 <summary>Click to view Authentication UI</summary>
 <br>
 
-- **Login Page**  
+- **Login Page**
   <img src="screenshot/01_login_page.png" alt="Login Page" width="800">
-- **Sign Up Page**  
+- **Sign Up Page**
   <img src="screenshot/02_signup_page.png" alt="Sign Up Page" width="800">
 </details>
 
@@ -83,57 +87,52 @@ Once logged in as an Applicant (TA), you have access to a suite of tools to find
 - **Finding & Applying for Jobs**: Go to the "Find Jobs" tab to browse open module positions. Click on a job to view its details, and use the Apply modal to submit your application and cover letter.
 - **Tracking Applications**: Use the "My Applications" section to track your progress through the recruitment pipeline.
 - **Profile Management**: Update your academic details, skills, and CVs under the "Profile" tab to improve your chances.
-- **Communication**: Use the built-in messaging system to chat with Module Organisers regarding your application.
+- **Communication**: Use the built-in messaging system to chat with Teachers regarding your application.
 
 <details>
 <summary>Click to view Applicant UI</summary>
 <br>
 
-- **Dashboard**  
+- **Dashboard**
   <img src="screenshot/03_applicant_dashboard.png" alt="Applicant Dashboard" width="800">
-- **Find Jobs**  
+- **Find Jobs**
   <img src="screenshot/04_applicant_find_jobs.png" alt="Find Jobs" width="800">
-- **Job Details**  
+- **Job Details**
   <img src="screenshot/05_applicant_find_jobs_details.png" alt="Job Details" width="800">
-- **Apply for Job**  
+- **Apply for Job**
   <img src="screenshot/06_applicant_apply_modal.png" alt="Apply Modal" width="800">
-- **My Applications & Tracker**  
+- **My Applications & Tracker**
   <img src="screenshot/07_applicant_my_applications.png" alt="My Applications" width="800">
-- **Messaging (Chat)**  
+- **Messaging (Chat)**
   <img src="screenshot/09_applicant_messages_chat.png" alt="Applicant Messages Chat" width="800">
-- **Profile**  
+- **Profile**
   <img src="screenshot/10_applicant_profile.png" alt="Applicant Profile" width="800">
-- **Notifications**  
+- **Notifications**
   <img src="screenshot/11_applicant_dashboard_notifications.png" alt="Dashboard Notifications" width="800">
 </details>
 
-### 3. Using the System as an Organiser
-Module Organisers (Professors) can manage their job postings and review candidates.
+### 3. Using the System as an Teacher
+Teachers (Professors) can manage their job postings and review candidates.
 - **Managing Postings**: Use the "TA Positions" tab to create, edit, or delete job postings for your modules.
-- **Recruitment Pipeline**: The Kanban-style pipeline allows you to drag-and-drop applicants between stages (Review, Shortlisted, Interview, Offer).
-- **Interviews**: Schedule and manage video or in-person interviews directly from the "Interviews" tab. Notifications are automatically sent to applicants.
-- **Communication**: Reach out to promising candidates using the Organiser Messages interface.
+- **Recruitment Pipeline**: The Kanban-style pipeline allows you to drag-and-drop applicants between stages (Review, Shortlisted, Offer, Rejected).
+- **Communication**: Reach out to promising candidates using the Teacher Messages interface.
 
 <details>
-<summary>Click to view Organiser UI</summary>
+<summary>Click to view Teacher UI</summary>
 <br>
 
-- **Organiser Overview**  
+- **Teacher Overview**
   <img src="screenshot/13_organiser_overview.png" alt="Organiser Overview" width="800">
-- **TA Positions**  
+- **TA Positions**
   <img src="screenshot/14_organiser_ta_positions.png" alt="TA Positions" width="800">
-- **Recruitment Pipeline (Kanban)**  
+- **Recruitment Pipeline (Kanban)**
   <img src="screenshot/15_organiser_pipeline.png" alt="Recruitment Pipeline" width="800">
-- **Interviews Management**  
-  <img src="screenshot/16_organiser_interviews.png" alt="Interviews" width="800">
-- **Schedule Interview**  
-  <img src="screenshot/18_organiser_schedule_interview.png" alt="Schedule Interview" width="800">
-- **Messages**  
+- **Messages**
   <img src="screenshot/12_organiser_messages.png" alt="Organiser Messages" width="800">
 </details>
 
 ### 4. Using the System as an Admin
-System Administrators maintain the platform and oversee all activities.
+System admins maintain the platform and oversee all activities.
 - **Analytics & Workload**: Monitor platform usage on the Analytics dashboard. The AI-assisted Workload Intelligence tab helps balance TA hours across departments.
 - **Platform Management**: Use "Global Modules", "Properties", and "User Management" to configure system-wide settings, departments, terms, and roles.
 - **Data & Logs**: The "Data Editor" provides raw CRUD access to the underlying storage collections, while "System Logs" tracks every action taken on the platform for auditing.
@@ -142,19 +141,19 @@ System Administrators maintain the platform and oversee all activities.
 <summary>Click to view Admin UI</summary>
 <br>
 
-- **Platform Analytics**  
+- **Platform Analytics**
   <img src="screenshot/19_admin_analytics.png" alt="Admin Analytics" width="800">
-- **Workload Intelligence (AI Assisted)**  
+- **Workload Intelligence (AI Assisted)**
   <img src="screenshot/20_admin_workload_intel.png" alt="Workload Intel" width="800">
-- **Global Modules**  
+- **Global Modules**
   <img src="screenshot/21_admin_global_modules.png" alt="Global Modules" width="800">
-- **Properties & Settings**  
+- **Properties & Settings**
   <img src="screenshot/22_admin_properties.png" alt="Properties" width="800">
-- **User Management**  
+- **User Management**
   <img src="screenshot/23_admin_users.png" alt="Users" width="800">
-- **Data Editor (CRUD)**  
+- **Data Editor (CRUD)**
   <img src="screenshot/24_admin_data_editor.png" alt="Data Editor" width="800">
-- **System Logs**  
+- **System Logs**
   <img src="screenshot/25_admin_system_logs.png" alt="System Logs" width="800">
 </details>
 
@@ -168,7 +167,7 @@ System Administrators maintain the platform and oversee all activities.
 │                                                   │
 │  ┌───────────────┐     ┌───────────────────────┐  │
 │  │  JSP Frontend │     │  Servlet Backend API  │  │
-│  │  (18+ pages)  │────▶│  (40+ REST endpoints) │  │ 
+│  │  (18+ pages)  │────▶│  (40+ REST endpoints) │  │
 │  │  Tailwind CSS │     │  Session Auth + RBAC  │  │
 │  │  Vanilla JS   │     │  PostgreSQL storage    │  │
 │  └───────────────┘     └───────────────────────┘  │
@@ -226,7 +225,7 @@ The system is configured out of the box to run on your local machine, but the pr
 
 ## Running the Software
 
-We use a Maven plugin to compile and boot the Embedded Tomcat server in a single command. 
+We use a Maven plugin to compile and boot the Embedded Tomcat server in a single command.
 
 ### Start the Application
 
@@ -273,7 +272,7 @@ Maven will execute all tests automatically via the Maven Surefire Plugin. You sh
 
 ## Generating Javadoc
 
-The entire Java codebase is fully documented with comprehensive Javadoc comments detailing classes, attributes, methods, parameters, and return types. 
+The entire Java codebase is fully documented with comprehensive Javadoc comments detailing classes, attributes, methods, parameters, and return types.
 
 ### How to Generate and View Javadocs
 
@@ -348,7 +347,7 @@ The backend exposes **42 RESTful API endpoints** under the `/tamo/api/` prefix. 
 
 - `/api/auth/*` : Registration, Login, Session validation.
 - `/api/applicant/*` : Job browsing, profile management, and application submissions.
-- `/api/organiser/*` : Job publishing, Kanban pipeline status management, interview scheduling.
+- `/api/organiser/*` : Job publishing, application review and approved Section assignments.
 - `/api/admin/*` : System analytics, user roles, terminology config, system logs, and workload AI assignments.
 
 *For detailed request/response schemas, please see `backend/TEST_DOCUMENT.md`.*

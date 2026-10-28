@@ -11,7 +11,6 @@
   if ("applicant".equals(role)) {
     sectionRoot = ctx + "/applicant";
     navItems = new String[][] {
-      {"CSV Import / Export", sectionRoot + "/csv.jsp", "file-spreadsheet"},
       {"Dashboard", sectionRoot + "/dashboard.jsp", "layout-dashboard"},
       {"My Assignments", sectionRoot + "/assignments.jsp", "calendar-check"},
       {"My Applications", sectionRoot + "/applications.jsp", "briefcase"},
@@ -24,7 +23,6 @@
   } else if ("organiser".equals(role)) {
     sectionRoot = ctx + "/organiser";
     navItems = new String[][] {
-      {"CSV Import / Export", sectionRoot + "/csv.jsp", "file-spreadsheet"},
       {"Review Workspace", ctx+"/review/dashboard.jsp", "clipboard-check"},
       {"Overview", sectionRoot + "/dashboard.jsp", "layout-dashboard"},
       {"TA Positions", sectionRoot + "/jobs.jsp", "briefcase"},
@@ -32,7 +30,6 @@
       {"Course Sections", sectionRoot + "/course-sections.jsp", "calendar-range"},
       {"TA Assignments", sectionRoot + "/assignments.jsp", "calendar-check"},
       {"Pipeline", sectionRoot + "/pipeline.jsp", "users"},
-      {"Interviews", sectionRoot + "/interviews.jsp", "calendar"},
       {"Messages", sectionRoot + "/messages.jsp", "message-circle"},
     };
   } else if ("reviewer".equals(role)||"decision_maker".equals(role)||"viewer".equals(role)) {
@@ -107,7 +104,7 @@
       </div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-medium text-zinc-900 truncate"><%= com.tamo.util.JsonUtil.escapeHtml(userName) %></p>
-        <p class="text-xs text-zinc-500 capitalize"><%= role %></p>
+        <p class="text-xs text-zinc-500"><%= com.tamo.util.RoleLabels.display(role) %></p>
       </div>
     </div>
     <button onclick="doLogout()" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-500 hover:bg-zinc-100/50 hover:text-zinc-900">
@@ -150,7 +147,7 @@
       </div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-medium text-zinc-900 truncate"><%= com.tamo.util.JsonUtil.escapeHtml(userName) %></p>
-        <p class="text-xs text-zinc-500 capitalize"><%= role %></p>
+        <p class="text-xs text-zinc-500"><%= com.tamo.util.RoleLabels.display(role) %></p>
       </div>
     </div>
     <button onclick="doLogout()" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-500 hover:bg-zinc-100/50 hover:text-zinc-900 transition-colors">

@@ -9,7 +9,6 @@ import com.tamo.model.Profile;
 import com.tamo.model.User;
 import com.tamo.util.JsonUtil;
 
-import com.tamo.model.Interview;
 import com.tamo.model.Notification;
 
 import java.time.LocalDateTime;
@@ -58,15 +57,11 @@ public class ApplicantService {
                 .filter(a -> !"rejected".equals(a.getStatus()) && !"offer".equals(a.getStatus()))
                 .count();
 
-        long interviewCount = myApps.stream()
-                .filter(a -> "interview".equals(a.getStatus()))
-                .count();
 
         int profileCompletion = profile != null ? profile.getProfileCompletion() : 0;
 
         JsonObject result = new JsonObject();
         result.addProperty("activeApplications", activeCount);
-        result.addProperty("interviewCount", interviewCount);
         result.addProperty("profileCompletion", profileCompletion);
 
         JsonArray recentApps = new JsonArray();
@@ -78,7 +73,7 @@ public class ApplicantService {
                     JsonObject appObj = new JsonObject();
                     appObj.addProperty("id", app.getId());
                     appObj.addProperty("jobId", app.getJobId());
-                    appObj.addProperty("status", app.getStatus());
+                    appObj.addProperty("status", RecruitmentStatus.current(app.getStatus()));
                     appObj.addProperty("appliedAt", app.getAppliedAt());
                     enrichApplicationForApplicantApi(appObj, job, app.getJobId(), app.getAppliedAt());
                     recentApps.add(appObj);
@@ -90,35 +85,12 @@ public class ApplicantService {
         result.add("offers",actualWorkload.getAsJsonArray("assignments"));
         result.addProperty("periodId",actualWorkload.get("periodId").getAsString());
         result.add("periods",JsonUtil.getGson().toJsonTree(data.getApplicationPeriods()));
-        // ── Schedule: upcoming interviews for this TA ──
-        {
-            List<Interview> interviews = (data.getInterviews() != null
-                    ? data.getInterviews() : Collections.<Interview>emptyList())
-                    .stream()
-                    .filter(iv -> userId.equals(iv.getCandidateId()))
-                    .filter(iv -> !"cancelled".equals(iv.getStatus()) && !"completed".equals(iv.getStatus()))
-                    .sorted(Comparator.comparing(Interview::getDate, Comparator.nullsLast(Comparator.naturalOrder())))
-                    .collect(Collectors.toList());
-
-            JsonArray schedule = new JsonArray();
-            interviews.forEach(iv -> {
-                JsonObject entry = new JsonObject();
-                entry.addProperty("type", "interview");
-                entry.addProperty("moduleCode", iv.getModuleCode());
-                entry.addProperty("moduleName", iv.getModuleName());
-                entry.addProperty("date", iv.getDate());
-                entry.addProperty("startTime", iv.getStartTime());
-                entry.addProperty("endTime", iv.getEndTime());
-                entry.addProperty("interviewType", iv.getType());
-                entry.addProperty("location", iv.getLocation());
-                schedule.add(entry);
-            });
-
-            for (var accepted:actualWorkload.getAsJsonArray("assignments")) {
-                JsonObject entry=accepted.getAsJsonObject().deepCopy();entry.addProperty("type","duty");schedule.add(entry);
-            }
-            result.add("schedule", schedule);
+        JsonArray schedule = new JsonArray();
+        for (var assignment : actualWorkload.getAsJsonArray("assignments")) {
+            JsonObject entry = assignment.getAsJsonObject().deepCopy();
+            entry.addProperty("type", "duty"); schedule.add(entry);
         }
+        result.add("schedule", schedule);
 
         JsonArray deadlines = new JsonArray();
         data.getJobs().stream()
@@ -141,6 +113,7 @@ public class ApplicantService {
                     ? data.getNotifications() : Collections.<Notification>emptyList())
                     .stream()
                     .filter(n -> userId.equals(n.getUserId()))
+                    .filter(n -> RecruitmentStatus.visibleNotification(n.getType()))
                     .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                     .limit(10)
                     .collect(Collectors.toList());
@@ -341,7 +314,7 @@ public class ApplicantService {
         Application.TimelineEntry t1 = new Application.TimelineEntry();
         t1.setStatus("applied"); t1.setDate(today); t1.setCompleted(true);
         timeline.add(t1);
-        for (String s : new String[]{"review", "shortlisted", "interview", "offer"}) {
+        for (String s : new String[]{"review", "shortlisted", "offer"}) {
             Application.TimelineEntry t = new Application.TimelineEntry();
             t.setStatus(s); t.setDate(null); t.setCompleted(false);
             timeline.add(t);
@@ -374,7 +347,7 @@ public class ApplicantService {
                 .filter(a -> periodId == null || periodId.isBlank() || periodId.equals(a.getPeriodId()))
                 .sorted((a, b) -> b.getAppliedAt().compareTo(a.getAppliedAt()))
                 .map(a -> {
-                    JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(a);
+                    JsonObject obj = RecruitmentStatus.project((JsonObject) JsonUtil.getGson().toJsonTree(a));
                     data.getApplicationPeriods().stream().filter(p -> p.getId().equals(a.getPeriodId())).findFirst()
                             .ifPresent(p -> obj.addProperty("periodName", p.getName()));
                     Job job = findJobById(data, a.getJobId());
@@ -421,7 +394,7 @@ public class ApplicantService {
             return result;
         }
 
-        JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(app);
+        JsonObject obj = RecruitmentStatus.project((JsonObject) JsonUtil.getGson().toJsonTree(app));
         Job job = findJobById(data, app.getJobId());
         enrichApplicationForApplicantApi(obj, job, app.getJobId(), app.getAppliedAt());
         result.put("data", obj);
@@ -791,6 +764,7 @@ public class ApplicantService {
                 ? data.getNotifications() : Collections.<Notification>emptyList())
                 .stream()
                 .filter(n -> userId.equals(n.getUserId()))
+                    .filter(n -> RecruitmentStatus.visibleNotification(n.getType()))
                 .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                 .limit(20)
                 .collect(Collectors.toList());

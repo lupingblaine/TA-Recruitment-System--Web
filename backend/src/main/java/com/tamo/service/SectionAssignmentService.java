@@ -22,8 +22,12 @@ public class SectionAssignmentService {
     private void staff(String role) {
         if (!Set.of("admin","organiser").contains(role == null ? "" : role)) throw new Problem(403,"Only staff can manage assignments.");
     }
+    private void reviewStaff(String user, String role) {
+        User actor=data.getData().getUsers().stream().filter(u->Objects.equals(user,u.getId())&&"active".equals(u.getStatus())&&Objects.equals(role,u.getRole())).findFirst().orElseThrow(()->new Problem(403,"An active authorised staff account is required."));
+        if (!ReviewAccess.can(actor,"review.read")) throw new Problem(403,"Current application review permission is required.");
+    }
     private Module module(String user,String role,String id) {
-        staff(role);
+        staff(role); reviewStaff(user,role);
         Module m=data.getData().getModules().stream().filter(x->Objects.equals(id,x.getId())).findFirst().orElseThrow(()->new Problem(404,"Course not found."));
         if (!"admin".equals(role) && !Objects.equals(user,m.getOrganiserId())) throw new Problem(403,"You can only manage your assigned courses.");
         return m;
@@ -143,7 +147,7 @@ public class SectionAssignmentService {
         CourseSection s=section(sectionId); Module m=module(user,role,s.getModuleId()); Job job=job(app);
         if (!JobSectionService.includes(job,s)) throw new Problem(409,"This Section is not included in the TA posting.");
         if(!Objects.equals(s.getPeriodId(),app.getPeriodId())&&!(s.getPeriodId()==null&&"period_legacy".equals(app.getPeriodId())))throw new Problem(409,"Section and application must belong to the same application cycle.");
-        if (!Objects.equals(job.getModuleId(),s.getModuleId()) || !Objects.equals(job.getOrganiserId(),m.getOrganiserId())) throw new Problem(403,"Application must belong to this course and its current organiser.");
+        if (!Objects.equals(job.getModuleId(),s.getModuleId())) throw new Problem(403,"Application must belong to this course and its current Teacher.");
         if(!ReviewService.approvedForSection(data.getData(),app.getId(),s.getId()))throw new Problem(409,"An authorized selection approval is required before assignment.");
         if (!"offer".equals(app.getStatus())) throw new Problem(409,"Only offered applications can be assigned.");
         if (!"active".equals(s.getStatus())) throw new Problem(409,"Restore the section before assigning a TA.");
@@ -206,7 +210,7 @@ public class SectionAssignmentService {
         return row;
     }
     public JsonObject list(String user,String role) {
-        boolean student="applicant".equals(role); if (!student) staff(role);
+        boolean student="applicant".equals(role); if (!student) { staff(role); reviewStaff(user,role); }
         DataStore ds=data.getData();
         Set<String> courses=new HashSet<>();
         ds.getModules().stream().filter(m->"admin".equals(role)||Objects.equals(user,m.getOrganiserId())).forEach(m->courses.add(m.getId()));
@@ -228,7 +232,6 @@ public class SectionAssignmentService {
                 Job j=ds.getJobs().stream().filter(x->Objects.equals(a.getJobId(),x.getId())).findFirst().orElse(null);
                 if (j==null || !courses.contains(j.getModuleId())) continue;
                 Module m=ds.getModules().stream().filter(x->x.getId().equals(j.getModuleId())).findFirst().orElseThrow();
-                if (!Objects.equals(j.getOrganiserId(),m.getOrganiserId())) continue;
                 JsonObject c=new JsonObject(); c.addProperty("applicationId",a.getId());c.addProperty("applicantId",a.getApplicantId());
                 c.addProperty("periodId",a.getPeriodId());c.addProperty("moduleId",j.getModuleId());
                 ds.getUsers().stream().filter(u->Objects.equals(a.getApplicantId(),u.getId())).findFirst().ifPresent(u->c.addProperty("name",u.getName()));

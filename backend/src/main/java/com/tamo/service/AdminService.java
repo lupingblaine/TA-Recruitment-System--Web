@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import com.tamo.model.Application;
 import com.tamo.model.DataStore;
 import com.tamo.model.Department;
-import com.tamo.model.Interview;
 import com.tamo.model.Job;
 import com.tamo.model.LogEntry;
 import com.tamo.model.Message;
@@ -146,6 +145,9 @@ public class AdminService {
     public Map<String, Object> createUser(JsonObject body) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
+        String accountError = validateAccountFields(body);
+        if (accountError != null) { result.put("error", accountError); result.put("code", 400); return result; }
+
 
         String name = body.has("name") ? body.get("name").getAsString() : null;
         String email = body.has("email") ? body.get("email").getAsString() : null;
@@ -178,7 +180,7 @@ public class AdminService {
         user.setPassword(PasswordSecurity.hash(body.has("password") ? body.get("password").getAsString() : java.util.UUID.randomUUID().toString()));
         user.setRole(role != null ? role : "applicant");
         user.setDepartment(body.has("department") ? body.get("department").getAsString() : "");
-        user.setStatus("active");
+        user.setStatus(body.has("status") ? body.get("status").getAsString() : "active");
         user.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         data.getUsers().add(user);
@@ -225,6 +227,9 @@ public class AdminService {
     public Map<String, Object> updateUser(String adminId, String userId, JsonObject body) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
+        String accountError = validateAccountFields(body);
+        if (accountError != null) { result.put("error", accountError); result.put("code", 400); return result; }
+
 
         User user = data.getUsers().stream().filter(u -> u.getId().equals(userId)).findFirst().orElse(null);
         if (user == null) {
@@ -237,6 +242,10 @@ public class AdminService {
             result.put("error", "Cannot modify your own role");
             result.put("code", 400);
             return result;
+        }
+
+        if (userId.equals(adminId) && body.has("status") && !"active".equals(body.get("status").getAsString())) {
+            result.put("error", "Cannot disable your own account"); result.put("code", 400); return result;
         }
 
         if(body.has("role")&&!ReviewAccess.ROLES.contains(body.get("role").getAsString())){result.put("error","Unknown user role.");result.put("code",400);return result;}
@@ -290,6 +299,16 @@ public class AdminService {
 
         result.put("success", true);
         return result;
+    }
+
+    private String validateAccountFields(JsonObject body) {
+        for (String field : List.of("role", "status")) {
+            if (body.has(field) && (!body.get(field).isJsonPrimitive() || !body.get(field).getAsJsonPrimitive().isString()))
+                return "Invalid " + field + " value";
+        }
+        if (body.has("role") && !VALID_ROLES.contains(body.get("role").getAsString())) return "Invalid role value";
+        if (body.has("status") && !List.of("active", "suspended").contains(body.get("status").getAsString())) return "Invalid status value";
+        return null;
     }
 
     // ==================== Modules ====================
@@ -451,11 +470,32 @@ public class AdminService {
             return result;
         }
 
+        User owner = null;
+        if (body.has("organiserId")) {
+            if (!body.get("organiserId").isJsonPrimitive() || !body.get("organiserId").getAsJsonPrimitive().isString()) {
+                result.put("error", "Choose an active Teacher as course owner."); result.put("code_http", 400); return result;
+            }
+            String ownerId = body.get("organiserId").getAsString();
+            owner = data.getUsers().stream().filter(u -> ownerId.equals(u.getId()) && "organiser".equals(u.getRole()) && "active".equals(u.getStatus())).findFirst().orElse(null);
+            if (owner == null) { result.put("error", "Choose an active Teacher as course owner."); result.put("code_http", 400); return result; }
+        }
+        String previousCode = module.getCode();
+        boolean transferring = owner != null && !Objects.equals(module.getOrganiserId(), owner.getId());
+
         if (body.has("code")) module.setCode(body.get("code").getAsString());
         if (body.has("name")) module.setName(body.get("name").getAsString());
         if (department != null) module.setDepartment(department);
-        if (body.has("organiserId")) module.setOrganiserId(body.get("organiserId").getAsString());
-        if (body.has("organiserName")) module.setOrganiserName(body.get("organiserName").getAsString());
+        if (owner != null) {
+            module.setOrganiserId(owner.getId());
+            module.setOrganiserName(owner.getName());
+            if (transferring) {
+                // Change current authority only; review actors and submitted snapshots remain historical.
+                for (Job job : data.getJobs()) {
+                    boolean linked = moduleId.equals(job.getModuleId()) || ((job.getModuleId() == null || job.getModuleId().isBlank()) && previousCode != null && previousCode.equalsIgnoreCase(job.getModuleCode()));
+                    if (linked) { job.setOrganiserId(owner.getId()); job.setProfessor(owner.getName()); }
+                }
+            }
+        }
         if (term != null) module.setTerm(term);
         if (body.has("status")) module.setStatus(body.get("status").getAsString());
 
@@ -883,7 +923,7 @@ public class AdminService {
 
     private static final List<String> COLLECTION_NAMES = Arrays.asList(
             "users", "profiles", "modules", "jobs", "applications",
-            "interviews", "notifications", "terms", "departments",
+            "notifications", "terms", "departments",
             "logs", "workloadAssignments", "messages"
     );
 
@@ -921,12 +961,11 @@ public class AdminService {
         DataStore data = dataService.getData();
         Gson gson = JsonUtil.getGson();
         return switch (collection) {
-            case "users" -> gson.toJsonTree(data.getUsers());
+            case "users" -> gson.toJsonTree(data.getUsers().stream().map(this::buildSafeUser).collect(Collectors.toList()));
             case "profiles" -> gson.toJsonTree(data.getProfiles());
             case "modules" -> gson.toJsonTree(data.getModules());
             case "jobs" -> gson.toJsonTree(data.getJobs());
             case "applications" -> gson.toJsonTree(data.getApplications());
-            case "interviews" -> gson.toJsonTree(data.getInterviews());
             case "notifications" -> gson.toJsonTree(data.getNotifications());
             case "terms" -> gson.toJsonTree(data.getTerms());
             case "departments" -> gson.toJsonTree(data.getDepartments());
@@ -953,6 +992,19 @@ public class AdminService {
         DataStore data = dataService.getData();
         Gson gson = JsonUtil.getGson();
         Map<String, Object> result = new HashMap<>();
+        if ("users".equals(collection)) {
+            result.put("error", "Manage accounts through Users, not Data Editor."); result.put("code", 403); return result;
+        }
+
+        if ("interviews".equals(collection)) {
+            result.put("error", "Interview management has been removed. Historical records are retained.");
+            result.put("code", 410); return result;
+        }
+        if ("applications".equals(collection) && body.has("status") && "interview".equals(body.get("status").getAsString())) {
+            result.put("error", "Use an active application review status."); result.put("code", 400); return result;
+        }
+
+
 
         // Referential integrity checks before insert
         String validationError = validateCreate(collection, body, data);
@@ -1010,13 +1062,6 @@ public class AdminService {
                     if (a.getAppliedAt() == null) a.setAppliedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                     data.getApplications().add(a);
                     yield a;
-                }
-                case "interviews" -> {
-                    Interview i = gson.fromJson(body, Interview.class);
-                    if (i.getId() == null || i.getId().isBlank())
-                        i.setId(dataService.generateId("i", data.getInterviews()));
-                    data.getInterviews().add(i);
-                    yield i;
                 }
                 case "notifications" -> {
                     Notification n = gson.fromJson(body, Notification.class);
@@ -1105,7 +1150,7 @@ public class AdminService {
                 if (organiserId != null && !organiserId.isBlank()) {
                     boolean organiserExists = data.getUsers().stream()
                             .anyMatch(u -> u.getId().equals(organiserId) && "organiser".equals(u.getRole()));
-                    if (!organiserExists) return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
+                    if (!organiserExists) return "Referenced Teacher (organiserId=" + organiserId + ") does not exist or is not a Teacher";
                 }
             }
             case "applications" -> {
@@ -1122,18 +1167,6 @@ public class AdminService {
                 boolean applicantExists = data.getUsers().stream()
                         .anyMatch(u -> u.getId().equals(applicantId) && "applicant".equals(u.getRole()));
                 if (!applicantExists) return "Referenced applicant (applicantId=" + applicantId + ") does not exist or is not an applicant";
-            }
-            case "interviews" -> {
-                String applicationId = body.has("applicationId") ? body.get("applicationId").getAsString() : null;
-                if (applicationId != null && !applicationId.isBlank()) {
-                    boolean appExists = data.getApplications().stream().anyMatch(a -> a.getId().equals(applicationId));
-                    if (!appExists) return "Referenced application (applicationId=" + applicationId + ") does not exist";
-                }
-                String candidateId = body.has("candidateId") ? body.get("candidateId").getAsString() : null;
-                if (candidateId != null && !candidateId.isBlank()) {
-                    boolean userExists = data.getUsers().stream().anyMatch(u -> u.getId().equals(candidateId));
-                    if (!userExists) return "Referenced candidate (candidateId=" + candidateId + ") does not exist";
-                }
             }
             case "profiles" -> {
                 String userId = body.has("userId") ? body.get("userId").getAsString() : null;
@@ -1165,7 +1198,7 @@ public class AdminService {
                 if (organiserId != null && !organiserId.isBlank()) {
                     boolean organiserExists = data.getUsers().stream()
                             .anyMatch(u -> u.getId().equals(organiserId) && "organiser".equals(u.getRole()));
-                    if (!organiserExists) return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
+                    if (!organiserExists) return "Referenced Teacher (organiserId=" + organiserId + ") does not exist or is not a Teacher";
                 }
             }
             case "messages" -> {
@@ -1207,7 +1240,7 @@ public class AdminService {
                     String organiserId = body.get("organiserId").getAsString();
                     if (!organiserId.isBlank() && data.getUsers().stream()
                             .noneMatch(u -> u.getId().equals(organiserId) && "organiser".equals(u.getRole())))
-                        return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
+                        return "Referenced Teacher (organiserId=" + organiserId + ") does not exist or is not a Teacher";
                 }
             }
             case "applications" -> {
@@ -1227,18 +1260,6 @@ public class AdminService {
                     if (!applicantId.isBlank() && data.getUsers().stream()
                             .noneMatch(u -> u.getId().equals(applicantId) && "applicant".equals(u.getRole())))
                         return "Referenced applicant (applicantId=" + applicantId + ") does not exist or is not an applicant";
-                }
-            }
-            case "interviews" -> {
-                if (body.has("applicationId")) {
-                    String appId = body.get("applicationId").getAsString();
-                    if (!appId.isBlank() && data.getApplications().stream().noneMatch(a -> a.getId().equals(appId)))
-                        return "Referenced application (applicationId=" + appId + ") does not exist";
-                }
-                if (body.has("candidateId")) {
-                    String candidateId = body.get("candidateId").getAsString();
-                    if (!candidateId.isBlank() && data.getUsers().stream().noneMatch(u -> u.getId().equals(candidateId)))
-                        return "Referenced candidate (candidateId=" + candidateId + ") does not exist";
                 }
             }
             case "profiles" -> {
@@ -1272,7 +1293,7 @@ public class AdminService {
                     String organiserId = body.get("organiserId").getAsString();
                     if (!organiserId.isBlank() && data.getUsers().stream()
                             .noneMatch(u -> u.getId().equals(organiserId) && "organiser".equals(u.getRole())))
-                        return "Referenced organiser (organiserId=" + organiserId + ") does not exist or is not an organiser";
+                        return "Referenced Teacher (organiserId=" + organiserId + ") does not exist or is not a Teacher";
                 }
             }
             case "messages" -> {
@@ -1317,13 +1338,39 @@ public class AdminService {
         DataStore data = dataService.getData();
         Gson gson = JsonUtil.getGson();
         Map<String, Object> result = new HashMap<>();
+        if ("users".equals(collection)) {
+            result.put("error", "Manage accounts through Users, not Data Editor."); result.put("code", 403); return result;
+        }
+        if ("modules".equals(collection)) {
+            Map<String, Object> updated = updateModule(itemId, body);
+            if (updated.containsKey("error")) { result.put("error", updated.get("error")); result.put("code", updated.get("code_http")); }
+            else result.put("item", updated.get("module"));
+            return result;
+        }
 
+        if ("interviews".equals(collection)) {
+            result.put("error", "Interview management has been removed. Historical records are retained.");
+            result.put("code", 410); return result;
+        }
+        if ("applications".equals(collection) && body.has("status") && "interview".equals(body.get("status").getAsString())
+                && data.getApplications().stream().noneMatch(a -> itemId.equals(a.getId()) && "interview".equals(a.getStatus()))) {
+            result.put("error", "Use an active application review status."); result.put("code", 400); return result;
+        }
+
+
+
+        if ("applications".equals(collection) && body.has("status")
+                && data.getApplications().stream().anyMatch(a -> itemId.equals(a.getId())
+                    && !java.util.Objects.equals(a.getStatus(), body.get("status").getAsString()))) {
+            result.put("error", "Change application status through Pipeline or Review Workspace to preserve decision history.");
+            result.put("code", 409); return result;
+        }
         if ("applications".equals(collection) && SectionAssignmentService.activeForApplication(data,itemId)
                 && (body.has("jobId") || body.has("applicantId") || (body.has("status") && !"offer".equals(body.get("status").getAsString())))) {
             result.put("error", "Cancel active TA assignments before changing application ownership or status."); result.put("code",409); return result;
         }
         if ("jobs".equals(collection) && SectionAssignmentService.hasHistory(data,"jobs",itemId) && (body.has("moduleId") || body.has("organiserId"))) {
-            result.put("error", "A position with assignment history cannot be moved to another course or organiser."); result.put("code",409); return result;
+            result.put("error", "A position with assignment history cannot be moved to another course or Teacher."); result.put("code",409); return result;
         }
         if("applications".equals(collection)&&body.has("status")&&"offer".equals(body.get("status").getAsString())&&!ReviewService.approved(data,itemId)){result.put("error","Record selection approval in Review Workspace first.");result.put("code",409);return result;}
         if("applications".equals(collection)&&SectionAssignmentService.hasHistory(data,collection,itemId)&&(body.has("jobId")||body.has("applicantId"))){result.put("error","Reviewed applications cannot change applicant or position.");result.put("code",409);return result;}
@@ -1407,24 +1454,6 @@ public class AdminService {
                     if (body.has("aiSummary")) a.setAiSummary(body.get("aiSummary").getAsString());
                     a.setUpdatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                     yield a;
-                }
-                case "interviews" -> {
-                    Interview i = data.getInterviews().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
-                    if (i == null) { result.put("error", "Record not found"); result.put("code", 404); yield null; }
-                    if (body.has("applicationId")) i.setApplicationId(body.get("applicationId").getAsString());
-                    if (body.has("candidateId")) i.setCandidateId(body.get("candidateId").getAsString());
-                    if (body.has("candidateName")) i.setCandidateName(body.get("candidateName").getAsString());
-                    if (body.has("moduleCode")) i.setModuleCode(body.get("moduleCode").getAsString());
-                    if (body.has("moduleName")) i.setModuleName(body.get("moduleName").getAsString());
-                    if (body.has("date")) i.setDate(body.get("date").getAsString());
-                    if (body.has("startTime")) i.setStartTime(body.get("startTime").getAsString());
-                    if (body.has("endTime")) i.setEndTime(body.get("endTime").getAsString());
-                    if (body.has("type")) i.setType(body.get("type").getAsString());
-                    if (body.has("location")) i.setLocation(body.get("location").getAsString());
-                    if (body.has("status")) i.setStatus(body.get("status").getAsString());
-                    if (body.has("outcome")) i.setOutcome(body.get("outcome").isJsonNull() ? null : body.get("outcome").getAsString());
-                    if (body.has("organiserId")) i.setOrganiserId(body.get("organiserId").getAsString());
-                    yield i;
                 }
                 case "notifications" -> {
                     Notification n = data.getNotifications().stream().filter(x -> x.getId().equals(itemId)).findFirst().orElse(null);
@@ -1530,6 +1559,15 @@ public class AdminService {
     public Map<String, Object> deleteFromCollection(String collection, String itemId) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
+        if ("users".equals(collection)) {
+            result.put("error", "Manage accounts through Users, not Data Editor."); result.put("code", 403); return result;
+        }
+
+        if ("interviews".equals(collection)) {
+            result.put("error", "Interview management has been removed. Historical records are retained.");
+            result.put("code", 410); return result;
+        }
+
         if (SectionAssignmentService.hasHistory(data, collection, itemId)) { result.put("error", "Assignment history must be retained."); result.put("code",409); return result; }
 
 
@@ -1594,11 +1632,6 @@ public class AdminService {
             }
             case "profiles" -> {
                 boolean removed = data.getProfiles().removeIf(x -> x.getId().equals(itemId));
-                if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
-                result.put("success", true);
-            }
-            case "interviews" -> {
-                boolean removed = data.getInterviews().removeIf(x -> x.getId().equals(itemId));
                 if (!removed) { result.put("error", "Record not found"); result.put("code", 404); break; }
                 result.put("success", true);
             }

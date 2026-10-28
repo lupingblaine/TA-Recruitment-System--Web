@@ -34,7 +34,7 @@
       <div class="mt-6 text-zinc-400 text-xl flex items-center gap-2 font-medium">
         <span>Continue your TA journey.</span>
         <span>Don't have an account?</span>
-        <a href="<%= ctx %>/auth/signup.jsp" class="text-white border-b-2 border-white/30 border-dashed hover:border-solid hover:border-white transition-all ml-1">Create account &rarr;</a>
+        <a data-create-account href="<%= ctx %>/auth/signup.jsp" class="text-white border-b-2 border-white/30 border-dashed hover:border-solid hover:border-white transition-all ml-1">Create account &rarr;</a>
       </div>
     </div>
   </div>
@@ -66,19 +66,19 @@
               </div>
             </div>
 
-            <label class="block text-sm">Review staff role (if applicable)<select class="apple-input" onchange="if(this.value)selectedRole=this.value"><option value="">Use role below</option><option value="reviewer">Reviewer</option><option value="decision_maker">Decision-maker</option><option value="viewer">Read-only viewer</option></select></label>
+            <label class="block text-sm">Advanced review role (if applicable)<select class="apple-input" onchange="if(this.value)selectedRole=this.value"><option value="">Use role below</option><option value="reviewer">Advanced review role: Reviewer</option><option value="decision_maker">Advanced review role: Decision-maker</option><option value="viewer">Advanced review role: Viewer</option></select></label>
             <!-- Role Selector -->
             <div>
               <label class="block text-sm font-bold text-zinc-900 text-center mb-3">Select Role</label>
               <div class="segmented-control">
                 <input type="radio" id="role-applicant" name="role" value="APPLICANT" checked onchange="selectedRole='applicant'; if(riveAnim) riveAnim.setRoleColor('applicant');">
-                <label for="role-applicant">Applicant</label>
+                <label for="role-applicant">applicant</label>
 
                 <input type="radio" id="role-organiser" name="role" value="ORGANISER" onchange="selectedRole='organiser'; if(riveAnim) riveAnim.setRoleColor('organiser');">
-                <label for="role-organiser">Organiser</label>
+                <label for="role-organiser">Teacher</label>
 
                 <input type="radio" id="role-admin" name="role" value="ADMIN" onchange="selectedRole='admin'; if(riveAnim) riveAnim.setRoleColor('admin');">
-                <label for="role-admin">Admin</label>
+                <label for="role-admin">admin</label>
                 
                 <div class="segmented-highlight"></div>
               </div>
@@ -92,7 +92,7 @@
                 Log In
                 <i data-lucide="arrow-up-right" class="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors"></i>
               </button>
-              <a href="<%= ctx %>/auth/signup.jsp" class="w-full block text-center bg-white border-2 border-zinc-200 hover:border-zinc-900 text-zinc-900 font-bold py-4 px-8 rounded-2xl transition-all duration-300">
+              <a data-create-account href="<%= ctx %>/auth/signup.jsp" class="w-full block text-center bg-white border-2 border-zinc-200 hover:border-zinc-900 text-zinc-900 font-bold py-4 px-8 rounded-2xl transition-all duration-300">
                 Create Account
               </a>
             </div>
@@ -114,6 +114,7 @@
     </div>
   </div>
 
+  <script src="<%= ctx %>/static/js/auth-email.js"></script>
   <script src="<%= ctx %>/static/js/api.js"></script>
   <script src="<%= ctx %>/static/js/particles.js"></script>
   <script src="<%= ctx %>/static/js/typewriter.js"></script>

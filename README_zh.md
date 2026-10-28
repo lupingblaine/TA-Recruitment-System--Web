@@ -1,3 +1,7 @@
+> 面试功能已移除，见 [面试移除说明](docs/interview-retirement.md)。历史 Version 1 说明和 PDF 不代表当前功能。
+
+> 当前角色显示名称为 **applicant、Teacher、admin**；Teacher 保留内部 `organiser` 键和路由。Reviewer、Decision-maker、Viewer 明确属于高级审核角色，不迁移或合并已有账号。完整 CSV 页面、模板、预览、导入导出及共享 API 仅限有效的 **admin** 账号；Teacher 无 CSV 入口。
+
 > 当前版本基准：**Version 1（v1.0）**。主要改动、测试结果和已知限制见 [Version 1 版本说明](VERSION_1_zh.md)。
 
 > Sponsor 新版字段、技能多选与 CSV 已实现，使用步骤见 [Sponsor 表单与 CSV 说明](SPONSOR_CSV_GUIDE_zh.md)。
@@ -52,7 +56,7 @@ TA&MO 是一个专为大学设计的全栈 Web 应用程序，旨在管理助教
 | 角色 | 核心功能 |
 |------|-------------|
 | **申请人 (Applicant)** | 浏览与申请 TA 职位、追踪申请状态、管理个人资料与简历、在线沟通 |
-| **模块组织者 (Organiser)** | 管理 TA 职位发布、通过看板（Kanban）视图审核候选人、安排并管理面试 |
+| **模块组织者 (Organiser)** | 管理 TA 职位发布、通过看板（Kanban）视图审核候选人、记录已批准的 Section 分配 |
 | **系统管理员 (Admin)** | 数据分析仪表盘、用户与模块管理、工作负载智能监控（AI 分析）、系统日志、底层数据编辑 |
 
 ---
@@ -244,7 +248,7 @@ TA&MO_v1.0/
 
 - `/api/auth/*` : 注册、登录、会话验证。
 - `/api/applicant/*` : 浏览职位、管理个人资料、提交申请。
-- `/api/organiser/*` : 发布职位、管理看板流水线状态、安排面试。
+- `/api/organiser/*` : 发布职位、管理看板流水线状态、记录 Section 分配。
 - `/api/admin/*` : 系统数据分析、用户角色管理、系统日志、AI 工作负载分配。
 
 *有关详细的请求/响应参数规范，请查阅 `backend/TEST_DOCUMENT.md`。*

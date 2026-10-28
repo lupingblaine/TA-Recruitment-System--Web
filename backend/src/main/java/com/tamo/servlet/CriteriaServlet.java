@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.*;
 public class CriteriaServlet extends HttpServlet{
  private JsonDataService data;@Override public void init(){data=JsonDataService.getInstance();}
- private boolean allowed(HttpServletRequest req,Job j){String role=(String)req.getSession().getAttribute("role"),user=(String)req.getSession().getAttribute("userId");return "admin".equals(role)||("organiser".equals(role)&&Objects.equals(user,j.getOrganiserId())&&data.getData().getModules().stream().anyMatch(m->Objects.equals(j.getModuleId(),m.getId())&&Objects.equals(user,m.getOrganiserId())));}
+ private boolean allowed(HttpServletRequest req,Job j){String role=(String)req.getSession().getAttribute("role"),user=(String)req.getSession().getAttribute("userId");return "admin".equals(role)||("organiser".equals(role)&&data.getData().getModules().stream().anyMatch(m->Objects.equals(j.getModuleId(),m.getId())&&Objects.equals(user,m.getOrganiserId())));}
  @Override protected void doGet(HttpServletRequest req,HttpServletResponse resp)throws IOException{JsonArray rows=new JsonArray();for(Job j:data.getData().getJobs())if(allowed(req,j))rows.add(JsonUtil.getGson().toJsonTree(j));JsonUtil.writeJson(resp,rows);}
  @Override protected void doPut(HttpServletRequest req,HttpServletResponse resp)throws IOException{
   String id=JsonUtil.getPathInfo(req);Job j=data.getData().getJobs().stream().filter(x->id.equals(x.getId())).findFirst().orElse(null);if(j==null){JsonUtil.writeError(resp,404,"Position not found.");return;}if(!allowed(req,j)){JsonUtil.writeError(resp,403,"Only the current course organiser or administrator may update criteria.");return;}

@@ -32,6 +32,66 @@ class AuthFilterTest {
         filter = new AuthFilter();
     }
 
+    @Test
+    void applicantCannotAccessCsvEndpoints() throws Exception {
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("userId")).thenReturn("u001");
+        when(session.getAttribute("role")).thenReturn("applicant");
+        when(request.getRequestURI()).thenReturn("/tamo/api/csv/export");
+        stubWriter();
+        filter.doFilter(request, response, chain);
+        verify(response).setStatus(403);
+        verify(chain, never()).doFilter(request, response);
+    }
+
+    @Test
+    void applicantCannotOpenStaffPageDirectly() throws Exception {
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("userId")).thenReturn("u001");
+        when(session.getAttribute("role")).thenReturn("applicant");
+        when(request.getRequestURI()).thenReturn("/tamo/admin/assignments.jsp");
+        stubWriter();
+        filter.doFilter(request, response, chain);
+        verify(response).setStatus(403);
+        verify(chain, never()).doFilter(request, response);
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.CsvSource({
+        "applicant,/tamo/applicant/assignments.jsp,true",
+        "applicant,/tamo/applicant/csv.jsp,false",
+        "applicant,/tamo/organiser/assignments.jsp,false",
+        "applicant,/tamo/review/dashboard.jsp,false",
+        "applicant,/tamo/common/csv-content.jsp,false",
+        "organiser,/tamo/organiser/csv.jsp,false",
+        "admin,/tamo/admin/assignments.jsp,true",
+        "organiser,/tamo/api/csv/options,false",
+        "reviewer,/tamo/api/csv/export,false",
+        "decision_maker,/tamo/api/csv/import,false",
+        "viewer,/tamo/api/csv/preview,false",
+        "admin,/tamo/admin/csv.jsp,true",
+        "admin,/tamo/api/csv/options,true",
+        "reviewer,/tamo/review/dashboard.jsp,true",
+        "viewer,/tamo/admin/dashboard.jsp,false",
+        "admin,/tamo/applicant/assignments.jsp,false"
+    })
+    void pageAccessMatchesRole(String role, String path, boolean allowed) throws Exception {
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("userId")).thenReturn("u001");
+        when(session.getAttribute("role")).thenReturn(role);
+        when(request.getRequestURI()).thenReturn(path);
+        if (!allowed) stubWriter();
+        filter.doFilter(request, response, chain);
+        if (allowed) verify(chain).doFilter(request, response);
+        else {
+            verify(response).setStatus(403);
+            verify(chain, never()).doFilter(request, response);
+        }
+    }
+
     private void stubWriter() throws Exception {
         StringWriter sw = new StringWriter();
         when(response.getWriter()).thenReturn(new PrintWriter(sw));

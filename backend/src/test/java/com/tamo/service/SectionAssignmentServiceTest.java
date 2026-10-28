@@ -34,7 +34,8 @@ class SectionAssignmentServiceTest {
     @Test void onlyOffersAndCurrentOwnersCanAssign() {
         app.setStatus("shortlisted");fails(409,this::assign);app.setStatus("offer");
         fails(403,()->service.assign("u006","organiser",body(app,section)));fails(403,()->service.assign("u001","applicant",body(app,section)));
-        ds.getJobs().get(0).setOrganiserId("u006");fails(403,this::assign);assertTrue(ds.getSectionAssignments().isEmpty());
+        // Stale posting metadata must not remove authority from the current course owner.
+        ds.getJobs().get(0).setOrganiserId("u006");assertEquals("active",assign().getStatus());
     }
     @Test void adminCanManageAllCourses() { assertEquals("active",service.assign("u010","admin",body(app,section)).getStatus()); }
     @Test void applicationMustBelongToSectionCourse() {section.setModuleId("m002");fails(403,()->service.assign("u010","admin",body(app,section)));}
@@ -89,14 +90,15 @@ class SectionAssignmentServiceTest {
         SectionAssignment a=assign();CourseSectionService sections=new CourseSectionService(data);
         assertEquals(409,assertThrows(CourseSectionService.Problem.class,()->sections.update("u005","organiser",section.getId(),new JsonObject())).status);
         assertThrows(CourseSectionService.Problem.class,()->sections.archive("u005","organiser",section.getId(),true));
-        assertEquals(409,new OrganiserService(data).updateCandidateStatus("u005",app.getId(),"rejected").get("code"));assertEquals("offer",app.getStatus());
+        ds.getUsers().stream().filter(u->"u005".equals(u.getId())).forEach(u->u.setPermissions(List.of("review.read","review.approve")));
+        assertEquals(409,new OrganiserService(data).updateCandidateStatus("u005",app.getId(),"rejected","A documented final decision reason.").get("code"));assertEquals("offer",app.getStatus());
         service.cancel("u005","organiser",a.getId(),reason());assertEquals("archived",sections.archive("u005","organiser",section.getId(),true).getStatus());
     }
     @Test void adminEditorAndDeletePathsPreserveHistoryBeforeMutation() {
         assign();AdminService admin=new AdminService(data);JsonObject change=new JsonObject();change.addProperty("status","rejected");
         assertEquals(409,admin.updateCollectionItem("applications",app.getId(),change).get("code"));assertEquals("offer",app.getStatus());
         for(String[] ref:new String[][]{{"applications",app.getId()},{"users",app.getApplicantId()},{"jobs",app.getJobId()},{"modules",section.getModuleId()}})
-            assertEquals(409,admin.deleteFromCollection(ref[0],ref[1]).get("code"));
+            assertEquals("users".equals(ref[0])?403:409,admin.deleteFromCollection(ref[0],ref[1]).get("code"));
         assertEquals(409,new OrganiserService(data).deleteJob("u005",app.getJobId()).get("code"));assertTrue(ds.getApplications().contains(app));
     }
     @Test void ownershipTransferMovesManagementToNewOwnerButKeepsStudentVisibility() {

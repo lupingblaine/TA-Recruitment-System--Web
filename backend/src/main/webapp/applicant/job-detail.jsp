@@ -72,7 +72,7 @@ const params = new URLSearchParams(window.location.search);
 const jobId = params.get('id');
 let jobData = null;
 let applicationPeriodState = { accepting: false, period: null };
-let myApplicationStatus = null; // null | 'applied' | 'interview' | 'offer' | 'hired' | 'rejected'
+let myApplicationStatus = null; // null | 'applied' | 'review' | 'offer' | 'hired' | 'rejected'
 
 async function loadJobDetail() {
   if (!jobId) { document.getElementById('loading').textContent = 'No job ID provided.'; return; }
@@ -95,7 +95,7 @@ async function loadJobDetail() {
 
 function buildWorkScheduleSummaryHtml(job) {
   var sections = job.sections || [];
-  if (!sections.length) return '<div class="rounded-xl p-6 border"><h4 class="font-semibold">Section Schedule</h4><p>Section schedules have not been configured. Please contact the course organiser.</p></div>';
+  if (!sections.length) return '<div class="rounded-xl p-6 border"><h4 class="font-semibold">Section Schedule</h4><p>Section schedules have not been configured. Please contact the course Teacher.</p></div>';
   var days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   return '<div class="bg-emerald-50/50 rounded-xl p-6 border border-emerald-100"><h4 class="font-semibold mb-3">Sections &amp; Weekly Schedule</h4><p class="text-sm mb-3">America/Los_Angeles (UCI local time). This posting covers these Sections; your individual assignments will be confirmed separately.</p>' + sections.map(function(section) {
     return '<div class="border-t py-3"><strong>' + section.name + '</strong> (' + section.type + ')<p class="text-sm">' + (section.meetingTimes || []).map(function(m) { return days[m.dayOfWeek] + ' ' + m.startTime + '–' + m.endTime; }).join('; ') + '</p></div>';
@@ -122,7 +122,7 @@ function renderDetail(original) {
       '<p class="text-emerald-600 font-black text-lg tracking-wide uppercase">Position Obtained</p>' +
       '<p class="text-emerald-500 text-xs font-medium mt-0.5">Congratulations!</p></div></div>';
   } else if (hasApplied) {
-    var statusBadge = myApplicationStatus === 'rejected' ? 'badge-danger' : myApplicationStatus === 'interview' ? 'badge-warning' : 'badge-neutral';
+    var statusBadge = myApplicationStatus === 'rejected' ? 'badge-danger' : 'badge-neutral';
     actionHtml = '<span class="badge ' + statusBadge + ' text-sm px-4 py-2">' + myApplicationStatus.charAt(0).toUpperCase() + myApplicationStatus.slice(1) + '</span>';
   } else if (job.status === 'active' && applicationPeriodState.accepting && postingAcceptsCycle(job)) {
     actionHtml = '<button onclick="openApply()" class="btn btn-primary text-base px-6 py-3 w-full sm:w-auto">Apply Now</button>';

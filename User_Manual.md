@@ -1,3 +1,7 @@
+> Update: Interview management has been removed. Older PDFs and screenshots may still show the retired workflow; see [current removal notes](docs/interview-retirement.md).
+
+> Current access policy: the primary role labels are **applicant**, **Teacher**, and **admin**. Teacher retains the internal `organiser` role key and routes. Reviewer, Decision-maker, and Viewer are explicitly advanced review roles; existing accounts and grants are preserved. Full CSV Import / Export, templates, previews, and the shared CSV API require an active **admin** account. Teacher has no CSV page or menu.
+
 > Sponsor-aligned forms and CSV import/export are implemented. See [CSV workflow guide](SPONSOR_CSV_GUIDE_zh.md).
 
 > For the current proposal workflow, permissions, and backup verification, see [handoff notes](PROPOSAL_HANDOFF_zh.md). CSV import/export is covered in the guide above.
@@ -24,7 +28,7 @@ The TA&MO platform is a robust role-based system for managing Teaching Assistant
 ## Table of Contents
 - [Quickstart](#quickstart)
 - [Applicant Guide](#applicant-guide)
-- [Organiser Guide](#organiser-guide)
+- [Teacher Guide](#teacher-guide)
 - [Admin Reference](#admin-reference)
 
 ---
@@ -53,7 +57,7 @@ If you do not have an account, register as a new applicant.
 
 ## Applicant Guide
 
-Instructions for browsing jobs, submitting applications, and communicating with organisers.
+Instructions for browsing jobs, submitting applications, and communicating with Teachers.
 
 ### Navigate the Dashboard
 The Applicant Dashboard provides a high-level summary of your recruitment status.
@@ -69,7 +73,7 @@ Check real-time alerts regarding your applications.
 
 ![Dashboard Notifications](screenshot/11_applicant_dashboard_notifications.png)
 **UI Breakdown:**
-- 🔹 **Notifications Panel (Right)**: Displays alerts like "Interview Scheduled" or "Status Updated".
+- 🔹 **Notifications Panel (Right)**: Displays alerts like "Assignment Published" or "Status Updated".
 
 ### Search for open positions
 Browse available modules and filter by department.
@@ -100,7 +104,7 @@ Monitor progression through the recruitment pipeline.
 
 ![My Applications](screenshot/07_applicant_my_applications.png)
 **UI Breakdown:**
-- 🔹 **Status Badges**: Color-coded indicators denoting pipeline stage (Review, Shortlisted, Interview, Offer, Rejected).
+- 🔹 **Status Badges**: Color-coded indicators denoting pipeline stage (Review, Shortlisted, Offer, Rejected).
 - 🔹 **Withdraw Action**: Button to retract an active application.
 
 ### Build your academic profile
@@ -112,7 +116,7 @@ Complete your profile to satisfy job prerequisites.
 - 🔹 **Skills Tags**: Selectable skills relevant to technical modules.
 - 🔹 **Document Upload**: Secure attachment of CVs and transcripts.
 
-### Message module organisers
+### Message module Teachers
 Initiate or respond to chat threads with professors.
 
 ![Messages Empty State](screenshot/08_applicant_messages_empty.png)
@@ -127,9 +131,9 @@ Initiate or respond to chat threads with professors.
 
 ---
 
-## Organiser Guide
+## Teacher Guide
 
-Instructions for managing job postings, reviewing candidates, and scheduling interviews.
+Instructions for managing job postings, reviewing candidates, and recording assignments.
 
 ### View module overview
 Access aggregated metrics for your assigned modules.
@@ -152,32 +156,9 @@ Use the Kanban board to manage recruitment stages.
 
 ![Pipeline Workflow](screenshot/15_organiser_pipeline.png)
 **UI Breakdown:**
-- 🔹 **Pipeline Columns**: Distinct stages (Applied, Review, Shortlisted, Interview, Offer).
+- 🔹 **Pipeline Columns**: Distinct stages (Applied, Review, Shortlisted, Offer, Rejected).
 - 🔹 **Drag-and-Drop Interface**: Click and drag candidate cards across columns to update their status.
 - 🔹 **Automated Notifications**: System dispatches alerts automatically upon status change.
-
-### View scheduled interviews
-Check upcoming meetings with shortlisted candidates.
-
-![Interviews List](screenshot/16_organiser_interviews.png)
-**UI Breakdown:**
-- 🔹 **Upcoming Interviews Table**: Chronological list of meetings.
-- 🔹 **Status Flags**: Indicators for 'Scheduled' or 'Completed' states.
-
-### Modify existing interviews
-Hover over an interview row to reveal management actions.
-
-![Interviews Hover State](screenshot/17_organiser_interviews_hover.png)
-**UI Breakdown:**
-- 🔹 **Hover Actions**: Contextual buttons for Edit, Cancel, or Mark as Completed.
-
-### Schedule a new interview
-Assign a date, time, and format for a candidate meeting.
-
-![Schedule Interview Modal](screenshot/18_organiser_schedule_interview.png)
-**UI Breakdown:**
-- 🔹 **Date & Time Pickers**: Inputs for scheduling.
-- 🔹 **Format Toggle**: Switch between 'Video Call' (generates link) or 'In-Person' (requires location).
 
 ### Message applicants
 Communicate directly with candidates.
@@ -213,12 +194,12 @@ Utilize Workload Intelligence to ensure compliance with maximum working hours.
 - 🔹 **Reassignment Tools**: Admin override to transfer offers between candidates.
 
 ### Manage global modules
-Register new curriculum modules and assign organisers.
+Register new curriculum modules and assign Teachers.
 
 ![Global Modules](screenshot/21_admin_global_modules.png)
 **UI Breakdown:**
 - 🔹 **Module Registry**: Table of all system-recognized courses.
-- 🔹 **Organiser Assignment**: Dropdown to map professors to specific modules.
+- 🔹 **Teacher Assignment**: Dropdown to map professors to specific modules.
 
 ### Configure system properties
 Set core platform variables.
@@ -233,7 +214,7 @@ Oversee registration and role assignments.
 
 ![User Management](screenshot/23_admin_users.png)
 **UI Breakdown:**
-- 🔹 **Role Assignment**: Upgrade standard accounts to Organiser or Admin.
+- 🔹 **Role Assignment**: Upgrade standard accounts to Teacher or Admin.
 - 🔹 **Account Actions**: Suspend or delete malicious users.
 
 ### Edit persistent data directly

@@ -25,13 +25,13 @@ Version 1 创建职位时选择 Course 和同一周期的 Section，自动显示
 管理员在左侧打开 **CSV Import / Export**：
 
 1. 创建并选择一个明确的非历史招聘周期。
-2. 选 **Courses & Sections**，选择新课程的 Organiser，填写 Department 及 **Hours per TA per week**（源文件没有工时列，因此必须填写）。选择课程 CSV，点击 **Preview import**，确认无错误后点击 **Import validated rows**。
+2. 选 **Courses & Sections**，选择新课程的 Teacher，填写 Department 及 **Hours per TA per week**（源文件没有工时列，因此必须填写）。选择课程 CSV，点击 **Preview import**，确认无错误后点击 **Import validated rows**。
 3. 选 **Student Applications**，选择学生 CSV，预览并导入。
 4. 选 **Selection & Assignment**，选择选拔 CSV，预览并导入。
 
 一批内有错误时整批拒绝，不部分写入。重新上传完全相同的数据会显示 unchanged，不重复建账号或申请；有差异的同周期历史申请不会被覆盖。修改配置、文件或周期后须重新预览；预览之后其他人改动相关数据，也必须重新预览。
 
-Organiser 只能导入自己课程的课程 CSV；学生资料和选拔结果由 Admin 导入。学生只能导出自己的申请。其他 staff 的导出遵循现有课程授权；无内部审核权限时导出不附内部备注。
+完整 CSV 页面、共享 API、模板、预览、导入和导出均仅限有效 admin 账号。Teacher、applicant 及高级审核角色无 CSV 权限；Teacher 的侧栏入口和页面已移除。
 
 新导入学生根据 UCI Email 和 Student ID 关联。新账号初始 suspended、随机未知密码，不创建共享默认密码，也不发邮件。需要让本人使用时，管理员在 Users 为每个账号设置独立密码并激活；既有学生账号的密码与账号状态不受导入影响。
 
@@ -44,7 +44,7 @@ Organiser 只能导入自己课程的课程 CSV；学生资料和选拔结果由
 - Skills & Experience 中的受控技能用于匹配，剩余经验文字保留为教学经历/补充说明；导出包含所选技能和经验文本。首次导出会统一部分别名和格式，不保证与原始文件逐字相同。
 - 指定 Section 的批准只适用于该 Section；后续推荐不会覆盖已作出的批准/不选用决定。
 
-- Selected → approve；Proposed → recommend；Flagged → flag；Rejected → not_selected；Alternate → alternate。拟分配 Section 与记录一起保存。导入 Selected 不创建已发布邀请、不伪造学生接受，不计入已接受工时；之后由 Organiser 走正常分配、发布、回复流程。
+- Selected → approve；Proposed → recommend；Flagged → flag；Rejected → not_selected；Alternate → alternate。拟分配 Section 与记录一起保存。导入 Selected 不创建已发布邀请、不伪造学生接受，不计入已接受工时；之后由 Teacher 走正常分配、发布、回复流程。
 - Responsible User 保留为来源责任人文本；审计操作者始终是实际登录导入者。源文件 Match Status 不是权限或资格证明，导出使用系统当前资格/时间计算结果，可能与来源不同。
 
 ## 导出与历史

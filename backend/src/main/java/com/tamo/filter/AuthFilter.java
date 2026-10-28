@@ -39,18 +39,32 @@ public class AuthFilter implements Filter {
                 if(user==null||!"active".equals(user.getStatus())){JsonUtil.writeError(resp,403,"Account access is no longer active.");return;}role=user.getRole();session.setAttribute("role",role);
             }
         }catch(IllegalStateException unavailable){/* DatabaseTransactionFilter rejects unavailable database requests first. */}
-        String path = req.getRequestURI();
+        String path = req.getServletPath();
+        if (path == null || path.isEmpty()) path = req.getRequestURI();
 
-        if (path.contains("/api/applicant") && !"applicant".equals(role)) {
+        if ((path.contains("/api/csv/") || path.endsWith("/csv.jsp")) && !"admin".equals(role)) {
+            JsonUtil.writeError(resp, 403, "CSV import and export are available to active admin accounts only.");
+            return;
+        }
+
+        if ((path.contains("/api/applicant") || path.contains("/applicant/")) && !"applicant".equals(role)) {
             JsonUtil.writeError(resp, 403, "Access denied");
             return;
         }
-        if (path.contains("/api/organiser") && !"organiser".equals(role)) {
+        if ((path.contains("/api/organiser") || path.contains("/organiser/")) && !"organiser".equals(role)) {
             JsonUtil.writeError(resp, 403, "Access denied");
             return;
         }
-        if (path.contains("/api/admin") && !"admin".equals(role)) {
+        if ((path.contains("/api/admin") || path.contains("/admin/")) && !"admin".equals(role)) {
             JsonUtil.writeError(resp, 403, "Access denied");
+            return;
+        }
+
+        if (path.contains("/common/")
+                || (path.contains("/review/") && "applicant".equals(role))
+                || ((path.contains("/api/csv/") || path.endsWith("/applicant/csv.jsp"))
+                    && "applicant".equals(role))) {
+            JsonUtil.writeError(resp, 403, "This page or operation is available to authorised staff only.");
             return;
         }
 

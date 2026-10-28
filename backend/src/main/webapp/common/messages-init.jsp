@@ -76,7 +76,7 @@ function renderLeftPanel() {
     if (items.length === 0) {
       const hint = contactsLoadError
         ? escapeHtml(contactsLoadError)
-        : 'No contacts available for this role (applicants need applications; organisers need applicants on their jobs)';
+        : 'No contacts available for this role (applicants need applications; Teachers need applicants on their jobs)';
       panel.innerHTML = '<div class="p-4 text-center text-zinc-400 text-sm">' + hint + '</div>';
       return;
     }
@@ -94,7 +94,7 @@ function renderLeftPanel() {
 function getRoleBadge(role) {
   const colors = { admin: 'bg-purple-100 text-purple-700', organiser: 'bg-blue-100 text-blue-700', applicant: 'bg-emerald-100 text-emerald-700' };
   const cls = colors[role] || 'bg-zinc-100 text-zinc-600';
-  return '<span class="text-xs px-1.5 py-0.5 rounded ' + cls + '">' + (role || '') + '</span>';
+  return '<span class="text-xs px-1.5 py-0.5 rounded ' + cls + '">' + displayRole(role) + '</span>';
 }
 
 function formatTime(ts) {
@@ -415,7 +415,7 @@ async function showUserCard(userId) {
     document.getElementById('ucAvatar').textContent = (info.name || '?').charAt(0).toUpperCase();
     document.getElementById('ucName').textContent = info.name || '-';
     const roleColors = { admin: 'bg-purple-500/20 text-purple-200', organiser: 'bg-blue-500/20 text-blue-200', applicant: 'bg-emerald-500/20 text-emerald-200' };
-    document.getElementById('ucRole').innerHTML = '<span class="text-xs px-2 py-0.5 rounded-full ' + (roleColors[info.role] || 'bg-white/20 text-white/80') + '">' + (info.role || '') + '</span>';
+    document.getElementById('ucRole').innerHTML = '<span class="text-xs px-2 py-0.5 rounded-full ' + (roleColors[info.role] || 'bg-white/20 text-white/80') + '">' + displayRole(info.role) + '</span>';
 
     let basic = '<div class="space-y-1"><p class="text-xs text-zinc-500">Email</p><p class="font-medium text-zinc-900 text-sm truncate">' + escapeHtml(info.email || '-') + '</p></div>';
     basic += '<div class="space-y-1"><p class="text-xs text-zinc-500">Department</p><p class="font-medium text-zinc-900 text-sm">' + escapeHtml(info.department || '-') + '</p></div>';
@@ -442,7 +442,7 @@ async function showUserCard(userId) {
       extra += '<div class="border-t border-zinc-100 pt-3 space-y-2">';
       extra += '<h4 class="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Applications</h4>';
       extra += info.applications.map(function(a) {
-        var statusColors = { applied: 'badge-neutral', review: 'badge-neutral', shortlisted: 'badge-warning', interview: 'badge-warning', offer: 'badge-success', rejected: 'badge-danger' };
+        var statusColors = { applied: 'badge-neutral', review: 'badge-neutral', shortlisted: 'badge-warning', offer: 'badge-success', rejected: 'badge-danger' };
         return '<div class="flex items-center justify-between text-sm py-1">' +
           '<div class="min-w-0"><p class="font-medium text-zinc-900 truncate">' + escapeHtml(a.jobTitle) + '</p>' +
           '<p class="text-xs text-zinc-500">' + escapeHtml(a.moduleCode) + '</p></div>' +

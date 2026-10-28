@@ -50,36 +50,41 @@ public class MessageService {
      */
     public boolean canMessage(String senderId, String receiverId) {
         DataStore data = dataService.getData();
-        User sender = data.getUsers().stream().filter(u -> u.getId().equals(senderId)).findFirst().orElse(null);
-        User receiver = data.getUsers().stream().filter(u -> u.getId().equals(receiverId)).findFirst().orElse(null);
+        User sender = activeUser(data, senderId);
+        User receiver = activeUser(data, receiverId);
         if (sender == null || receiver == null) return false;
-
-        String senderRole = sender.getRole();
-        String receiverRole = receiver.getRole();
-
-        // Admin can message anyone; anyone can message admin
-        if ("admin".equals(senderRole) || "admin".equals(receiverRole)) return true;
-
-        if ("applicant".equals(senderRole) && "organiser".equals(receiverRole)) {
-            // Applicant can message MOs whose jobs they applied to
-            List<String> appliedJobIds = data.getApplications().stream()
-                    .filter(a -> senderId.equals(a.getApplicantId()))
-                    .map(Application::getJobId)
-                    .collect(Collectors.toList());
-            return data.getJobs().stream()
-                    .anyMatch(j -> appliedJobIds.contains(j.getId()) && receiverId.equals(j.getOrganiserId()));
+        if ("admin".equals(sender.getRole()) || "admin".equals(receiver.getRole())) return true;
+        if ("applicant".equals(sender.getRole()) && "organiser".equals(receiver.getRole())) {
+            return relatedApplicant(data, receiver, senderId);
         }
-
-        if ("organiser".equals(senderRole) && "applicant".equals(receiverRole)) {
-            // Organiser can message applicants who applied to their jobs
-            List<String> organiserJobIds = data.getJobs().stream()
-                    .filter(j -> senderId.equals(j.getOrganiserId()))
-                    .map(Job::getId)
-                    .collect(Collectors.toList());
-            return data.getApplications().stream()
-                    .anyMatch(a -> receiverId.equals(a.getApplicantId()) && organiserJobIds.contains(a.getJobId()));
+        if ("organiser".equals(sender.getRole()) && "applicant".equals(receiver.getRole())) {
+            return relatedApplicant(data, sender, receiverId);
         }
+        return false;
+    }
 
+    private User activeUser(DataStore data, String id) {
+        if (id == null || id.isBlank() || data.getUsers() == null) return null;
+        return data.getUsers().stream()
+                .filter(u -> id != null && id.equals(u.getId()) && "active".equals(u.getStatus()))
+                .findFirst().orElse(null);
+    }
+
+    private boolean ownsReadableJob(DataStore data, User organiser, String jobId) {
+        if (!"organiser".equals(organiser.getRole()) || !ReviewAccess.can(organiser, "review.read")) return false;
+        return data.getJobs().stream().filter(j -> Objects.equals(jobId, j.getId()))
+                .anyMatch(j -> data.getModules().stream().anyMatch(m -> Objects.equals(j.getModuleId(), m.getId())
+                        && Objects.equals(organiser.getId(), m.getOrganiserId())));
+    }
+
+    private boolean relatedApplicant(DataStore data, User organiser, String applicantId) {
+        return data.getApplications().stream().anyMatch(a -> Objects.equals(applicantId, a.getApplicantId())
+                && ownsReadableJob(data, organiser, a.getJobId()));
+    }
+
+    private boolean readableMessage(String userId, Message message) {
+        if (Objects.equals(userId, message.getSenderId())) return canMessage(userId, message.getReceiverId());
+        if (Objects.equals(userId, message.getReceiverId())) return canMessage(userId, message.getSenderId());
         return false;
     }
 
@@ -94,55 +99,11 @@ public class MessageService {
      * @return the resulting object or status
      */
     public List<JsonObject> getContacts(String userId) {
-        if (userId == null || userId.isBlank()) return Collections.emptyList();
-
         DataStore data = dataService.getData();
-        if (data.getUsers() == null || data.getUsers().isEmpty()) return Collections.emptyList();
-
-        User currentUser = data.getUsers().stream().filter(u -> u.getId().equals(userId)).findFirst().orElse(null);
-        if (currentUser == null) return Collections.emptyList();
-
-        String role = currentUser.getRole();
-        List<User> contactUsers = new ArrayList<>();
-        List<Application> applications = data.getApplications() != null ? data.getApplications() : List.of();
-        List<Job> jobs = data.getJobs() != null ? data.getJobs() : List.of();
-
-        if ("admin".equals(role)) {
-            // Admin can contact everyone except themselves
-            contactUsers = data.getUsers().stream()
-                    .filter(u -> !u.getId().equals(userId) && "active".equals(u.getStatus()))
-                    .collect(Collectors.toList());
-
-        } else if ("applicant".equals(role)) {
-            // Can contact: MOs of jobs applied to + all admins
-            List<String> appliedJobIds = applications.stream()
-                    .filter(a -> userId.equals(a.getApplicantId()))
-                    .map(Application::getJobId)
-                    .collect(Collectors.toList());
-            Set<String> organiserIds = jobs.stream()
-                    .filter(j -> appliedJobIds.contains(j.getId()) && j.getOrganiserId() != null)
-                    .map(Job::getOrganiserId)
-                    .collect(Collectors.toSet());
-            contactUsers = data.getUsers().stream()
-                    .filter(u -> !u.getId().equals(userId) && "active".equals(u.getStatus()))
-                    .filter(u -> organiserIds.contains(u.getId()) || "admin".equals(u.getRole()))
-                    .collect(Collectors.toList());
-
-        } else if ("organiser".equals(role)) {
-            // Can contact: applicants who applied to their jobs + all admins
-            List<String> myJobIds = jobs.stream()
-                    .filter(j -> userId.equals(j.getOrganiserId()))
-                    .map(Job::getId)
-                    .collect(Collectors.toList());
-            Set<String> applicantIds = applications.stream()
-                    .filter(a -> myJobIds.contains(a.getJobId()) && a.getApplicantId() != null)
-                    .map(Application::getApplicantId)
-                    .collect(Collectors.toSet());
-            contactUsers = data.getUsers().stream()
-                    .filter(u -> !u.getId().equals(userId) && "active".equals(u.getStatus()))
-                    .filter(u -> applicantIds.contains(u.getId()) || "admin".equals(u.getRole()))
-                    .collect(Collectors.toList());
-        }
+        if (activeUser(data, userId) == null) return Collections.emptyList();
+        List<User> contactUsers = data.getUsers().stream()
+                .filter(u -> !Objects.equals(userId, u.getId()) && canMessage(userId, u.getId()))
+                .collect(Collectors.toList());
 
         return contactUsers.stream().map(u -> {
             JsonObject obj = new JsonObject();
@@ -170,7 +131,7 @@ public class MessageService {
         if (data.getMessages() == null) return Collections.emptyList();
 
         Map<String, List<Message>> byConversation = data.getMessages().stream()
-                .filter(m -> userId.equals(m.getSenderId()) || userId.equals(m.getReceiverId()))
+                .filter(m -> readableMessage(userId, m))
                 .collect(Collectors.groupingBy(Message::getConversationId));
 
         List<JsonObject> conversations = new ArrayList<>();
@@ -231,7 +192,7 @@ public class MessageService {
 
         return data.getMessages().stream()
                 .filter(m -> conversationId.equals(m.getConversationId()))
-                .filter(m -> userId.equals(m.getSenderId()) || userId.equals(m.getReceiverId()))
+                .filter(m -> readableMessage(userId, m))
                 .sorted(Comparator.comparing(Message::getTimestamp))
                 .map(m -> toMessageJson(m, data, byId, userId))
                 .collect(Collectors.toList());
@@ -528,6 +489,7 @@ public class MessageService {
         for (Message m : data.getMessages()) {
             if (conversationId.equals(m.getConversationId())
                     && userId.equals(m.getReceiverId())
+                    && readableMessage(userId, m)
                     && !m.isRead()) {
                 m.setRead(true);
                 changed = true;
@@ -550,9 +512,15 @@ public class MessageService {
      */
     public JsonObject getUserInfo(String requesterId, String targetUserId) {
         DataStore data = dataService.getData();
+        User requester = activeUser(data, requesterId);
+        if (requester == null) throw new QualificationService.Problem(403, "An active account is required.");
         User target = data.getUsers().stream()
                 .filter(u -> u.getId().equals(targetUserId)).findFirst().orElse(null);
         if (target == null) return null;
+        boolean fullAccess = Objects.equals(requesterId, targetUserId) || "admin".equals(requester.getRole());
+        if (!fullAccess && !canMessage(requesterId, targetUserId)) {
+            throw new QualificationService.Problem(403, "You do not have permission to view this user.");
+        }
 
         JsonObject info = new JsonObject();
         info.addProperty("id", target.getId());
@@ -581,6 +549,7 @@ public class MessageService {
 
             List<Application> apps = data.getApplications().stream()
                     .filter(a -> targetUserId.equals(a.getApplicantId()))
+                    .filter(a -> fullAccess || ownsReadableJob(data, requester, a.getJobId()))
                     .collect(Collectors.toList());
             JsonArray appArr = new JsonArray();
             apps.forEach(a -> {
@@ -589,13 +558,17 @@ public class MessageService {
                 JsonObject ao = new JsonObject();
                 ao.addProperty("jobTitle", job != null ? job.getTitle() : a.getJobId());
                 ao.addProperty("moduleCode", job != null && job.getModuleCode() != null ? job.getModuleCode() : "");
-                ao.addProperty("status", a.getStatus());
+                ao.addProperty("status", RecruitmentStatus.current(a.getStatus()));
                 appArr.add(ao);
             });
             info.add("applications", appArr);
         } else if ("organiser".equals(target.getRole())) {
             List<com.tamo.model.Module> modules = data.getModules().stream()
                     .filter(m -> targetUserId.equals(m.getOrganiserId()))
+                    .filter(m -> fullAccess || data.getApplications().stream()
+                            .filter(a -> requesterId.equals(a.getApplicantId()))
+                            .anyMatch(a -> data.getJobs().stream().anyMatch(j -> Objects.equals(a.getJobId(), j.getId())
+                                    && Objects.equals(m.getId(), j.getModuleId()))))
                     .collect(Collectors.toList());
             JsonArray modArr = new JsonArray();
             modules.forEach(m -> {
@@ -625,7 +598,7 @@ public class MessageService {
         DataStore data = dataService.getData();
         if (data.getMessages() == null) return 0;
         return (int) data.getMessages().stream()
-                .filter(m -> userId.equals(m.getReceiverId()) && !m.isRead())
+                .filter(m -> Objects.equals(userId, m.getReceiverId()) && !m.isRead() && readableMessage(userId, m))
                 .count();
     }
 }

@@ -64,16 +64,16 @@
       </div>
       <div class="divide-y divide-zinc-200">
         <div class="flex items-center justify-between py-4 px-6 hover:bg-zinc-50/50 transition-colors">
-          <div class="flex items-center gap-4"><span class="font-medium text-zinc-900">Module Organiser (MO)</span><span class="badge badge-success">Active</span></div>
+          <div class="flex items-center gap-4"><span class="font-medium text-zinc-900">Teacher</span><span class="badge badge-success">Active</span></div>
           <span class="text-sm text-zinc-500">Manage TA hiring for assigned modules</span>
         </div>
         <div class="flex items-center justify-between py-4 px-6 hover:bg-zinc-50/50 transition-colors">
-          <div class="flex items-center gap-4"><span class="font-medium text-zinc-900">Adviser / Admin</span><span class="badge badge-success">Active</span></div>
+          <div class="flex items-center gap-4"><span class="font-medium text-zinc-900">admin</span><span class="badge badge-success">Active</span></div>
           <span class="text-sm text-zinc-500">Platform-wide configuration and overview</span>
         </div>
         <div class="flex items-center justify-between py-4 px-6 hover:bg-zinc-50/50 transition-colors">
           <div class="flex items-center gap-4"><span class="font-medium text-zinc-900">Teaching Assistant</span><span class="badge badge-success">Active</span></div>
-          <span class="text-sm text-zinc-500">Applicant role</span>
+          <span class="text-sm text-zinc-500">applicant role</span>
         </div>
       </div>
     </div>

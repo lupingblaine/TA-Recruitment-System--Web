@@ -50,6 +50,10 @@ public class AdminServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
+        if ("data-editor/interviews".equals(path) || path.startsWith("data-editor/interviews/")) {
+            JsonUtil.writeError(resp, 410, "Interview management has been removed."); return;
+        }
+
 
         switch (path) {
             case "dashboard" -> JsonUtil.writeJson(resp, service.getDashboard());
@@ -103,6 +107,14 @@ public class AdminServlet extends HttpServlet {
      */
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
+        if ("data-editor/users".equals(path) || path.startsWith("data-editor/users/")) {
+            JsonUtil.writeError(resp, 403, "Manage accounts through Users, not Data Editor."); return;
+        }
+
+        if ("data-editor/interviews".equals(path) || path.startsWith("data-editor/interviews/")) {
+            JsonUtil.writeError(resp, 410, "Interview management has been removed."); return;
+        }
+
         JsonObject body = JsonUtil.readRequestBodyAsJson(req);
         String actor = getUserName(req);
         String actorId = getUserId(req);
@@ -193,6 +205,14 @@ public class AdminServlet extends HttpServlet {
      */
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
+        if ("data-editor/users".equals(path) || path.startsWith("data-editor/users/")) {
+            JsonUtil.writeError(resp, 403, "Manage accounts through Users, not Data Editor."); return;
+        }
+
+        if ("data-editor/interviews".equals(path) || path.startsWith("data-editor/interviews/")) {
+            JsonUtil.writeError(resp, 410, "Interview management has been removed."); return;
+        }
+
         String adminId = getUserId(req);
         String actor = getUserName(req);
         String ip = req.getRemoteAddr();
@@ -264,6 +284,14 @@ public class AdminServlet extends HttpServlet {
      */
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = JsonUtil.getPathInfo(req);
+        if ("data-editor/users".equals(path) || path.startsWith("data-editor/users/")) {
+            JsonUtil.writeError(resp, 403, "Manage accounts through Users, not Data Editor."); return;
+        }
+
+        if ("data-editor/interviews".equals(path) || path.startsWith("data-editor/interviews/")) {
+            JsonUtil.writeError(resp, 410, "Interview management has been removed."); return;
+        }
+
         String adminId = getUserId(req);
         String actor = getUserName(req);
         String ip = req.getRemoteAddr();

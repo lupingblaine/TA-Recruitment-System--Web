@@ -62,18 +62,14 @@ const organiserApi = {
     const q = params.size ? '?' + params.toString() : '';
     return request('/organiser/pipeline' + q);
   },
-  updateCandidateStatus: (appId, status) =>
-    request('/organiser/pipeline/' + appId + '/status', { method: 'PUT', body: JSON.stringify({ status }) }),
+  updateCandidateStatus: (appId, status, note) =>
+    request('/organiser/pipeline/' + appId + '/status', { method: 'PUT', body: JSON.stringify({ status, note }) }),
   getApplicationDetails: (id) => request('/organiser/applications/' + id),
-  applicationAction: (id, action) =>
-    request('/organiser/applications/' + id + '/action', { method: 'PUT', body: JSON.stringify({ action }) }),
-  getInterviews: () => request('/organiser/interviews'),
+  applicationAction: (id, action, note) =>
+    request('/organiser/applications/' + id + '/action', { method: 'PUT', body: JSON.stringify({ action, note }) }),
   getNotifications: () => request('/organiser/notifications'),
   markNotificationRead: (id) => request('/organiser/notifications/' + id + '/read', { method: 'PUT' }),
   markAllNotificationsRead: () => request('/organiser/notifications/read-all', { method: 'PUT' }),
-  createInterview: (data) => request('/organiser/interviews', { method: 'POST', body: JSON.stringify(data) }),
-  updateInterview: (id, data) => request('/organiser/interviews/' + id, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteInterview: (id) => request('/organiser/interviews/' + id, { method: 'DELETE' }),
 };
 
 const adminApi = {

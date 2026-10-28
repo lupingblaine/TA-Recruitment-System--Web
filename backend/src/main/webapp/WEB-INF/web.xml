@@ -59,6 +59,13 @@
         <url-pattern>/api/messages/*</url-pattern>
     </filter-mapping>
 
+    <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/applicant/*</url-pattern></filter-mapping>
+    <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/organiser/*</url-pattern></filter-mapping>
+    <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/admin/*</url-pattern></filter-mapping>
+    <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/review/*</url-pattern></filter-mapping>
+    <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/common/*</url-pattern></filter-mapping>
+    <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/csv/*</url-pattern></filter-mapping>
+
     <servlet><servlet-name>SectionAssignmentServlet</servlet-name><servlet-class>com.tamo.servlet.SectionAssignmentServlet</servlet-class></servlet>
     <servlet-mapping><servlet-name>SectionAssignmentServlet</servlet-name><url-pattern>/api/admin/assignments/*</url-pattern></servlet-mapping>
     <servlet-mapping><servlet-name>SectionAssignmentServlet</servlet-name><url-pattern>/api/organiser/assignments/*</url-pattern></servlet-mapping>

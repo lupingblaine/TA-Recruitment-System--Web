@@ -10,22 +10,13 @@
     <p class="text-zinc-500 mt-2 text-lg">Here's what's happening with your TA applications.</p>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="statsGrid">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="statsGrid">
     <div class="card fade-in">
       <div class="p-6 flex items-center gap-4">
         <div class="stat-icon"><i data-lucide="clock" class="h-6 w-6"></i></div>
         <div>
           <p class="text-sm font-medium text-zinc-500">Active Applications</p>
           <p class="text-2xl font-bold text-zinc-900" id="statActive">-</p>
-        </div>
-      </div>
-    </div>
-    <div class="card fade-in">
-      <div class="p-6 flex items-center gap-4">
-        <div class="stat-icon"><i data-lucide="calendar" class="h-6 w-6"></i></div>
-        <div>
-          <p class="text-sm font-medium text-zinc-500">Interviews Scheduled</p>
-          <p class="text-2xl font-bold text-zinc-900" id="statInterviews">-</p>
         </div>
       </div>
     </div>
@@ -120,7 +111,6 @@ async function loadDashboard() {
     const jobs = escapeDisplay(data.upcomingDeadlines || []);
 
     document.getElementById('statActive').textContent = data.activeApplications ?? 0;
-    document.getElementById('statInterviews').textContent = data.interviewCount ?? 0;
     document.getElementById('statProfile').textContent = (data.profileCompletion != null ? data.profileCompletion : 0) + '%';
     document.getElementById('greeting').textContent = 'Welcome back, ' + (data.profile?.name || <%= com.tamo.util.JsonUtil.getGson().toJson(session.getAttribute("userName")) %>) + '!';
 
@@ -129,11 +119,13 @@ async function loadDashboard() {
       container.innerHTML = '<div class="p-6 text-center text-zinc-400">No applications yet. <a href="' + ctx + '/applicant/jobs.jsp" class="text-zinc-900 font-medium hover:underline">Browse jobs</a></div>';
     } else {
       container.innerHTML = apps.slice(0, 5).map(app => {
-        const badgeClass = app.status === 'interview' ? 'badge-warning' : app.status === 'rejected' ? 'badge-danger' : app.status === 'hired' ? 'badge-success' : 'badge-neutral';
+        const status = app.status === 'interview' ? 'review' : app.status;
+        const statusText = status === 'review' || status === 'under_review' ? 'Under Review' : status;
+        const badgeClass = status === 'rejected' ? 'badge-danger' : status === 'hired' ? 'badge-success' : 'badge-neutral';
         return '<a href="' + ctx + '/applicant/applications.jsp" class="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors cursor-pointer group block">' +
           '<div class="space-y-1"><h3 class="font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">' + (app.role || app.jobId) + '</h3>' +
           '<p class="text-sm text-zinc-500">' + (app.module || '') + ' • Applied ' + (app.appliedAt || '').split('T')[0] + '</p></div>' +
-          '<div class="flex items-center gap-4"><span class="badge ' + badgeClass + '">' + app.status + '</span>' +
+          '<div class="flex items-center gap-4"><span class="badge ' + badgeClass + '">' + statusText + '</span>' +
           '<i data-lucide="chevron-right" class="h-5 w-5 text-zinc-300 group-hover:text-zinc-500 transition-colors"></i></div></a>';
       }).join('');
     }
@@ -208,7 +200,6 @@ function renderSchedule(schedule, offers) {
   const el = document.getElementById('weeklySchedule');
   const safeSchedule=escapeDisplay(schedule);
   const isCurrentWeek=currentWeekOffset===0;
-  const interviews = safeSchedule.filter(function(s) { return s.type === 'interview'; });
   const duties = safeSchedule.filter(function(s) { return s.type === 'duty'; });
 
   const today = new Date();
@@ -228,17 +219,6 @@ function renderSchedule(schedule, offers) {
 
   const eventsByDay = {};
   for (let i = 0; i < 7; i++) eventsByDay[i] = [];
-
-  interviews.forEach(function(iv) {
-    if (!iv.date) return;
-    const evDate = new Date(iv.date);
-    for (let i = 0; i < 7; i++) {
-      if (weekDates[i].toDateString() === evDate.toDateString()) {
-        eventsByDay[i].push({ type: 'interview', data: iv });
-        break;
-      }
-    }
-  });
 
   duties.forEach(function(d) {
     (d.meetingTimes||[]).forEach(function(m){eventsByDay[m.dayOfWeek-1].push({type:'work',data:{moduleCode:d.moduleCode+' · '+d.title+' '+m.startTime+'–'+m.endTime}});});
@@ -261,8 +241,6 @@ function renderSchedule(schedule, offers) {
   weekDates.forEach(function(date, idx) {
     const isToday = date.toDateString() === today.toDateString();
     const events = eventsByDay[idx];
-    const hasInterview = events.some(function(e) { return e.type === 'interview'; });
-    const hasDuty = events.some(function(e) { return e.type === 'duty'; });
     const hasWork = events.some(function(e) { return e.type === 'work'; });
 
     html += '<div class="relative group" tabindex="0" aria-label="Weekly schedule '+padDate(date)+'">';
@@ -270,10 +248,9 @@ function renderSchedule(schedule, offers) {
       (isToday ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : hasWork ? 'bg-emerald-50 border-emerald-200 hover:border-emerald-400' : 'bg-white border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50/50') + '">';
     html += '<span class="text-sm font-semibold">' + date.getDate() + '</span>';
     
-    if (hasInterview || hasWork) {
+    if (hasWork) {
       html += '<div class="flex gap-0.5 mt-1">';
       if (hasWork) html += '<span class="w-1.5 h-1.5 rounded-full ' + (isToday ? 'bg-emerald-300' : 'bg-emerald-500') + '"></span>';
-      if (hasInterview) html += '<span class="w-1.5 h-1.5 rounded-full ' + (isToday ? 'bg-amber-300' : 'bg-amber-500') + '"></span>';
       html += '</div>';
     }
     html += '</div>';
@@ -290,12 +267,7 @@ function renderSchedule(schedule, offers) {
           html += '<div class="flex items-center gap-2 text-xs mb-2 last:mb-0">' +
             '<span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>' +
             '<span class="text-zinc-700"><strong>' + (ev.data.moduleCode || '') + '</strong> Work Day</span></div>';
-        } else {
-          const locInfo = ev.data.interviewType === 'video' ? 'Video' : (ev.data.location || 'In-Person');
-          html += '<div class="flex items-center gap-2 text-xs mb-2 last:mb-0">' +
-            '<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>' +
-            '<span class="text-zinc-700"><strong>' + (ev.data.moduleCode || '') + '</strong> Interview ' +
-            (ev.data.startTime ? ev.data.startTime : '') + ' • ' + locInfo + '</span></div>';
+
         }
       });
       html += '</div></div>';
@@ -305,29 +277,7 @@ function renderSchedule(schedule, offers) {
   html += '</div>';
 
   html += '<div class="flex items-center gap-4 mt-4 pt-4 border-t border-zinc-100 text-xs text-zinc-500">' +
-    '<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Work Day</div>' +
-    '<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>Interview</div></div>';
-
-  if (interviews.length > 0) {
-    html += '<div class="mt-4 pt-4 border-t border-zinc-100">' +
-      '<h4 class="text-xs font-semibold text-zinc-600 uppercase tracking-wide mb-3">Upcoming Interviews</h4>' +
-      '<div class="space-y-2">';
-    interviews.slice(0, 3).forEach(function(iv) {
-      const dateStr = iv.date || 'TBD';
-      const dateParts = dateStr.split('-');
-      const timeStr = iv.startTime && iv.endTime ? iv.startTime + ' – ' + iv.endTime : iv.startTime || '';
-      const locationInfo = iv.interviewType === 'video' ? 'Video Call' : (iv.location || 'In-Person');
-      html += '<div class="flex items-center gap-3 p-2 rounded-lg bg-amber-50/80 border border-amber-100">' +
-        '<div class="h-9 w-9 rounded-lg bg-amber-500 text-white flex flex-col items-center justify-center text-xs font-bold shrink-0 leading-tight">' +
-        '<span>' + dateParts[2] + '</span>' +
-        '<span class="text-[9px] font-normal opacity-80">' + monthNames[parseInt(dateParts[1], 10) - 1] + '</span></div>' +
-        '<div class="flex-1 min-w-0">' +
-        '<p class="font-medium text-zinc-900 text-sm truncate">' + (iv.moduleCode || '') + ' ' + (iv.moduleName || 'Interview') + '</p>' +
-        '<p class="text-xs text-zinc-500">' + timeStr + '</p>' +
-        '<p class="text-xs text-zinc-400 flex items-center gap-1 mt-0.5"><i data-lucide="' + (iv.interviewType === 'video' ? 'video' : 'map-pin') + '" class="h-3 w-3"></i>' + locationInfo + '</p></div></div>';
-    });
-    html += '</div></div>';
-  }
+    '<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Work Day</div></div>';
 
   el.innerHTML = html;
 }
@@ -351,13 +301,11 @@ function renderNotifications(notifications, unreadCount) {
   el.innerHTML = notifications.map(function(n) {
     const iconMap = {
       'status_change': 'refresh-cw',
-      'interview_scheduled': 'calendar-check',
       'offer': 'trophy',
       'rejection': 'x-circle'
     };
     const colorMap = {
       'status_change': 'bg-blue-100 text-blue-600',
-      'interview_scheduled': 'bg-amber-100 text-amber-600',
       'offer': 'bg-emerald-100 text-emerald-600',
       'rejection': 'bg-red-100 text-red-600'
     };

@@ -20,9 +20,9 @@
     </div>
     <select id="roleFilter" class="input w-auto" onchange="loadUsers()">
       <option value="">All Roles</option>
-      <option value="applicant">Applicant</option>
-      <option value="organiser">Organiser</option><option value="reviewer">Reviewer</option><option value="decision_maker">Decision-maker</option><option value="viewer">Viewer</option>
-      <option value="admin">Admin</option>
+      <option value="applicant">applicant</option>
+      <option value="organiser">Teacher</option><option value="reviewer">Advanced review role: Reviewer</option><option value="decision_maker">Advanced review role: Decision-maker</option><option value="viewer">Advanced review role: Viewer</option>
+      <option value="admin">admin</option>
     </select>
   </div>
 
@@ -59,7 +59,7 @@
       <div><label for="uPassword" class="block text-sm font-medium text-zinc-700 mb-1.5">Password</label><input id="uPassword" type="password" class="input" placeholder="••••••••"></div>
       <div class="grid grid-cols-2 gap-4">
         <div><label for="uRole" class="block text-sm font-medium text-zinc-700 mb-1.5">Role</label>
-          <select id="uRole" class="input"><option value="applicant">Applicant</option><option value="organiser">Organiser</option><option value="reviewer">Reviewer</option><option value="decision_maker">Decision-maker</option><option value="viewer">Viewer</option><option value="admin">Admin</option></select>
+          <select id="uRole" class="input"><option value="applicant">applicant</option><option value="organiser">Teacher</option><option value="reviewer">Advanced review role: Reviewer</option><option value="decision_maker">Advanced review role: Decision-maker</option><option value="viewer">Advanced review role: Viewer</option><option value="admin">admin</option></select>
         </div>
         <div><label for="uStatus" class="block text-sm font-medium text-zinc-700 mb-1.5">Status</label>
           <select id="uStatus" class="input"><option value="active">Active</option><option value="suspended">Suspended</option></select>
@@ -109,7 +109,7 @@ function renderUsers(users) {
       '<td class="px-6 py-4 whitespace-nowrap"><div class="flex items-center gap-3">' +
         '<div class="h-9 w-9 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-600">' + (u.name || 'U').charAt(0) + '</div>' +
         '<div><div class="font-semibold text-zinc-900">' + (u.name || '') + '</div><div class="text-zinc-500 text-xs flex items-center gap-1 mt-0.5"><i data-lucide="mail" class="h-3 w-3"></i> ' + (u.email || '') + '</div></div></div></td>' +
-      '<td class="px-6 py-4 whitespace-nowrap"><div class="flex items-center gap-2 text-zinc-700"><i data-lucide="' + (roleIcons[u.role] || 'user') + '" class="h-4 w-4 ' + (roleColors[u.role] || '') + '"></i><span class="capitalize">' + (u.role || '') + '</span></div></td>' +
+      '<td class="px-6 py-4 whitespace-nowrap"><div class="flex items-center gap-2 text-zinc-700"><i data-lucide="' + (roleIcons[u.role] || 'user') + '" class="h-4 w-4 ' + (roleColors[u.role] || '') + '"></i><span>' + displayRole(u.role) + '</span></div></td>' +
       '<td class="px-6 py-4 whitespace-nowrap"><span class="badge ' + statusBadge + ' capitalize">' + (u.status || 'active') + '</span></td>' +
       '<td class="px-6 py-4 whitespace-nowrap text-zinc-500 text-xs">' + (u.lastLogin || '-') + '</td>' +
       '<td class="px-6 py-4 whitespace-nowrap text-right"><div class="actions flex items-center justify-end gap-2">' +

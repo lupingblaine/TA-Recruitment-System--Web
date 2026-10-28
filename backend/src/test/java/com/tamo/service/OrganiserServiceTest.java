@@ -3,7 +3,6 @@ package com.tamo.service;
 import com.google.gson.JsonObject;
 import com.tamo.model.Application;
 import com.tamo.model.DataStore;
-import com.tamo.model.Interview;
 import com.tamo.model.Job;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -55,6 +54,7 @@ class OrganiserServiceTest {
         @Test
         @DisplayName("Organiser with no jobs should get zeros")
         void noJobsShouldGetZeros() {
+            com.tamo.model.User unused = new com.tamo.model.User();unused.setId("u999");unused.setRole("organiser");unused.setStatus("active");dataStore.getUsers().add(unused);
             JsonObject result = service.getDashboard("u999");
             assertEquals(0, result.get("activePostings").getAsLong());
             assertEquals(0, result.get("totalApplications").getAsLong());
@@ -205,7 +205,7 @@ class OrganiserServiceTest {
             assertTrue(pipeline.has("applied"));
             assertTrue(pipeline.has("review"));
             assertTrue(pipeline.has("shortlisted"));
-            assertTrue(pipeline.has("interview"));
+            assertFalse(pipeline.has("interview"));
             assertTrue(pipeline.has("offer"));
         }
 
@@ -278,11 +278,12 @@ class OrganiserServiceTest {
         }
 
         @Test
-        @DisplayName("Reject action should change status to rejected")
+        @DisplayName("Teacher without approval permission cannot reject through the legacy action")
         void rejectShouldWork() {
+            dataStore.getUsers().stream().filter(u -> "u005".equals(u.getId())).forEach(u -> u.setPermissions(java.util.List.of("review.read", "review.recommend")));
             Map<String, Object> result = service.applicationAction("u005", "a001", "reject");
-            Application app = (Application) result.get("application");
-            assertEquals("rejected", app.getStatus());
+            assertEquals(403, result.get("code"));
+            assertNotEquals("rejected", dataStore.getApplications().get(0).getStatus());
         }
 
         @Test
@@ -293,76 +294,7 @@ class OrganiserServiceTest {
         }
     }
 
-    @Nested
-    @DisplayName("Interviews")
-    class InterviewTests {
-        @Test
-        @DisplayName("getInterviews should return organiser's interviews")
-        void shouldReturnInterviews() {
-            List<Object> interviews = service.getInterviews("u005");
-            assertEquals(1, interviews.size());
-        }
 
-        @Test
-        @DisplayName("createInterview should succeed with valid data")
-        void createShouldSucceed() {
-            JsonObject body = new JsonObject();
-            body.addProperty("applicationId", "a001");
-            body.addProperty("candidateId", "u001");
-            body.addProperty("date", "2026-06-01");
-            body.addProperty("startTime", "14:00");
-            body.addProperty("type", "video");
-
-            Map<String, Object> result = service.createInterview("u005", body);
-            assertNotNull(result.get("interview"));
-            verify(dataService, atLeastOnce()).save();
-        }
-
-        @Test
-        @DisplayName("createInterview with missing fields should fail")
-        void createWithMissingFieldsShouldFail() {
-            JsonObject body = new JsonObject();
-            body.addProperty("applicationId", "a001");
-
-            Map<String, Object> result = service.createInterview("u005", body);
-            assertEquals(400, result.get("code"));
-        }
-
-        @Test
-        @DisplayName("updateInterview should succeed for owner")
-        void updateShouldSucceed() {
-            JsonObject body = new JsonObject();
-            body.addProperty("date", "2026-05-25");
-            body.addProperty("status", "completed");
-
-            Map<String, Object> result = service.updateInterview("u005", "i001", body);
-            assertNotNull(result.get("interview"));
-            Interview iv = (Interview) result.get("interview");
-            assertEquals("2026-05-25", iv.getDate());
-            assertEquals("completed", iv.getStatus());
-        }
-
-        @Test
-        @DisplayName("updateInterview for non-owner should fail")
-        void updateNonOwnerShouldFail() {
-            Map<String, Object> result = service.updateInterview("u006", "i001", new JsonObject());
-            assertEquals(403, result.get("code"));
-        }
-
-        @Test
-        @DisplayName("deleteInterview should succeed for owner")
-        void deleteShouldSucceed() {
-            Map<String, Object> result = service.deleteInterview("u005", "i001");
-            assertTrue((Boolean) result.get("success"));
-        }
-
-        @Test
-        @DisplayName("deleteInterview for non-owner should fail")
-        void deleteNonOwnerShouldFail() {
-            Map<String, Object> result = service.deleteInterview("u006", "i001");
-            assertEquals(403, result.get("code"));
-        }
-    }
 
     @Nested
     @DisplayName("getMyModules")

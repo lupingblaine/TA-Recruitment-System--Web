@@ -6,7 +6,7 @@
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Recruitment Pipeline</h1>
-          <p class="text-zinc-500 mt-2">Manage applicants through the hiring stages.</p>
+          <p class="text-zinc-500 mt-2">Manage applicants through the hiring stages. Use Review Workspace for approval.</p>
         </div>
         <div class="flex items-center gap-3">
           <div class="relative w-full md:w-64">
@@ -46,56 +46,6 @@
       </div>
     </div>
 
-    <!-- Interview Schedule Modal -->
-    <div id="interviewModal" class="fixed inset-0 z-50 hidden">
-      <div class="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm" onclick="closeInterviewModal()"></div>
-      <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-          <div class="p-6 border-b border-zinc-200">
-            <h2 class="text-lg font-bold text-zinc-900">Schedule Interview</h2>
-            <p class="text-sm text-zinc-500 mt-1">Set up an interview for <span id="modalCandidateName"
-                class="font-medium text-zinc-700"></span></p>
-          </div>
-          <form id="interviewForm" class="p-6 space-y-4" onsubmit="submitInterview(event)">
-            <input type="hidden" id="modalAppId">
-            <input type="hidden" id="modalCandidateId">
-            <input type="hidden" id="modalModuleCode">
-            <input type="hidden" id="modalModuleName">
-            <div>
-              <label class="block text-sm font-medium text-zinc-700 mb-1">Date *</label>
-              <input type="date" id="interviewDate" required class="input w-full">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-zinc-700 mb-1">Start Time *</label>
-                <input type="time" id="interviewStart" required class="input w-full" onchange="syncInterviewEndTime()">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-zinc-700 mb-1">End Time</label>
-                <input type="time" id="interviewEnd" class="input w-full">
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-zinc-700 mb-1">Interview Type *</label>
-              <select id="interviewType" required class="input w-full" onchange="toggleLocation()">
-                <option value="video">Video Call</option>
-                <option value="in-person">In-Person</option>
-              </select>
-            </div>
-            <div id="locationField">
-              <label class="block text-sm font-medium text-zinc-700 mb-1">Location</label>
-              <input type="text" id="interviewLocation" placeholder="Location not needed for video call"
-                class="input w-full" disabled>
-            </div>
-            <div class="flex gap-3 pt-4">
-              <button type="button" onclick="closeInterviewModal()" class="btn btn-outline flex-1">Cancel</button>
-              <button type="submit" class="btn btn-primary flex-1">Schedule Interview</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
     <!-- Candidate Detail Panel -->
     <div id="candidatePanel" class="fixed inset-0 z-50 hidden">
       <div class="absolute inset-0 bg-zinc-900/20 backdrop-blur-sm" onclick="closePanel()"></div>
@@ -108,37 +58,6 @@
         <div class="flex-1 overflow-y-auto p-6 space-y-6" id="panelContent"></div>
         <div class="p-6 border-t border-zinc-200 flex gap-3 bg-zinc-50">
           <a id="viewFullApp" href="#" class="btn btn-primary flex-1 text-center">View Full Application</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Schedule Interview Modal -->
-    <div id="scheduleModal" class="fixed inset-0 z-50 items-center justify-center bg-black/50 backdrop-blur-sm hidden">
-      <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
-        <div class="bg-zinc-50 border-b border-zinc-200/60 p-6">
-          <h2 class="text-xl font-bold text-zinc-900">Schedule Interview</h2>
-        </div>
-        <div class="p-6 space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Date</label><input id="iDate" type="date"
-                class="input"></div>
-            <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Start Time</label><input id="iTime"
-                type="time" class="input"></div>
-          </div>
-          <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Location</label><input id="iLocation"
-              class="input" placeholder="Location not needed for video call" disabled></div>
-          <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Type</label>
-            <select id="iType" class="input" onchange="toggleScheduleLocation()">
-              <option value="video">Video Call</option>
-              <option value="in_person">In Person</option>
-            </select>
-          </div>
-          <div id="schedError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-          </div>
-        </div>
-        <div class="p-6 border-t border-zinc-200 flex justify-end gap-3">
-          <button onclick="closeSchedule()" class="btn btn-secondary">Cancel</button>
-          <button onclick="saveInterview()" class="btn btn-primary">Schedule</button>
         </div>
       </div>
     </div>
@@ -165,10 +84,10 @@
         { id: 'applied', title: 'Applied', color: 'bg-zinc-100' },
         { id: 'review', title: 'Review', color: 'bg-blue-100 text-blue-800' },
         { id: 'shortlisted', title: 'Shortlist', color: 'bg-purple-100 text-purple-800' },
-        { id: 'interview', title: 'Interview', color: 'bg-amber-100 text-amber-800' },
         { id: 'offer', title: 'Offer', color: 'bg-emerald-100 text-emerald-800' },
+        { id: 'rejected', title: 'Rejected', color: 'bg-red-100 text-red-800' },
       ];
-      const STATUS_ORDER = { applied: 0, review: 1, shortlisted: 2, interview: 3, offer: 4, rejected: 5 };
+      const STATUS_ORDER = { applied: 0, review: 1, shortlisted: 2, offer: 3, rejected: 4 };
       let allApps = [];
       let pipelineData = {};
 
@@ -178,7 +97,6 @@
         try {
           const data = await organiserApi.getPipeline(undefined, document.getElementById('pipelinePeriod').value);
           if (sequence !== pipelineRequest) return;
-          // API returns {applied: [], review: [], shortlisted: [], interview: [], offer: []}
           pipelineData = data;
           // Flatten to array for backward compatibility while preserving stage info
           allApps = Object.values(data).flat();
@@ -251,11 +169,8 @@
 
       function renderCard(original) {
         const a=escapeDisplay(original);
-        let extraInfo = '';
-        if (a.interview) {
-          extraInfo = '<div class="text-xs text-zinc-500 mt-2"><i data-lucide="calendar" class="h-3 w-3 inline mr-1"></i>' + (a.interview.date || '') + ' ' + (a.interview.startTime || '') + '<br><i data-lucide="' + (a.interview.type === 'video' ? 'video' : 'user') + '" class="h-3 w-3 inline mr-1"></i>' + (a.interview.location || a.interview.type || '') + '</div>';
-        }
-        return '<div class="bg-white p-4 rounded-xl border border-zinc-200/60 shadow-sm hover:shadow-md transition-all cursor-grab kanban-card" draggable="true" data-id="' + a.id + '" ondragstart="onDragStart(event, \'' + a.id + '\')" onclick="showCandidate(\'' + a.id + '\')">' +
+        const movable = original.canApprove === true || original.canRecommend === true;
+        return '<div class="bg-white p-4 rounded-xl border border-zinc-200/60 shadow-sm hover:shadow-md transition-all kanban-card" draggable="' + movable + '" data-id="' + a.id + '" ondragstart="onDragStart(event, \'' + a.id + '\')" onclick="showCandidate(\'' + a.id + '\')">' +
           '<div class="flex justify-between items-start mb-3">' +
           '<div class="flex items-center gap-3">' +
           '<div class="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-700">' + ((a.name || 'A').charAt(0)) + '</div>' +
@@ -263,16 +178,18 @@
           '</div>' +
           '</div>' +
           '<div class="mt-3">' + SectionMatching.badge(SectionMatching.selected(a, document.getElementById('sectionFilter').value)) + '</div>' +
-          extraInfo +
           '<div class="flex items-center justify-between text-xs text-zinc-500 mt-4 pt-4 border-t border-zinc-100">' +
           '<span class="text-zinc-900 font-bold">Applied ' + formatDate(a.date) + '</span>' +
           '</div></div>';
       }
 
       let dragId = null;
-      let pendingInterviewApp = null;
 
-      function onDragStart(e, id) { dragId = id; e.dataTransfer.effectAllowed = 'move'; }
+      function onDragStart(e, id) {
+        const app = allApps.find(a => a.id === id);
+        if (!app || !(app.canApprove === true || app.canRecommend === true)) { dragId = null; e.preventDefault(); return; }
+        dragId = id; e.dataTransfer.effectAllowed = 'move';
+      }
       function onDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
       function onDrop(e, status) {
         e.preventDefault();
@@ -284,31 +201,34 @@
             dragId = null;
             return;
           }
-          if (status === 'interview') {
-            // store only appId to avoid stale object references
-            pendingInterviewApp = { appId: dragId };
-            const freshApp = allApps.find(a => a.id === dragId);
-            openInterviewModal(freshApp);
-          } else {
-            updateStatus(dragId, status);
-          }
+          updateStatus(dragId, status);
           dragId = null;
         }
       }
 
+      function canChangeStatus(app, status) {
+        if (status === 'rejected') return app.canApprove === true;
+        if (!(app.canApprove === true || app.canRecommend === true)) return false;
+        if (status === 'offer') return app.selectionApproved === true;
+        return ['applied', 'review', 'shortlisted'].includes(status);
+      }
+
       async function updateStatus(appId, newStatus) {
         const app = allApps.find(a => a.id === appId);
-        if (!app) return;
-
-        // If moving to interview, show the scheduling modal
-        if (newStatus === 'interview' && app.status !== 'interview') {
-          pendingInterviewApp = { appId, app };
-          openInterviewModal(app);
+        if (!app || app.status === newStatus) return;
+        if (!canChangeStatus(app, newStatus)) {
+          showToast(newStatus === 'offer' ? 'Offer requires approved selection in Review Workspace and permission to update this application.' : 'You do not have permission for this status change.', 'error');
           return;
         }
-
+        let note;
+        if (newStatus === 'rejected') {
+          const reason = prompt('Enter the decision reason for rejection (10–4000 characters):');
+          if (reason === null) return;
+          note = reason.trim();
+          if (note.length < 10 || note.length > 4000) { showToast('A decision reason must contain 10–4000 characters.', 'error'); return; }
+        }
         try {
-          await organiserApi.updateCandidateStatus(appId, newStatus);
+          await organiserApi.updateCandidateStatus(appId, newStatus, note);
           if (app) app.status = newStatus;
           renderKanban();
           showToast('Status updated!');
@@ -317,120 +237,11 @@
         }
       }
 
-      function openInterviewModal(app) {
-        // store only the id; resolve the app object fresh when needed
-        pendingInterviewApp = { appId: app.id };
-        document.getElementById('modalAppId').value = app.id;
-        document.getElementById('modalCandidateName').textContent = app.name || 'Applicant';
-        document.getElementById('modalModuleCode').value = app.role || '';
-        document.getElementById('modalModuleName').value = '';
-        // Set default date to tomorrow
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        document.getElementById('interviewDate').value = tomorrow.toISOString().split('T')[0];
-        document.getElementById('interviewStart').value = '10:00';
-        document.getElementById('interviewEnd').value = '10:30';
-        document.getElementById('interviewType').value = 'video';
-        document.getElementById('interviewLocation').value = '';
-        document.getElementById('interviewLocation').disabled = true;
-        document.getElementById('interviewLocation').placeholder = 'Location not needed for video call';
-        document.getElementById('interviewModal').classList.remove('hidden');
-      }
-
-      function closeInterviewModal() {
-        document.getElementById('interviewModal').classList.add('hidden');
-        // only clear the pending booking info locally; do NOT alter any interviews or application statuses
-        pendingInterviewApp = null;
-      }
-
-      function toggleLocation() {
-        const type = document.getElementById('interviewType').value;
-        const locationInput = document.getElementById('interviewLocation');
-        if (type === 'video') {
-          locationInput.disabled = true;
-          locationInput.placeholder = 'Location not needed for video call';
-          locationInput.value = '';
-        } else {
-          locationInput.disabled = false;
-          locationInput.placeholder = 'e.g., Room 301, Building A';
-        }
-      }
-
-      // Auto-set end time = start time + 30 min
-      function syncInterviewEndTime() {
-        const startVal = document.getElementById('interviewStart').value;
-        const endInput = document.getElementById('interviewEnd');
-        if (!startVal) return;
-        const [h, m] = startVal.split(':').map(Number);
-        let total = h * 60 + m + 30;
-        if (total >= 24 * 60) total = 23 * 60 + 59;
-        const nh = Math.floor(total / 60);
-        const nm = total % 60;
-        endInput.value = String(nh).padStart(2, '0') + ':' + String(nm).padStart(2, '0');
-      }
-
-      async function submitInterview(e) {
-        e.preventDefault();
-        if (!pendingInterviewApp) return;
-
-        const { appId } = pendingInterviewApp;
-        const app = allApps.find(a => a.id === appId);
-        const startTime = document.getElementById('interviewStart').value;
-        const endTime = document.getElementById('interviewEnd').value;
-
-        const errDiv = document.getElementById('schedError');
-        if (errDiv) {
-          errDiv.classList.add('hidden');
-        }
-
-        // Validate end time is after start time
-        if (startTime && endTime && startTime >= endTime) {
-          showToast('End time must be after start time', 'error');
-          return;
-        }
-
-        const data = {
-          applicationId: appId,
-          candidateName: app ? app.name : undefined,
-          moduleCode: document.getElementById('modalModuleCode').value,
-          date: document.getElementById('interviewDate').value,
-          startTime: startTime,
-          endTime: endTime,
-          type: document.getElementById('interviewType').value,
-          location: document.getElementById('interviewLocation').value
-        };
-
-        try {
-          const previousStatus = app ? app.status : null;
-          const interview = await organiserApi.createInterview(data);
-          if (app) {
-            app.status = 'interview';
-            app.interview = interview;
-          }
-          if (app && previousStatus !== 'interview') {
-            await organiserApi.updateCandidateStatus(appId, 'interview');
-          }
-          closeInterviewModal();
-          renderKanban();
-          showToast('Interview scheduled & candidate notified!');
-          // clear pending after success
-          pendingInterviewApp = null;
-        } catch (err) {
-          showToast(err.message || 'Failed to schedule interview', 'error');
-        }
-      }
-
       function showCandidate(id) {
         const original = allApps.find(a => a.id === id);
         const app=original?escapeDisplay(original):null;
         if (!app) return;
         const panel = document.getElementById('panelContent');
-        let interviewInfo = '';
-        if (app.interview) {
-          interviewInfo = '<div class="p-4 rounded-xl bg-amber-50 border border-amber-100"><h4 class="text-sm font-semibold text-zinc-900 mb-2">Interview Scheduled</h4>' +
-            '<p class="text-sm text-zinc-600"><i data-lucide="calendar" class="h-4 w-4 inline mr-1"></i>' + (app.interview.date || '') + ' at ' + (app.interview.startTime || '') + '</p>' +
-            '<p class="text-sm text-zinc-600"><i data-lucide="' + (app.interview.type === 'video' ? 'video' : 'user') + '" class="h-4 w-4 inline mr-1"></i>' + (app.interview.location || app.interview.type || '') + '</p></div>';
-        }
         panel.innerHTML = '<div class="flex items-center gap-4">' +
           '<div class="h-16 w-16 rounded-full bg-zinc-100 flex items-center justify-center text-xl font-bold text-zinc-700">' + ((app.name || 'A').charAt(0)) + '</div>' +
           '<div class="flex-1"><h3 class="text-xl font-bold text-zinc-900">' + (app.name || 'Applicant') + '</h3>' +
@@ -441,7 +252,6 @@
           '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Applied On</p><p class="text-lg font-bold text-zinc-900">' + formatDate(app.date) + '</p></div>' +
           '<div class="p-4 rounded-xl bg-zinc-50 border border-zinc-100"><p class="text-xs text-zinc-500 mb-1">Status</p><p class="text-lg font-bold text-zinc-900 capitalize">' + app.status + '</p></div>' +
           '</div>' +
-          interviewInfo +
           (app.coverLetter ? '<div><h4 class="text-sm font-semibold text-zinc-900 mb-2">Cover Letter</h4><p class="text-sm text-zinc-600 leading-relaxed">' + app.coverLetter.substring(0, 200) + '...</p></div>' : '');
 
         const matching = document.createElement('section');
@@ -452,77 +262,6 @@
       }
 
       function closePanel() { document.getElementById('candidatePanel').classList.add('hidden'); }
-
-      let currentAppId = null;
-      let currentInterviewId = null;
-      function openSchedule(appId) {
-        currentAppId = appId;
-        const app = allApps.find(a => a.id === appId);
-        currentInterviewId = app && app.interview ? app.interview.id : null;
-        document.getElementById('iAppId').value = appId || '';
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        document.getElementById('iDate').value = app && app.interview ? app.interview.date || tomorrow.toISOString().split('T')[0] : tomorrow.toISOString().split('T')[0];
-        document.getElementById('iTime').value = app && app.interview ? app.interview.startTime || '10:00' : '10:00';
-        document.getElementById('iLocation').value = app && app.interview ? app.interview.location || '' : '';
-        document.getElementById('iType').value = app && app.interview ? app.interview.type || 'video' : 'video';
-        toggleScheduleLocation();
-        document.getElementById('scheduleModal').classList.remove('hidden');
-      }
-      function closeSchedule() {
-        document.getElementById('scheduleModal').classList.add('hidden');
-        currentAppId = null;
-        currentInterviewId = null;
-      }
-
-      function toggleScheduleLocation() {
-        const type = document.getElementById('iType').value;
-        const locationInput = document.getElementById('iLocation');
-        if (type === 'video') {
-          locationInput.disabled = true;
-          locationInput.placeholder = 'Location not needed for video call';
-          locationInput.value = '';
-        } else {
-          locationInput.disabled = false;
-          locationInput.placeholder = 'Room 301, Building A';
-        }
-      }
-
-      async function saveInterview() {
-        const errDiv = document.getElementById('schedError');
-        errDiv.classList.add('hidden');
-        const payload = {
-          applicationId: currentAppId,
-          date: document.getElementById('iDate').value,
-          startTime: document.getElementById('iTime').value,
-          location: document.getElementById('iLocation').value.trim(),
-          type: document.getElementById('iType').value,
-        };
-        try {
-          let interview;
-          if (currentInterviewId) {
-            interview = await organiserApi.updateInterview(currentInterviewId, payload);
-            showToast('Interview updated!');
-          } else {
-            interview = await organiserApi.createInterview(payload);
-            if (currentAppId) {
-              await organiserApi.updateCandidateStatus(currentAppId, 'interview');
-              const app = allApps.find(a => a.id === currentAppId);
-              if (app) {
-                app.status = 'interview';
-                app.interview = interview;
-              }
-            }
-            showToast('Interview scheduled!');
-          }
-          currentInterviewId = interview.id || currentInterviewId;
-          closeSchedule();
-          loadPipeline(); // Reload to get interview information
-        } catch (e) {
-          errDiv.textContent = e.message || 'Schedule failed';
-          errDiv.classList.remove('hidden');
-        }
-      }
 
       organiserApi.getApplicationPeriods().then(periods => {
         const select = document.getElementById('pipelinePeriod');

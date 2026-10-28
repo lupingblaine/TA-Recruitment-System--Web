@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.tamo.model.Application;
 import com.tamo.model.DataStore;
-import com.tamo.model.Interview;
 import com.tamo.model.Job;
 import com.tamo.model.Module;
 import com.tamo.model.Notification;
@@ -26,12 +25,31 @@ import java.util.stream.Collectors;
 public class OrganiserService {
 
     private static final Set<String> VALID_APP_STATUSES = Set.of(
-            "applied", "review", "shortlisted", "interview", "offer", "rejected"
+            "applied", "review", "shortlisted", "offer", "rejected"
     );
     private static final Set<String> VALID_ACTIONS = Set.of("shortlist", "reject", "offer");
-    private static final Set<String> VALID_INTERVIEW_TYPES = Set.of("video", "in-person");
 
     private final JsonDataService dataService;
+
+    private boolean reviewAllowed(String id, String permission) {
+        try {
+            User user = ReviewAccess.user(dataService.getData(), id);
+            return "organiser".equals(user.getRole()) && ReviewAccess.can(user, "review.read")
+                    && (ReviewAccess.can(user, permission) || ("review.recommend".equals(permission) && ReviewAccess.can(user, "review.approve")));
+        } catch (QualificationService.Problem denied) { return false; }
+    }
+    private void requireReview(String id) {
+        if (!reviewAllowed(id, "review.read")) throw new QualificationService.Problem(403, "Current application review permission is required.");
+    }
+    private void addCapabilities(JsonObject row, String id, String appId) {
+        User user = ReviewAccess.user(dataService.getData(), id);
+        row.addProperty("canApprove", ReviewAccess.can(user, "review.approve"));
+        row.addProperty("canRecommend", ReviewAccess.can(user, "review.recommend"));
+        row.addProperty("canNote", ReviewAccess.can(user, "review.note"));
+        row.addProperty("selectionApproved", ReviewService.approved(dataService.getData(), appId));
+        dataService.getData().getApplications().stream().filter(a -> Objects.equals(appId,a.getId())).findFirst()
+                .ifPresent(a -> TeacherSelectionService.addCapabilities(row,dataService.getData(),user,a));
+    }
 
     /**
      * Constructs a new OrganiserService instance.
@@ -54,131 +72,42 @@ public class OrganiserService {
      * @return the resulting object or status
      */
     public JsonObject getDashboard(String organiserId) {
+        requireReview(organiserId);
         DataStore data = dataService.getData();
-
-        List<Job> myJobs = data.getJobs().stream()
-                .filter(j -> j.getOrganiserId().equals(organiserId))
-                .collect(Collectors.toList());
-
-        Set<String> myJobIds = myJobs.stream().map(Job::getId).collect(Collectors.toSet());
-
-        List<Application> relatedApps = data.getApplications().stream()
-                .filter(a -> myJobIds.contains(a.getJobId()))
-                .collect(Collectors.toList());
-
-        long activePostings = myJobs.stream().filter(j -> "active".equals(j.getStatus())).count();
-        long totalApplications = relatedApps.size();
-        long currentApplicants = relatedApps.stream()
-                .filter(a -> a.getStatus() == null || !"rejected".equals(a.getStatus()))
-                .count();
-        long pendingInterviews = relatedApps.stream()
-                .filter(a -> "interview".equals(a.getStatus()))
-                .count();
-
-        // Count all non-cancelled interviews for current organiser
-        long currentInterviews = 0;
-        if (data.getInterviews() != null) {
-            currentInterviews = data.getInterviews().stream()
-                    .filter(iv -> organiserId.equals(iv.getOrganiserId()))
-                    .filter(iv -> !"cancelled".equals(iv.getStatus()))
-                    .count();
-        }
-
+        List<Job> myJobs = data.getJobs().stream().filter(j -> ReviewAccess.organiserOwns(data, organiserId, j)).toList();
+        Set<String> ids = myJobs.stream().map(Job::getId).collect(Collectors.toSet());
+        List<Application> apps = data.getApplications().stream().filter(a -> ids.contains(a.getJobId())).toList();
         JsonObject result = new JsonObject();
-        result.addProperty("activePostings", activePostings);
-        result.addProperty("currentApplicants", currentApplicants);
-        result.addProperty("totalApplications", totalApplications);
-        result.addProperty("totalApplicants", totalApplications);
-        result.addProperty("interviewsToSchedule", currentInterviews);
-        result.addProperty("pendingInterviews", pendingInterviews);
-
-        // Build recent activities: prioritize interview information, then recent applications
-        JsonArray recentApplications = new JsonArray();
-
-        // First add interview information for current organiser
-        if (data.getInterviews() != null) {
-            data.getInterviews().stream()
-                    .filter(iv -> organiserId.equals(iv.getOrganiserId()))
-                    .filter(iv -> !"cancelled".equals(iv.getStatus()))
-                    .sorted((a, b) -> {
-                        String da = (a.getDate() != null ? a.getDate() : "");
-                        String db = (b.getDate() != null ? b.getDate() : "");
-                        return db.compareTo(da);
-                    })
-                    .limit(5)
-                    .forEach(iv -> {
-                        JsonObject obj = new JsonObject();
-                        obj.addProperty("id", iv.getId());
-                        obj.addProperty("applicantName", iv.getCandidateName() != null ? iv.getCandidateName() : "Unknown");
-                        obj.addProperty("jobTitle", iv.getModuleName() != null ? iv.getModuleName() : "");
-                        obj.addProperty("moduleCode", iv.getModuleCode() != null ? iv.getModuleCode() : "");
-                        obj.addProperty("status", "interview");
-                        obj.addProperty("interviewStatus", iv.getStatus());
-                        obj.addProperty("date", iv.getDate());
-                        obj.addProperty("type", "interview");
-                        recentApplications.add(obj);
-                    });
-        }
-
-        // Then add recent applications (excluding those already shown through interviews)
-        Set<String> shownCandidateIds = new HashSet<>();
-        for (int i = 0; i < recentApplications.size(); i++) {
-            JsonObject obj = recentApplications.get(i).getAsJsonObject();
-            if (obj.has("applicantName")) {
-                shownCandidateIds.add(obj.get("applicantName").getAsString());
-            }
-        }
-
-        relatedApps.stream()
-                .sorted((a, b) -> b.getUpdatedAt().compareTo(a.getUpdatedAt()))
-                .filter(a -> {
-                    User applicant = findUserById(data, a.getApplicantId());
-                    return applicant == null || !shownCandidateIds.contains(applicant.getName());
-                })
-                .limit(5)
-                .forEach(a -> {
-                    User applicant = findUserById(data, a.getApplicantId());
-                    Job job = findJobById(data, a.getJobId());
-                    JsonObject obj = new JsonObject();
-                    obj.addProperty("id", a.getId());
-                    obj.addProperty("applicantName", applicant != null ? applicant.getName() : "Unknown");
-                    obj.addProperty("jobTitle", job != null ? job.getTitle() : "");
-                    obj.addProperty("moduleCode", job != null ? job.getModuleCode() : "");
-                    obj.addProperty("status", a.getStatus());
-                    obj.addProperty("date", a.getUpdatedAt());
-                    obj.addProperty("type", "application");
-                    recentApplications.add(obj);
-                });
-        result.add("recentApplications", recentApplications);
-
-        JsonArray activeJobsArr = new JsonArray();
+        result.addProperty("activePostings", myJobs.stream().filter(j -> "active".equals(j.getStatus())).count());
+        result.addProperty("currentApplicants", apps.stream().filter(a -> !"rejected".equals(a.getStatus())).count());
+        result.addProperty("totalApplications", apps.size());
+        result.addProperty("totalApplicants", apps.size());
+        JsonArray recent = new JsonArray();
+        apps.stream().sorted(Comparator.comparing(Application::getUpdatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+            .limit(5).forEach(a -> {
+                User user = findUserById(data, a.getApplicantId());
+                Job job = findJobById(data, a.getJobId());
+                JsonObject row = new JsonObject();
+                row.addProperty("id", a.getId());
+                row.addProperty("applicantName", user == null ? "Unknown" : user.getName());
+                row.addProperty("jobTitle", job == null ? "" : job.getTitle());
+                row.addProperty("moduleCode", job == null ? "" : job.getModuleCode());
+                row.addProperty("status", RecruitmentStatus.current(a.getStatus()));
+                row.addProperty("date", a.getUpdatedAt());
+                row.addProperty("type", "application");
+                recent.add(row);
+            });
+        result.add("recentApplications", recent);
+        JsonArray jobs = new JsonArray();
         myJobs.stream().filter(j -> "active".equals(j.getStatus())).forEach(j -> {
-            long totalAppCount = relatedApps.stream().filter(a -> a.getJobId().equals(j.getId())).count();
-            long currentAppCount = relatedApps.stream()
-                    .filter(a -> a.getJobId().equals(j.getId()))
-                    .filter(a -> a.getStatus() == null || !"rejected".equals(a.getStatus()))
-                    .count();
-            JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(j);
-            obj.addProperty("applicants", currentAppCount);
-            obj.addProperty("applicationCount", currentAppCount);
-            obj.addProperty("totalApplications", totalAppCount);
-            activeJobsArr.add(obj);
+            JsonObject row = JsonUtil.getGson().toJsonTree(j).getAsJsonObject();
+            row.addProperty("applicants", apps.stream().filter(a -> j.getId().equals(a.getJobId()) && !"rejected".equals(a.getStatus())).count());
+            row.addProperty("applicationCount", apps.stream().filter(a -> j.getId().equals(a.getJobId()) && !"rejected".equals(a.getStatus())).count());
+            row.addProperty("totalApplicants", apps.stream().filter(a -> j.getId().equals(a.getJobId())).count());
+            jobs.add(row);
         });
-        result.add("activeJobs", activeJobsArr);
-        result.add("jobs", activeJobsArr);
-
-        // Add current organiser's interview list
-        JsonArray interviewsArr = new JsonArray();
-        if (data.getInterviews() != null) {
-            data.getInterviews().stream()
-                    .filter(iv -> organiserId.equals(iv.getOrganiserId()))
-                    .forEach(iv -> {
-                        JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(iv);
-                        interviewsArr.add(obj);
-                    });
-        }
-        result.add("interviews", interviewsArr);
-
+        result.add("jobs", jobs);
+        result.add("activeJobs", jobs.deepCopy());
         return result;
     }
 
@@ -193,11 +122,13 @@ public class OrganiserService {
      * @return the resulting object or status
      */
     public List<JsonObject> getNotifications(String organiserId) {
+        requireReview(organiserId);
         DataStore data = dataService.getData();
         List<Notification> notifications = (data.getNotifications() != null
                 ? data.getNotifications() : Collections.<Notification>emptyList())
                 .stream()
                 .filter(n -> organiserId.equals(n.getUserId()))
+                .filter(n -> RecruitmentStatus.visibleNotification(n.getType()))
                 .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                 .limit(20)
                 .collect(Collectors.toList());
@@ -338,7 +269,7 @@ public class OrganiserService {
     public List<JsonObject> getJobs(String organiserId) {
         DataStore data = dataService.getData();
         return data.getJobs().stream()
-                .filter(j -> j.getOrganiserId().equals(organiserId))
+                .filter(j -> ReviewAccess.organiserOwns(data, organiserId, j))
                 .map(j -> {
                     JsonObject obj = (JsonObject) JsonUtil.getGson().toJsonTree(j);
                     long totalApplications = data.getApplications().stream()
@@ -493,7 +424,7 @@ public class OrganiserService {
             return result;
         }
 
-        if (!job.getOrganiserId().equals(organiserId)) {
+        if (!ReviewAccess.organiserOwns(data, organiserId, job)) {
             result.put("error", "No permission to edit this job");
             result.put("code", 403);
             return result;
@@ -620,7 +551,7 @@ public class OrganiserService {
             return result;
         }
 
-        if (!job.getOrganiserId().equals(organiserId)) {
+        if (!ReviewAccess.organiserOwns(data, organiserId, job)) {
             result.put("error", "No permission to delete this job");
             result.put("code", 403);
             return result;
@@ -659,9 +590,10 @@ public class OrganiserService {
     public JsonObject getPipeline(String organiserId, String moduleFilter) { return getPipeline(organiserId, moduleFilter, null); }
 
     public JsonObject getPipeline(String organiserId, String moduleFilter, String periodId) {
+        requireReview(organiserId);
         DataStore data = dataService.getData();
         Set<String> myJobIds = data.getJobs().stream()
-                .filter(j -> j.getOrganiserId().equals(organiserId))
+                .filter(j -> ReviewAccess.organiserOwns(data, organiserId, j))
                 .map(Job::getId)
                 .collect(Collectors.toSet());
 
@@ -676,17 +608,18 @@ public class OrganiserService {
                 .collect(Collectors.toList());
 
         JsonObject result = new JsonObject();
-        for (String status : new String[]{"applied", "review", "shortlisted", "interview", "offer"}) {
+        for (String status : new String[]{"applied", "review", "shortlisted", "offer", "rejected"}) {
             JsonArray arr = new JsonArray();
-            apps.stream().filter(a -> a.getStatus().equals(status)).forEach(a -> {
+            apps.stream().filter(a -> status.equals(RecruitmentStatus.current(a.getStatus()))).forEach(a -> {
                 User applicant = findUserById(data, a.getApplicantId());
                 Profile profile = findProfileByUserId(data, a.getApplicantId());
                 Job job = findJobById(data, a.getJobId());
                 JsonObject obj = new JsonObject();
                 obj.addProperty("id", a.getId());
+                addCapabilities(obj, organiserId, a.getId());
                 obj.addProperty("name", applicant != null ? applicant.getName() : "Unknown");
                 obj.addProperty("role", job != null ? job.getModuleCode() : "");
-                obj.addProperty("status", a.getStatus());
+                obj.addProperty("status", RecruitmentStatus.current(a.getStatus()));
                 obj.addProperty("avatar", applicant != null ? String.valueOf(applicant.getName().charAt(0)) : "?");
                 obj.addProperty("gpa", profile != null ? String.valueOf(profile.getGpa()) : "N/A");
                 obj.addProperty("date", a.getAppliedAt());
@@ -696,22 +629,6 @@ public class OrganiserService {
                 obj.addProperty("riskFlag", a.getRiskFlag());
                 obj.add("sectionMatching", new SectionMatchingService().match(data, a, job, organiserId));
                 obj.addProperty("aiSummary", a.getAiSummary());
-                // If status is interview, add interview information
-                if ("interview".equals(status)) {
-                    Interview iv = data.getInterviews().stream()
-                            .filter(i -> i.getApplicationId().equals(a.getId()))
-                            .findFirst().orElse(null);
-                    if (iv != null) {
-                        JsonObject interviewObj = new JsonObject();
-                        interviewObj.addProperty("id", iv.getId());
-                        interviewObj.addProperty("date", iv.getDate());
-                        interviewObj.addProperty("startTime", iv.getStartTime());
-                        interviewObj.addProperty("type", iv.getType());
-                        interviewObj.addProperty("location", iv.getLocation());
-                        interviewObj.addProperty("status", iv.getStatus());
-                        obj.add("interview", interviewObj);
-                    }
-                }
                 arr.add(obj);
             });
             result.add(status, arr);
@@ -737,6 +654,9 @@ public class OrganiserService {
      * @return the resulting object or status
      */
     public Map<String, Object> updateCandidateStatus(String organiserId, String appId, String newStatus) {
+        return updateCandidateStatus(organiserId, appId, newStatus, null);
+    }
+    public Map<String, Object> updateCandidateStatus(String organiserId, String appId, String newStatus, String reason) {
         DataStore data = dataService.getData();
         Map<String, Object> result = new HashMap<>();
 
@@ -763,19 +683,34 @@ public class OrganiserService {
         }
 
         Job job = findJobById(data, app.getJobId());
-        if (job == null || !job.getOrganiserId().equals(organiserId)) {
+        if (job == null || !ReviewAccess.organiserOwns(data, organiserId, job)) {
             result.put("error", "No permission to update this candidate");
             result.put("code", 403);
             return result;
         }
 
+        String permission = "rejected".equals(newStatus) ? "review.approve" : "review.recommend";
+        if (!reviewAllowed(organiserId, permission)) {
+            result.put("error", "This action requires current " + permission + " permission."); result.put("code", 403); return result;
+        }
+        boolean decided = data.getReviewRecords().stream().anyMatch(r -> appId.equals(r.getApplicationId()) && Set.of("approve", "not_selected").contains(r.getAction()));
+        if (decided && !Set.of("offer", "rejected").contains(newStatus)) {
+            result.put("error", "Use Review Workspace to reconsider a recorded selection decision."); result.put("code", 409); return result;
+        }
+        if ("rejected".equals(newStatus) && (reason == null || reason.trim().length() < 10 || reason.trim().length() > 4000)) {
+            result.put("error", "Record a decision reason of 10–4000 characters."); result.put("code", 400); return result;
+        }
         if (!"offer".equals(newStatus) && SectionAssignmentService.activeForApplication(data, appId)) {
             result.put("error", "Cancel active TA assignments before changing this application status.");
             result.put("code", 409); return result;
         }
         if("offer".equals(newStatus)&&!ReviewService.approved(data,appId)){result.put("error","Record selection approval in Review Workspace before moving to Offer.");result.put("code",409);return result;}
         String oldStatus = app.getStatus();
-        app.setStatus(newStatus);
+        if ("rejected".equals(newStatus)) {
+            JsonObject decision = new JsonObject(); decision.addProperty("action", "not_selected"); decision.addProperty("note", reason);
+            try { new ReviewService(dataService).record(organiserId, appId, decision); }
+            catch (QualificationService.Problem denied) { result.put("error", denied.getMessage()); result.put("code", denied.status); return result; }
+        } else app.setStatus(newStatus);
         app.setUpdatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         if (app.getTimeline() != null) {
@@ -807,11 +742,7 @@ public class OrganiserService {
                     title = "You've Been Shortlisted!";
                     message = "Congratulations! Your application for " + moduleCode + " has been shortlisted.";
                 }
-                case "interview" -> {
-                    notifType = "interview_scheduled";
-                    title = "Interview Stage";
-                    message = "Your application for " + moduleCode + " has moved to the interview stage. An interview will be scheduled soon.";
-                }
+
                 case "offer" -> {
                     notifType = "offer";
                     title = "Application at Offer Stage";
@@ -828,19 +759,7 @@ public class OrganiserService {
                 }
             }
             createNotification(data, applicantId, notifType, title, message, app.getId());
-            if (!"interview".equals(newStatus) && data.getInterviews() != null) {
-                data.getInterviews().stream()
-                        .filter(i -> appId.equals(i.getApplicationId()))
-                        .filter(i -> i.getStatus() != null && !"cancelled".equalsIgnoreCase(i.getStatus()))
-                        .forEach(iv -> {
-                            iv.setStatus("cancelled");
-                            String cancelTitle = "Interview Cancelled: " + iv.getModuleCode();
-                            String cancelMsg = "Your interview for " + iv.getModuleCode() + " " + iv.getModuleName() +
-                                    " scheduled on " + iv.getDate() + " at " + iv.getStartTime() +
-                                    " has been cancelled because the application moved out of the interview stage.";
-                            createNotification(data, iv.getCandidateId(), "interview_cancelled", cancelTitle, cancelMsg, iv.getId());
-                        });
-            }
+
         }
         dataService.save();
         result.put("application", app);
@@ -876,7 +795,7 @@ public class OrganiserService {
         }
 
         Job job = findJobById(data, app.getJobId());
-        if (job == null || !job.getOrganiserId().equals(organiserId)) {
+        if (job == null || !ReviewAccess.organiserOwns(data, organiserId, job) || !reviewAllowed(organiserId, "review.read")) {
             result.put("error", "No permission to view this application");
             result.put("code", 403);
             return result;
@@ -885,7 +804,8 @@ public class OrganiserService {
         User applicant = findUserById(data, app.getApplicantId());
         Profile profile = findProfileByUserId(data, app.getApplicantId());
 
-        JsonObject detail = (JsonObject) JsonUtil.getGson().toJsonTree(app);
+        JsonObject detail = RecruitmentStatus.project((JsonObject) JsonUtil.getGson().toJsonTree(app));
+        addCapabilities(detail, organiserId, appId);
         detail.add("qualificationMatching",new CriteriaMatchingService().evaluateAcrossSections(data,app,job));
         detail.add("sectionMatching", new SectionMatchingService().match(data, app, job, organiserId));
         if (applicant != null) {
@@ -910,14 +830,6 @@ public class OrganiserService {
             detail.add("documents", JsonUtil.getGson().toJsonTree(profile.getDocuments().stream().filter(d->app.getDocumentIds()!=null&&app.getDocumentIds().contains(d.getId())).toList()));
         }
 
-        Interview interview = data.getInterviews().stream()
-                .filter(i -> i.getApplicationId().equals(appId))
-                .filter(i -> i.getStatus() == null || !"cancelled".equalsIgnoreCase(i.getStatus()))
-                .findFirst().orElse(null);
-        if (interview != null) {
-            detail.add("interview", JsonUtil.getGson().toJsonTree(interview));
-        }
-
         result.put("data", detail);
         return result;
     }
@@ -940,6 +852,9 @@ public class OrganiserService {
      * @return the resulting object or status
      */
     public Map<String, Object> applicationAction(String organiserId, String appId, String action) {
+        return applicationAction(organiserId, appId, action, null);
+    }
+    public Map<String, Object> applicationAction(String organiserId, String appId, String action, String reason) {
         Map<String, Object> result = new HashMap<>();
 
         if (action == null || action.isBlank()) {
@@ -961,257 +876,7 @@ public class OrganiserService {
             default -> action;
         };
 
-        return updateCandidateStatus(organiserId, appId, mappedStatus);
-    }
-
-    /**
-     * Get interview list
-     */
-    /**
-     * Executes the getInterviews operation.
-     * @param organiserId the organiserId argument
-     * @return the resulting object or status
-     */
-    /**
-     * Executes the getInterviews operation.
-     * @param organiserId the organiserId argument
-     * @return the resulting object or status
-     */
-    public List<Object> getInterviews(String organiserId) {
-        DataStore data = dataService.getData();
-        return data.getInterviews().stream()
-                .filter(i -> i.getOrganiserId().equals(organiserId))
-                .sorted((a, b) -> a.getDate().compareTo(b.getDate()))
-                .map(iv -> (Object) JsonUtil.getGson().toJsonTree(iv))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Create interview, return Map
-     */
-    /**
-     * Executes the createInterview operation.
-     * @param organiserId the organiserId argument
-     * @param body the body argument
-     * @return the resulting object or status
-     */
-    /**
-     * Executes the createInterview operation.
-     * @param organiserId the organiserId argument
-     * @param body the body argument
-     * @return the resulting object or status
-     */
-    public Map<String, Object> createInterview(String organiserId, JsonObject body) {
-        Map<String, Object> result = new HashMap<>();
-
-        String applicationId = body.has("applicationId") ? body.get("applicationId").getAsString() : null;
-        String candidateId = body.has("candidateId") ? body.get("candidateId").getAsString() : null;
-        String date = body.has("date") ? body.get("date").getAsString() : null;
-        String startTime = body.has("startTime") ? body.get("startTime").getAsString() : null;
-        if ((startTime == null || startTime.isBlank()) && body.has("time")) {
-            startTime = body.get("time").getAsString();
-        }
-
-        if (applicationId == null || applicationId.isBlank() ||
-                date == null || date.isBlank() ||
-                startTime == null || startTime.isBlank()) {
-            result.put("error", "Missing required fields");
-            result.put("code", 400);
-            return result;
-        }
-
-        String type = body.has("type") ? body.get("type").getAsString() : "video";
-        if ("in_person".equals(type)) {
-            type = "in-person";
-        }
-        if (!VALID_INTERVIEW_TYPES.contains(type)) {
-            result.put("error", "Invalid interview type; only video/in-person are supported");
-            result.put("code", 400);
-            return result;
-        }
-
-        DataStore data = dataService.getData();
-        Application app = data.getApplications().stream()
-                .filter(a -> a.getId().equals(applicationId))
-                .findFirst().orElse(null);
-        if (app == null) {
-            result.put("error", "Application not found");
-            result.put("code", 404);
-            return result;
-        }
-        if ((candidateId == null || candidateId.isBlank()) && app.getApplicantId() != null) {
-            candidateId = app.getApplicantId();
-        }
-        if (candidateId == null || candidateId.isBlank()) {
-            result.put("error", "Missing candidate ID");
-            result.put("code", 400);
-            return result;
-        }
-
-        Interview existingInterview = data.getInterviews().stream()
-                .filter(i -> i.getApplicationId().equals(applicationId))
-                .filter(i -> i.getStatus() == null || !"cancelled".equalsIgnoreCase(i.getStatus()))
-                .findFirst().orElse(null);
-
-        Interview iv;
-        boolean isReschedule = false;
-        if (existingInterview != null) {
-            iv = existingInterview;
-            isReschedule = true;
-        } else {
-            iv = new Interview();
-            iv.setId(dataService.generateId("i", data.getInterviews()));
-            iv.setApplicationId(applicationId);
-            iv.setOrganiserId(organiserId);
-        }
-
-        iv.setCandidateId(candidateId);
-        iv.setCandidateName(body.has("candidateName") ? body.get("candidateName").getAsString() : iv.getCandidateName());
-        if ((iv.getCandidateName() == null || iv.getCandidateName().isBlank())) {
-            User applicant = findUserById(data, candidateId);
-            if (applicant != null) {
-                iv.setCandidateName(applicant.getName());
-            }
-        }
-        if (body.has("moduleCode")) {
-            iv.setModuleCode(body.get("moduleCode").getAsString());
-        } else {
-            Job job = findJobById(data, app.getJobId());
-            iv.setModuleCode(job != null ? job.getModuleCode() : "");
-        }
-        if (body.has("moduleName")) {
-            iv.setModuleName(body.get("moduleName").getAsString());
-        } else {
-            Job job = findJobById(data, app.getJobId());
-            iv.setModuleName(job != null ? job.getTitle() : "");
-        }
-        iv.setDate(date);
-        iv.setStartTime(startTime);
-        iv.setEndTime(body.has("endTime") ? body.get("endTime").getAsString() : iv.getEndTime());
-        iv.setType(type);
-        iv.setLocation(body.has("location") ? body.get("location").getAsString() : null);
-        iv.setStatus("scheduled");
-        iv.setOutcome(null);
-
-        if (!"interview".equals(app.getStatus())) {
-            app.setStatus("interview");
-            app.setUpdatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-            if (app.getTimeline() != null) {
-                String today = LocalDate.now().toString();
-                for (Application.TimelineEntry te : app.getTimeline()) {
-                    if ("interview".equals(te.getStatus())) {
-                        te.setCompleted(true);
-                        te.setDate(today);
-                        te.setPending(null);
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!isReschedule) {
-            data.getInterviews().add(iv);
-        }
-
-        // Create notification for the applicant about the scheduled interview
-        String notifTitle = (isReschedule ? "Interview Rescheduled: " : "Interview Scheduled: ") + iv.getModuleCode();
-        String notifMsg = "Your interview for " + iv.getModuleCode() + " " + iv.getModuleName() +
-                " is " + (isReschedule ? "rescheduled" : "scheduled") + " on " + iv.getDate() + " at " + iv.getStartTime() +
-                ". Type: " + (iv.getType().equals("video") ? "Video Call" : "In-Person") +
-                (iv.getLocation() != null && !iv.getLocation().isBlank() ? " at " + iv.getLocation() : "") + ".";
-        createNotification(data, candidateId, "interview_scheduled", notifTitle, notifMsg, iv.getId());
-
-        dataService.save();
-        result.put("interview", iv);
-        return result;
-    }
-
-    /**
-     * Update interview, return Map
-     */
-    /**
-     * Executes the updateInterview operation.
-     * @param organiserId the organiserId argument
-     * @param interviewId the interviewId argument
-     * @param body the body argument
-     * @return the resulting object or status
-     */
-    /**
-     * Executes the updateInterview operation.
-     * @param organiserId the organiserId argument
-     * @param interviewId the interviewId argument
-     * @param body the body argument
-     * @return the resulting object or status
-     */
-    public Map<String, Object> updateInterview(String organiserId, String interviewId, JsonObject body) {
-        DataStore data = dataService.getData();
-        Map<String, Object> result = new HashMap<>();
-
-        Interview iv = data.getInterviews().stream()
-                .filter(i -> i.getId().equals(interviewId))
-                .findFirst().orElse(null);
-
-        if (iv == null) {
-            result.put("error", "Interview not found");
-            result.put("code", 404);
-            return result;
-        }
-
-        if (!iv.getOrganiserId().equals(organiserId)) {
-            result.put("error", "No permission to manage this interview");
-            result.put("code", 403);
-            return result;
-        }
-
-        if (body.has("date")) iv.setDate(body.get("date").getAsString());
-        if (body.has("startTime")) iv.setStartTime(body.get("startTime").getAsString());
-        if (body.has("endTime")) iv.setEndTime(body.get("endTime").getAsString());
-        if (body.has("status")) iv.setStatus(body.get("status").getAsString());
-        if (body.has("outcome")) iv.setOutcome(body.get("outcome").getAsString());
-        if (body.has("type")) iv.setType(body.get("type").getAsString());
-        if (body.has("location")) iv.setLocation(body.get("location").getAsString());
-
-        dataService.save();
-        result.put("interview", iv);
-        return result;
-    }
-
-    /**
-     * Executes the deleteInterview operation.
-     * @param organiserId the organiserId argument
-     * @param interviewId the interviewId argument
-     * @return the resulting object or status
-     */
-    /**
-     * Executes the deleteInterview operation.
-     * @param organiserId the organiserId argument
-     * @param interviewId the interviewId argument
-     * @return the resulting object or status
-     */
-    public Map<String, Object> deleteInterview(String organiserId, String interviewId) {
-        DataStore data = dataService.getData();
-        Map<String, Object> result = new HashMap<>();
-
-        Interview iv = data.getInterviews().stream()
-                .filter(i -> i.getId().equals(interviewId))
-                .findFirst().orElse(null);
-        if (iv == null) {
-            result.put("error", "Interview not found");
-            result.put("code", 404);
-            return result;
-        }
-        if (!iv.getOrganiserId().equals(organiserId)) {
-            result.put("error", "No permission to delete this interview");
-            result.put("code", 403);
-            return result;
-        }
-
-        data.getInterviews().remove(iv);
-
-        // When deleting an interview, should not change applicant's pipeline status, which should remain at the current stage.
-        dataService.save();
-        result.put("success", true);
-        return result;
+        return updateCandidateStatus(organiserId, appId, mappedStatus, reason);
     }
 
     private User findUserById(DataStore data, String userId) {

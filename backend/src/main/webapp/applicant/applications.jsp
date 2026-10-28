@@ -20,9 +20,9 @@
 <script src="<%= request.getContextPath() %>/static/js/qualification-view.js"></script>
 <script>
 const ctx = document.querySelector('meta[name="ctx"]').content;
-const STEPS = ['applied', 'under_review', 'shortlisted', 'interview', 'hired'];
-const STEP_LABELS = ['Applied', 'Under Review', 'Shortlisted', 'Interview', 'Offer / Rejected'];
-const WITHDRAWABLE_STATUSES = ['applied', 'review', 'shortlisted', 'interview'];
+const STEPS = ['applied', 'under_review', 'shortlisted', 'hired'];
+const STEP_LABELS = ['Applied', 'Under Review', 'Shortlisted', 'Offer / Rejected'];
+const WITHDRAWABLE_STATUSES = ['applied', 'review', 'under_review', 'shortlisted'];
 
 /** Maps API status values (review, offer) to timeline step indices. */
 function getStepIndex(status) {
@@ -31,9 +31,9 @@ function getStepIndex(status) {
     review: 1,
     under_review: 1,
     shortlisted: 2,
-    interview: 3,
-    offer: 4,
-    hired: 4
+    interview: 1,
+    offer: 3,
+    hired: 3
   };
   const s = (status || '').toLowerCase();
   if (s === 'rejected') return -1;
@@ -73,10 +73,11 @@ async function loadApplications() {
 
     container.innerHTML = apps.map((original, appIndex) => {
       const app=escapeDisplay(original);
+      if (app.status === 'interview') app.status = 'review';
       const isRejected = app.status === 'rejected';
       const currentIdx = isRejected ? STEPS.length - 1 : getStepIndex(app.status);
-      const statusBadge = isRejected ? 'badge-danger' : (app.status === 'interview' ? 'badge-warning' : (app.status === 'offer' ? 'badge-success' : 'badge-neutral'));
-      const statusText = isRejected ? 'Rejected' : (app.status === 'interview' ? 'Action Required' : (app.status === 'offer' ? 'Offer Received' : 'In Progress'));
+      const statusBadge = isRejected ? 'badge-danger' : (app.status === 'offer' ? 'badge-success' : 'badge-neutral');
+      const statusText = isRejected ? 'Rejected' : (app.status === 'review' || app.status === 'under_review' ? 'Under Review' : (app.status === 'offer' ? 'Offer Received' : 'In Progress'));
 
       let timelineHTML = '<div class="relative"><div class="absolute top-4 left-0 w-full h-0.5 bg-zinc-200 hidden md:block"></div>' +
         '<div class="absolute top-4 left-0 h-0.5 bg-zinc-900 transition-all duration-1000 ease-out hidden md:block" style="width:' + (currentIdx / (STEPS.length - 1) * 100) + '%"></div>' +

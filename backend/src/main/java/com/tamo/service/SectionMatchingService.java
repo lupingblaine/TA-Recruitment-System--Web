@@ -13,8 +13,7 @@ public class SectionMatchingService {
         result.addProperty("timeZone", AvailabilityService.TIME_ZONE);
         result.addProperty("basis", "Submitted availability snapshot compared with current active section times. This is scheduling advice, not an assignment.");
         // A job's old owner must not gain access to sections after course ownership changes.
-        boolean owned = job != null && Objects.equals(organiserId, job.getOrganiserId())
-                && data.getModules().stream().anyMatch(m -> Objects.equals(m.getId(), job.getModuleId())
+        boolean owned = job != null && data.getModules().stream().anyMatch(m -> Objects.equals(m.getId(), job.getModuleId())
                 && Objects.equals(m.getOrganiserId(), organiserId));
         if (!owned) {
             result.addProperty("status", "pending");

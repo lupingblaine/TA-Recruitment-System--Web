@@ -21,7 +21,7 @@
       <div class="flex items-center gap-2 text-sm text-zinc-500">
         <span>Platform</span>
         <i data-lucide="chevron-right" class="h-4 w-4"></i>
-        <span class="text-zinc-900 font-medium capitalize"><%= currentSection %></span>
+        <span class="text-zinc-900 font-medium"><%= com.tamo.util.JsonUtil.escapeHtml("organiser".equals(currentSection)||"applicant".equals(currentSection)||"admin".equals(currentSection) ? com.tamo.util.RoleLabels.display(currentSection) : currentSection) %></span>
       </div>
       <div class="flex items-center gap-4 relative">
         <button id="notificationBtn" onclick="toggleNotificationPanel()" class="relative p-2 text-zinc-400 hover:text-zinc-900 transition-colors rounded-full hover:bg-zinc-100">

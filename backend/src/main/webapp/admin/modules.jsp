@@ -6,7 +6,7 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
       <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Global Modules</h1>
-      <p class="text-zinc-500 mt-2">Manage all courses, assign Module Organisers and review jobs published under each module.</p>
+      <p class="text-zinc-500 mt-2">Manage all courses, assign Teachers and review jobs published under each module.</p>
     </div>
     <button onclick="openModuleModal()" class="btn btn-primary gap-2 shrink-0">
       <i data-lucide="plus" class="h-4 w-4"></i> Add Module
@@ -16,7 +16,7 @@
   <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
     <div class="relative w-full sm:w-96">
       <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400"></i>
-      <input id="searchInput" type="text" placeholder="Search modules, names, or organisers..." class="input pl-10" onkeyup="debounceSearch()">
+      <input id="searchInput" type="text" placeholder="Search modules, names, or Teachers..." class="input pl-10" onkeyup="debounceSearch()">
     </div>
   </div>
 
@@ -27,7 +27,7 @@
           <tr>
             <th class="px-4 py-4 font-medium w-10"></th>
             <th class="px-4 py-4 font-medium">Module</th>
-            <th class="px-4 py-4 font-medium">Organiser (MO)</th>
+            <th class="px-4 py-4 font-medium">Teacher</th>
             <th class="px-4 py-4 font-medium">Department</th>
             <th class="px-4 py-4 font-medium">Term</th>
             <th class="px-4 py-4 font-medium">Jobs</th>
@@ -71,7 +71,7 @@
           <p id="mTermHint" class="hidden text-xs text-amber-600 mt-1.5">No terms yet. Add one in Properties first.</p>
         </div>
       </div>
-      <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Organiser ID</label><input id="mOrganiser" class="input" placeholder="User ID of the MO"></div>
+      <div><label class="block text-sm font-medium text-zinc-700 mb-1.5">Teacher ID</label><input id="mOrganiser" class="input" placeholder="User ID of the Teacher"></div>
       <div id="modError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3"></div>
     </div>
     <div class="p-6 border-t border-zinc-200 flex justify-end gap-3">

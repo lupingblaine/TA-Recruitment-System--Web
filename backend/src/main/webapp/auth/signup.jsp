@@ -66,7 +66,7 @@
               </div>
             </div>
 
-            <p class="text-sm text-zinc-500 text-center">Create an applicant account. Organiser and administrator accounts are provided by an administrator.</p>
+            <p class="text-sm text-zinc-500 text-center">Create an applicant account. Teacher and admin accounts are provided by an admin.</p>
             
             <div id="errorMsg" class="hidden text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl px-6 py-3 text-center"></div>
 
@@ -103,6 +103,7 @@
     </div>
   </div>
 
+  <script src="<%= ctx %>/static/js/auth-email.js"></script>
   <script src="<%= ctx %>/static/js/api.js"></script>
   <script src="<%= ctx %>/static/js/particles.js"></script>
   <script src="<%= ctx %>/static/js/typewriter.js"></script>

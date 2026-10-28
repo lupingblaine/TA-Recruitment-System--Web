@@ -296,7 +296,6 @@ public class EmailService {
             case "applied" -> "Applied";
             case "review" -> "Under Review";
             case "shortlisted" -> "Shortlisted";
-            case "interview" -> "Interview Stage";
             case "offer" -> "Offer Received";
             case "rejected" -> "Not Selected";
             default -> status;
@@ -308,7 +307,6 @@ public class EmailService {
             case "applied" -> "#475569";
             case "review" -> "#64748b";
             case "shortlisted" -> "#334155";
-            case "interview" -> "#1e293b";
             case "offer" -> "#0f172a";
             case "rejected" -> "#b91c1c";
             default -> "#64748b";
@@ -319,7 +317,6 @@ public class EmailService {
         return switch (status) {
             case "review" -> "🔍";
             case "shortlisted" -> "⭐";
-            case "interview" -> "🎤";
             case "offer" -> "🎉";
             case "rejected" -> "📋";
             default -> "📬";
@@ -330,7 +327,6 @@ public class EmailService {
         return switch (status) {
             case "review" -> "Your application for " + moduleCode + " is now being reviewed by the hiring team.";
             case "shortlisted" -> "Congratulations! Your application for " + moduleCode + " has been shortlisted. You are among the top candidates.";
-            case "interview" -> "Great news! Your application for " + moduleCode + " has advanced to the interview stage. An interview will be scheduled soon.";
             case "offer" -> "Congratulations! You have received an offer for the TA position at " + moduleCode + "!";
             case "rejected" -> "Thank you for your interest in " + moduleCode + ". After careful consideration, we are unable to move forward with your application at this time.";
             default -> "Your application status for " + moduleCode + " has been updated to: " + status + ".";

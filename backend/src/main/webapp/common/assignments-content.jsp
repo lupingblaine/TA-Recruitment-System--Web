@@ -1,6 +1,6 @@
 <%@ page pageEncoding="UTF-8" %>
 <div class="max-w-6xl mx-auto space-y-6 pb-12">
-  <div><h1 class="text-3xl font-bold" id="assignmentsTitle">TA Assignments</h1><p class="text-zinc-500 mt-2">Weekly meetings use America/Los_Angeles time. Totals and capacity are counted separately for each application period.</p></div>
+  <div><h1 class="text-3xl font-bold" id="assignmentsTitle"><%= "applicant".equals(session.getAttribute("role")) ? "My Assignments" : "TA Assignments" %></h1><p class="text-zinc-500 mt-2">Weekly meetings use America/Los_Angeles time. Totals and capacity are counted separately for each application period.</p></div>
   <div id="assignmentMessage" role="status" class="text-sm"></div>
   <div class="flex flex-wrap gap-4">
     <label class="text-sm">Application period<select id="assignmentPeriod" class="input mt-1"></select></label>
@@ -27,7 +27,7 @@
     </section>
     <section class="card p-5 space-y-3" aria-label="Section capacity"><h2 class="text-lg font-bold">Section capacity · reserved / requested</h2><div id="assignmentCapacity" class="space-y-2 text-sm"></div></section>
   </div>
-  <section class="space-y-3" aria-label="Weekly workload"><h2 class="text-lg font-bold">Weekly hours by applicant · selected period</h2><p id="assignmentWorkloadDescription" class="text-sm text-zinc-500">Reserved hours include drafts and pending replies; accepted hours count only active assignments accepted by the student. Totals cover all courses in the selected period.</p><div id="assignmentWorkload" class="space-y-2"></div></section>
+  <section class="space-y-3" aria-label="Weekly workload"><h2 class="text-lg font-bold"><%= "applicant".equals(session.getAttribute("role")) ? "My weekly hours · selected period" : "Weekly hours by applicant · selected period" %></h2><p id="assignmentWorkloadDescription" class="text-sm text-zinc-500">Reserved hours include drafts and pending replies; accepted hours count only active assignments accepted by the student. Totals cover all courses in the selected period.</p><div id="assignmentWorkload" class="space-y-2"></div></section>
   <section class="space-y-3" aria-label="Assignments"><h2 class="text-lg font-bold">Assignments</h2><div id="assignmentRows" class="space-y-4"></div></section>
   <dialog id="assignmentActionDialog" class="rounded-xl p-6 max-w-lg w-full backdrop:bg-black/40">
     <form id="assignmentActionForm" class="space-y-4"><h2 id="assignmentActionTitle" class="text-lg font-bold"></h2><p id="assignmentActionDetails" class="text-sm whitespace-pre-line"></p>

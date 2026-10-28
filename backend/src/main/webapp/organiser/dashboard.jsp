@@ -5,7 +5,7 @@
     <div class="space-y-8 max-w-6xl mx-auto">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Organiser Overview</h1>
+          <h1 class="text-3xl font-bold tracking-tight text-zinc-900">Teacher Overview</h1>
           <p class="text-zinc-500 mt-2">Manage your TA recruitment pipeline across modules.</p>
         </div>
         <a href="<%= request.getContextPath() %>/organiser/jobs.jsp?create=true" class="btn btn-primary gap-2 shrink-0">
@@ -36,8 +36,8 @@
           <div class="p-6 flex items-center gap-4">
             <div class="stat-icon"><i data-lucide="calendar" class="h-6 w-6"></i></div>
             <div>
-              <p class="text-sm font-medium text-zinc-500">Current Interviews</p>
-              <p class="text-2xl font-bold text-zinc-900" id="statInterviews">-</p>
+              <p class="text-sm font-medium text-zinc-500">Total Applications</p>
+              <p class="text-2xl font-bold text-zinc-900" id="statApplications">-</p>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 space-y-6">
           <div class="flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-zinc-900">Recent Activity</h2>
+            <h2 class="text-xl font-semibold text-zinc-900">Recent Applications</h2>
             <a href="<%= request.getContextPath() %>/organiser/pipeline.jsp"
               class="btn btn-ghost text-zinc-500 hover:text-zinc-900">View pipeline</a>
           </div>
@@ -56,7 +56,7 @@
             </div>
             <div class="p-4 border-t border-zinc-100 text-center">
               <a href="<%= request.getContextPath() %>/organiser/pipeline.jsp"
-                class="text-sm font-medium text-zinc-600 hover:text-zinc-900">View all activity &rarr;</a>
+                class="text-sm font-medium text-zinc-600 hover:text-zinc-900">View all applications &rarr;</a>
             </div>
           </div>
         </div>
@@ -146,40 +146,22 @@
           const data = await organiserApi.getDashboard();
           const jobs = data.jobs || [];
           const recentApps = data.recentApplications || [];
-          const interviewsList = data.interviews || [];
-
-          document.getElementById('statPostings').textContent = jobs.filter(j => j.status === 'active').length;
-          document.getElementById('statApplicants').textContent = data.totalApplications || data.totalApplicants || 0;
-          document.getElementById('statInterviews').textContent = data.interviewsToSchedule || data.currentInterviews || 0;
+          document.getElementById('statPostings').textContent = data.activePostings || 0;
+          document.getElementById('statApplicants').textContent = data.currentApplicants || 0;
+          document.getElementById('statApplications').textContent = data.totalApplications || 0;
 
           const actDiv = document.getElementById('recentActivity');
-          if (interviewsList.length === 0) {
-            actDiv.innerHTML = '<div class="p-6 text-center text-zinc-400">No recent activity</div>';
+          if (recentApps.length === 0) {
+            actDiv.innerHTML = '<div class="p-6 text-center text-zinc-400">No recent applications</div>';
           } else {
-            // Only show interview information, sorted by date, showing status and time
-            const sortedInterviews = interviewsList
-              .filter(iv => iv.date)
-              .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
-              .slice(0, 5);
-
-            actDiv.innerHTML = sortedInterviews.map(original => {
-              const iv=escapeDisplay(original);
-              const isCancelled = iv.status === 'cancelled';
-              const isCompleted = iv.status === 'completed';
-              const statusLabel = isCancelled ? 'Cancelled' : isCompleted ? 'Completed' : 'Upcoming';
-              const statusClass = isCancelled ? 'badge-neutral' : isCompleted ? 'badge-success' : 'badge-warning';
-              const timeStr = iv.startTime ? iv.startTime.substring(0, 5) : '';
-              const endTimeStr = iv.endTime ? iv.endTime.substring(0, 5) : '';
-              const rightInfo = isCancelled
-                ? (iv.date || '') + ' ' + timeStr + (endTimeStr ? ' - ' + endTimeStr : '')
-                : (iv.date || '') + (timeStr ? ' ' + timeStr : '');
-              return '<div class="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors cursor-pointer group">' +
+            actDiv.innerHTML = recentApps.slice(0, 5).map(original => {
+              const app = escapeDisplay(original);
+              return '<a href="' + document.querySelector('meta[name="ctx"]').content + '/organiser/application-detail.jsp?id=' + encodeURIComponent(original.id) + '" class="p-6 flex items-center justify-between hover:bg-zinc-50/50 transition-colors group">' +
                 '<div class="flex items-center gap-4">' +
-                '<div class="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center font-medium text-zinc-600">' + ((iv.candidateName || '?').charAt(0)) + '</div>' +
-                '<div class="space-y-1"><h3 class="font-semibold text-zinc-900 group-hover:text-blue-600 transition-colors">' + (iv.candidateName || 'Unknown') + '</h3>' +
-                '<p class="text-sm text-zinc-500">' + (iv.moduleName || iv.moduleCode || '') + ' <span class="text-xs ' + statusClass + '">' + statusLabel + '</span></p></div>' +
-                '</div>' +
-                '<div class="text-sm text-zinc-500">' + rightInfo + '</div></div>';
+                '<div class="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center font-medium text-zinc-600">' + ((app.applicantName || app.name || '?').charAt(0)) + '</div>' +
+                '<div class="space-y-1"><h3 class="font-semibold text-zinc-900 group-hover:text-blue-600">' + (app.applicantName || app.name || 'Applicant') + '</h3>' +
+                '<p class="text-sm text-zinc-500">' + (app.moduleCode || app.role || app.jobTitle || '') + '</p></div></div>' +
+                '<span class="badge badge-neutral capitalize">' + (app.status || 'applied') + '</span></a>';
             }).join('');
           }
 
